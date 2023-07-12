@@ -62,27 +62,24 @@ const getusersById = async (req, res, next) => {
 }
 
 const login = async (req, res) => {
-  try {
-    const user = await users.findOne({ email: req.body.email })
-
+   try {
+    let success = false
+    const { email, password } = req.body
+    let user = await users.findOne({ email })
     if (!user) {
-      return res.status(401).send({ message: "Invalid email or password." })
+      return res.status(400).json({ success, error: "Please try to login with correct credentials" })
     }
 
-    if (!user.isVerified) {
-      return res.status(401).send({ message: "Please verify your email before logging in." })
+    const data = {
+      user: {
+        id: user.id,
+      },
     }
-    const passwordMatch = await bcrypt.compare(req.body.password, user.password)
-    if (!passwordMatch) {
-      return res.status(401).send({ message: "Invalid email or password." })
-    }
-
-    const token = jwt.sign({ userId: user._id }, JWT_SECERET)
-
+    const authToken = jwt.sign(data, JWT_SECERET)
+    // res.json(user);
     res.json({ success, authToken, user })
-  } catch (error) {
-    console.error(error)
-    res.status(500).send({ message: "Error logging in." })
+  } catch (err) {
+    res.status(400).json({ messgae: err.message })
   }
 }
 
