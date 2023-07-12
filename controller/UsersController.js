@@ -128,10 +128,10 @@ const handleSignup = async (req, res) => {
       await newUser.save()
     }
     // Create a new user in the databas
-    res.send({ message: "OTP sent successfully." })
+    res.send({ message: "Sign Up succesfully." })
   } catch (error) {
     console.error(error)
-    res.status(500).send({ message: "Error sending OTP." })
+    res.status(500).send({ message: "error occured" })
   }
 }
 
