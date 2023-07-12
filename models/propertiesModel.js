@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 const { Schema } = mongoose;
-import validator from './validator.js';
+
 
 
 const propertiesSchema = new Schema( {
