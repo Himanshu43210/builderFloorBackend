@@ -9,7 +9,7 @@
     "test": "mocha",
     "lint": "eslint .",
     "prettier": "prettier --write .",
-    "build": "babel src -d dist"
+    "build": "npm i"
   },
   "type": "module",
   "keywords": [],
