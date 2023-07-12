@@ -2,7 +2,7 @@ import express from 'express';
 
 const router = express.Router()
 import usersController from "../controller/UsersController.js";
-import uploader from "../middleware/uploader.js";
+
 
 router
 .post("/", usersController.handleSignup)
