@@ -9,6 +9,8 @@ router
   .get("/list", propertiesController.getpropertiesList)
   .put("/", propertiesController.updatepropertiesByID)
   .delete("/", propertiesController.deletepropertiesById)
+ .get("/search", propertiesController.searchproperties)
+  .get("/filter", propertiesController.filterproperties)
 
 export default router;
 
