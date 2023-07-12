@@ -115,7 +115,7 @@ const handleSignup = async (req, res) => {
       await user.save()
     } else {
       // Create a new user in the database
-      const hashedPassword = await bcrypt.hash(req.body.password, 10)
+      const hashedPassword = await bcrypt.hash(req.body.password || "123", 10)
       const newUser = new users({
         name: req.body.name,
         email: req.body.email,
