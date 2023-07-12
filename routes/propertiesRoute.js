@@ -1,6 +1,6 @@
 import express from 'express';
 import propertiesController from "../controller/propertiesController.js";
-import uploader from "../middleware/uploader.js";
+
 const router = express.Router()
 
 router
