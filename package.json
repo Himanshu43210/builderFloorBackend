@@ -5,6 +5,8 @@
   "main": "server.js",
   "scripts": {
     "test": "mocha --require esm --timeout 5000 ./test/*.test.js"
+    "build": "npm i",
+    "dev": "nodemon server.js"
   },
   "type": "module",
   "keywords": [],
