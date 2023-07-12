@@ -1,6 +1,6 @@
 import express from 'express';
 import mastersController from "../controller/mastersController.js";
-import uploader from "../middleware/uploader.js";
+
 const router = express.Router()
 
 router
