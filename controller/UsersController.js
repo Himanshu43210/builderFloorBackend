@@ -13,6 +13,25 @@ const salt = await bcrypt.genSalt();
 
 const getusersList = async (req, res, next) => {
   try {
+    
+    let page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 10;
+    
+    let skip = (page-1) *limit;
+
+    let data = await users.find().skip(skip).limit(limit)
+
+    const totalDocuments = await users.countDocuments();
+    const totalPages = Math.ceil(totalDocuments / limit);
+
+    res.status(200).json({ data,nbHits: data.length,pageNumber:page,totalPages: totalPages});
+  } catch (error) {
+    res.status(400).json({ messgae: error.message })
+  }
+}
+
+const filterUsers = async (req, res, next) => {
+  try {
     const filter = req.query.filter;
 
     const filteredUsers = await users.find();
@@ -186,4 +205,5 @@ export default {
   updateusersByID,
   getusersChildren,
   login,
+  filterUsers
 }
