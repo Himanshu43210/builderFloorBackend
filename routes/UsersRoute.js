@@ -10,6 +10,7 @@ router
 .get("/getUser", usersController.getusersById)
 .get("/list", usersController.getusersList)
 .get("/children", usersController.getusersChildren)
+.get("/filter", propertiesController.filterUsers)
 .put("/", usersController.updateusersByID)
 .delete("/deleteUser", usersController.deleteusersById)
 
