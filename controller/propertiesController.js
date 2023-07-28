@@ -39,7 +39,7 @@ const searchproperties = async (req, res, next) => {
 
   const data = await properties.find(queryObject);
 
-  res.status(200).json({ data });
+  res.status(200).json(data);
 }
 
 const filterproperties = async (req, res, next) => {
