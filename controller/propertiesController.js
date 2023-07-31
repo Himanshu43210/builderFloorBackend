@@ -9,7 +9,7 @@ const searchPropertiesData = async(req, res) => {
   const query = {};
 
   if (criteria.city) {
-    query.city = criteria.city.value;
+    query.city = {$regex: criteria.city.value, $options: 'i'};
   }
 
   if (criteria.budget) {
