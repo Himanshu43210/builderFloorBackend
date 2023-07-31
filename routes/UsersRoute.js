@@ -11,7 +11,7 @@ router
 .get("/list", usersController.getusersList)
 .get("/children", usersController.getusersChildren)
 .get("/filter", usersController.filterUsers)
-.put("/", usersController.updateusersByID)
+.post("/", usersController.updateusersByID)
 .delete("/deleteUser", usersController.deleteusersById)
 
 export default router
