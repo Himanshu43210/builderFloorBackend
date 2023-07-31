@@ -2,6 +2,32 @@ import mongoose from 'mongoose';
 import properties from '../models/propertiesModel.js';
 
 
+const getHomeData = async(req,res) =>{
+   try {  
+    let page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 10;
+    const {city} = req.query;
+
+    const queryObject = {};
+
+    if(city) {
+      queryObject.city = {$regex: city, $options: 'i'};
+    }
+    let skip = (page-1) *limit;
+
+    let data = await properties.find(queryObject).skip(skip).limit(limit)
+
+    let filteredProperties = data.data;
+    const totalDocuments = await properties.countDocuments();
+    const totalPages = Math.ceil(totalDocuments / limit);
+
+   res.status(200).json(data);
+  } catch (error) {
+    res.status(400).json({ messgae: error.message })
+  }
+}
+
+
 const getpropertiesList = async (req, res, next) => {
   try {
     
@@ -225,5 +251,6 @@ export default {
   updateBulkproperties,
   insertBulkproperties,
   searchproperties,
-  filterproperties
+  filterproperties,
+  getHomeData
 }
