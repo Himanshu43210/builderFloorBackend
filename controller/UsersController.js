@@ -11,6 +11,36 @@ const filePath = "./data.json"
 const JWT_SECERET = "techHelps"
 const salt = await bcrypt.genSalt();
 
+
+const Edit_update =  async (req, res) => {
+  const { _id, ...data } = req.body;
+
+  try {
+    if (_id) {
+      // If _id is present, update the existing user
+      const existingUser = await User.findByIdAndUpdate(_id, data, {
+        new: true,
+        runValidators: true,
+      });
+
+      if (!existingUser) {
+        return res.status(404).json({ error: 'User not found.' });
+      }
+
+      return res.json(existingUser);
+    } else {
+      // If _id is not present, create a new user
+      const newUser = new User(data);
+
+      await newUser.save();
+
+      return res.json(newUser);
+    }
+  } catch (err) {
+    return res.status(500).json({ error: 'Failed to save the user.' });
+  }
+};
+
 const getusersList = async (req, res, next) => {
   try {
     
@@ -224,5 +254,6 @@ export default {
   updateEditUsers,
   getusersChildren,
   login,
-  filterUsers
+  filterUsers,
+  Edit_update
 }
