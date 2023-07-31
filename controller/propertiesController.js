@@ -30,7 +30,7 @@ const getpropertiesList = async (req, res, next) => {
 
 const searchproperties = async (req, res, next) => {
 
-  const {city} = req.query;
+  const {city} = req.body;
   const queryObject = {};
 
   if(city) {
