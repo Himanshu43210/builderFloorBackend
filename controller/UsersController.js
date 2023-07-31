@@ -13,24 +13,33 @@ const salt = await bcrypt.genSalt();
 
 
 const Edit_update =  async (req, res) => {
-  const { _id, ...data } = req.body;
+  const { _id, password,...data } = req.body;
 
   try {
     if (_id) {
       // If _id is present, update the existing user
-      const existingUser = await users.findByIdAndUpdate(_id, data, {
-        new: true,
-        runValidators: true,
-      });
+     const existingUser = await users.findById(_id);
 
       if (!existingUser) {
         return res.status(404).json({ error: 'User not found.' });
       }
 
+      // Check if the password is provided for update
+      if (password) {
+        // Hash the provided password before saving it to the database
+        const hashedPassword = await bcrypt.hash(password, 10);
+        existingUser.password = hashedPassword;
+      }
+
+      // Update other user data
+      existingUser.set(data);
+
+      // Save the updated user to the database
+      await existingUser.save();
       return res.json(existingUser);
     } else {
-      // If _id is not present, create a new user
-      const newUser = new users(data);
+      const hashedPassword = await bcrypt.hash(password, 10);
+      const newUser = new User({ ...data, password: hashedPassword });
 
       await newUser.save();
 
