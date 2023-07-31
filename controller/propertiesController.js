@@ -1,6 +1,49 @@
 import mongoose from 'mongoose';
 import properties from '../models/propertiesModel.js';
 
+const searchPropertiesData = (req, res) => {
+  // Parse the JSON payload from the request
+  const criteria = req.body;
+
+  // Construct the Mongoose query object
+  const query = {};
+
+  if (criteria.city) {
+    query.city = criteria.city.value;
+  }
+
+  if (criteria.budget) {
+    query.price = { $gte: criteria.budget[0], $lte: criteria.budget[1] };
+  }
+
+  if (criteria.accommodation) {
+    query.accommodation = criteria.accommodation.value;
+  }
+
+  // Add more conditions for other fields in a similar manner
+
+  // Sorting
+  let sortQuery = {};
+  if (criteria.sortBy && criteria.sortBy.value === 'Price High to Low') {
+    sortQuery = { price: -1 };
+  } else {
+    // Set the default sorting column and order here
+    sortQuery = { default_sort_column: 1 };
+  }
+
+  try {
+    // Execute the Mongoose query
+    const results = await Property.find(query).sort(sortQuery);
+
+    // Return the results as JSON
+    res.json(results);
+  } catch (err) {
+    console.error('Error searching properties:', err);
+    res.status(500).json({ error: 'An error occurred while searching properties' });
+  }
+});
+
+
 
 const getHomeData = async(req,res) =>{
    try {  
@@ -26,6 +69,7 @@ const getHomeData = async(req,res) =>{
     res.status(400).json({ messgae: error.message })
   }
 }
+
 
 
 const getpropertiesList = async (req, res, next) => {
