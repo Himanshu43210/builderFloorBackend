@@ -13,7 +13,7 @@ const getmastersList = async (req, res, next) => {
 
 const updatemastersByID = async (req, res, next) => {
   try {
-    let id = req.body.id
+    let id = req.body._id
     let updateData = req.body
     let data = await masters.findById(id)
 
