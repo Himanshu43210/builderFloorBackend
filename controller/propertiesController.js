@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 import properties from '../models/propertiesModel.js';
 
-const searchPropertiesData = (req, res) => {
+const searchPropertiesData = async(req, res) => {
   // Parse the JSON payload from the request
   const criteria = req.body;
 
