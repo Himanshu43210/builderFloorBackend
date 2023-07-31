@@ -2,6 +2,35 @@ import mongoose from 'mongoose';
 import masters from '../models/mastersModel.js';
 
 
+const Edit_Update =  async (req, res) => {
+  const { _id, ...data } = req.body;
+
+  try {
+    if (_id) {
+      // If _id is present, update the existing record in "masters" table
+      const existingRecord = await masters.findByIdAndUpdate(_id, data, {
+        new: true,
+        runValidators: true,
+      });
+
+      if (!existingRecord) {
+        return res.status(404).json({ error: 'Record not found.' });
+      }
+
+      return res.json(existingRecord);
+    } else {
+      // If _id is not present, create a new record in "masters" table
+      const newRecord = new masters(data);
+
+      await newRecord.save();
+
+      return res.json(newRecord);
+    }
+  } catch (err) {
+    return res.status(500).json({ error: 'Failed to save the record.' });
+  }
+}
+
 const getmastersList = async (req, res, next) => {
   try {
     let data = await masters.find()
