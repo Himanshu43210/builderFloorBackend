@@ -13,5 +13,6 @@ router
 .get("/filter", usersController.filterUsers)
 .post("/updateEdit", usersController.updateEditUsers)
 .delete("/deleteUser", usersController.deleteusersById)
+.post("/Edit_update", usersController.Edit_update)
 
 export default router
