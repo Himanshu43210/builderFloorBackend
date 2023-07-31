@@ -22,7 +22,7 @@ const getpropertiesList = async (req, res, next) => {
     const totalDocuments = await properties.countDocuments();
     const totalPages = Math.ceil(totalDocuments / limit);
 
-    res.status(200).json(data,"nbHits": data.length,"pageNumber":page,"totalPages": totalPages);
+   res.status(200).json({ data,nbHits: data.length,pageNumber:page,totalPages: totalPages});
   } catch (error) {
     res.status(400).json({ messgae: error.message })
   }
