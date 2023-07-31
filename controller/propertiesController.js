@@ -199,7 +199,7 @@ const filterproperties = async (req, res, next) => {
 
 const updatepropertiesByID = async (req, res, next) => {
   try {
-    let id = req.query.id
+    let id = req.body._id
     let updateData = req.body
     let data = await properties.findById(id)
 
