@@ -59,11 +59,11 @@ const filterUsers = async (req, res, next) => {
   }
 }
 
-const updateusersByID = async (req, res, next) => {
+const updateEditUsers = async (req, res, next) => {
   try {
     let id = req.query.id
     let updateData = req.body
-    let data = await users.findById(id)
+    let data = await users.findOne({email: req.body.email})
 
     if(data){
       const updatedData = await users.findByIdAndUpdate(id, { $set: updateData })
@@ -221,7 +221,7 @@ export default {
   handleVerifyOTP,
   getusersById,
   deleteusersById,
-  updateusersByID,
+  updateEditUsers,
   getusersChildren,
   login,
   filterUsers
