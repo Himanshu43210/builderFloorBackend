@@ -11,6 +11,7 @@ router
   .delete("/", propertiesController.deletepropertiesById)
  .post("/search", propertiesController.searchproperties)
   .get("/filter", propertiesController.filterproperties)
+  .get("/getHomeData", propertiesController.getHomeData)
 
 export default router;
 
