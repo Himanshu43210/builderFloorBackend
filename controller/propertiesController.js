@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 import properties from '../models/propertiesModel.js';
 
 
-const EditUpdate = async (req, res) => {
+const Edit_Update = async (req, res) => {
   const { _id, ...data } = req.body;
 
   try {
