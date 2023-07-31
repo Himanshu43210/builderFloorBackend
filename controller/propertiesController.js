@@ -1,6 +1,42 @@
 import mongoose from 'mongoose';
 import properties from '../models/propertiesModel.js';
 
+
+const EditUpdate = async (req, res) => {
+  const { _id, ...data } = req.body;
+
+  try {
+    if (_id) {
+      // If _id is present, update the existing document
+      const existingProperty = await properties.findByIdAndUpdate(_id, data, {
+        new: true,
+        runValidators: true,
+      });
+
+      if (!existingProperty) {
+        return res.status(404).json({ error: 'Property not found.' });
+      }
+
+      return res.json(existingProperty);
+    } else {
+      // If _id is not present, create a new document
+      const newProperty = new properties(data);
+
+      await newProperty.save();
+
+      return res.json(newProperty);
+    }
+  } catch (err) {
+    return res.status(500).json({ error: 'Failed to save the property.' });
+  }
+});
+
+// Start the server
+app.listen(port, () => {
+  console.log(`Server is running on http://localhost:${port}`);
+};
+
+
 const searchPropertiesData = async(req, res) => {
   // Parse the JSON payload from the request
   const criteria = req.body;
@@ -308,5 +344,6 @@ export default {
   searchproperties,
   filterproperties,
   getHomeData,
-  searchPropertiesData
+  searchPropertiesData,
+  EditUpdate
 }
