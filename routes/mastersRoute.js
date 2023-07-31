@@ -9,7 +9,7 @@ router
   .get("/list", mastersController.getmastersList)
   .post("/", mastersController.updatemastersByID)
   .delete("/", mastersController.deletemastersById)
-  .post("/Edit_Update", mastersController.Edit_Update)
+  .post("/EditUpdate", mastersController.Edit_Update)
  
 export default router;
 
