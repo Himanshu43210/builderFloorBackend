@@ -15,8 +15,16 @@ const updatemastersByID = async (req, res, next) => {
   try {
     let id = req.query.id
     let updateData = req.body
-    const updatedData = await masters.findByIdAndUpdate(id, { $set: updateData })
-    res.status(200).json({ messgae: "masters updated" })
+    let data = await masters.findById(id)
+
+    if(data){
+      const updatedData = await masters.findByIdAndUpdate(id, { $set: updateData })
+      res.status(200).json({ messgae: "masters updated" })
+    }
+    let newModel = new masters(req.body)
+    const data = await newModel.save()
+    
+    res.status(200).json({ data })
   } catch (error) {
     res.status(400).json({ messgae: "An error Occoured" })
   }
