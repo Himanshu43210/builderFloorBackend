@@ -7,7 +7,7 @@ router
   .post("/", mastersController.storemasters)
   .get("/", mastersController.getmastersById)
   .get("/list", mastersController.getmastersList)
-  .put("/", mastersController.updatemastersByID)
+  .post("/", mastersController.updatemastersByID)
   .delete("/", mastersController.deletemastersById)
  
 export default router;
