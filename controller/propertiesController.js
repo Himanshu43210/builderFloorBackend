@@ -33,7 +33,7 @@ const searchPropertiesData = async(req, res) => {
 
   try {
     // Execute the Mongoose query
-    const results = await Property.find(query).sort(sortQuery);
+    const results = await properties.find(query).sort(sortQuery);
 
     // Return the results as JSON
     res.json(results);
