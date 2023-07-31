@@ -12,6 +12,7 @@ router
  .post("/search", propertiesController.searchproperties)
   .get("/filter", propertiesController.filterproperties)
   .get("/getHomeData", propertiesController.getHomeData)
+  .post("/searchPropertiesData", propertiesController.searchPropertiesData )
 
 export default router;
 
