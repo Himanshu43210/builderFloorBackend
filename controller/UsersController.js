@@ -18,7 +18,7 @@ const Edit_update =  async (req, res) => {
   try {
     if (_id) {
       // If _id is present, update the existing user
-      const existingUser = await User.findByIdAndUpdate(_id, data, {
+      const existingUser = await users.findByIdAndUpdate(_id, data, {
         new: true,
         runValidators: true,
       });
@@ -30,7 +30,7 @@ const Edit_update =  async (req, res) => {
       return res.json(existingUser);
     } else {
       // If _id is not present, create a new user
-      const newUser = new User(data);
+      const newUser = new users(data);
 
       await newUser.save();
 
