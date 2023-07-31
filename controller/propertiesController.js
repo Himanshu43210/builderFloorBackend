@@ -296,5 +296,6 @@ export default {
   insertBulkproperties,
   searchproperties,
   filterproperties,
-  getHomeData
+  getHomeData,
+  searchPropertiesData
 }
