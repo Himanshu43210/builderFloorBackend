@@ -63,8 +63,27 @@ const updateusersByID = async (req, res, next) => {
   try {
     let id = req.query.id
     let updateData = req.body
-    const updatedData = await users.findByIdAndUpdate(id, { $set: updateData })
-    res.status(200).json({ messgae: "users updated" })
+    let data = await users.findById(id)
+
+    if(data){
+      const updatedData = await users.findByIdAndUpdate(id, { $set: updateData })
+      return res.status(200).json({ messgae: "users updated" })
+    }
+     const hashedPassword = await bcrypt.hash(req.body.password || "123", 10)
+      const newUser = new users({
+        name: req.body.name,
+        email: req.body.email,
+        phoneNumber: req.body.phoneNumber,
+        address: req.body.address,
+        role: req.body.role,
+        parentId: req.body.parentId,
+        password: hashedPassword,
+      })
+      await newUser.save()
+    
+    // Create a new user in the databas
+    res.send({ message: "New Users Stored." })
+    
   } catch (error) {
     res.status(400).json({ messgae: "An error Occoured" })
   }
