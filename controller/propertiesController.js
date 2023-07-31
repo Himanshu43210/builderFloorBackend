@@ -4,10 +4,12 @@ import properties from '../models/propertiesModel.js';
 const searchPropertiesData = async(req, res) => {
   // Parse the JSON payload from the request
   const criteria = req.body;
+  let {page} = Number(req.body.page) || 1;
+  const {limit} = Number(req.body.limit) || 10
 
   // Construct the Mongoose query object
   const query = {};
-
+  
   if (criteria.city) {
     query.city = {$regex: criteria.city.value, $options: 'i'};
   }
@@ -33,7 +35,8 @@ const searchPropertiesData = async(req, res) => {
 
   try {
     // Execute the Mongoose query
-    const results = await properties.find(query).sort(sortQuery);
+    let skip = (page-1) *limit;
+    const results = await properties.find(query).sort(sortQuery).skip(skip).limit(limit);
 
     // Return the results as JSON
     res.json(results);
