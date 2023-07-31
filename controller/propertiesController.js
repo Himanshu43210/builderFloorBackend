@@ -4,8 +4,8 @@ import properties from '../models/propertiesModel.js';
 const searchPropertiesData = async(req, res) => {
   // Parse the JSON payload from the request
   const criteria = req.body;
-  let {page} = Number(req.body.page) || 1;
-  const {limit} = Number(req.body.limit) || 10
+  let page = Number(criteria.page) || 1;
+  const limit = Number(criteria.limit) || 10
 
   // Construct the Mongoose query object
   const query = {};
