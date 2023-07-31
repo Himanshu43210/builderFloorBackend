@@ -29,7 +29,7 @@ const EditUpdate = async (req, res) => {
   } catch (err) {
     return res.status(500).json({ error: 'Failed to save the property.' });
   }
-});
+};
 
 // Start the server
 app.listen(port, () => {
