@@ -13,7 +13,7 @@ router
   .get("/filter", propertiesController.filterproperties)
   .get("/getHomeData", propertiesController.getHomeData)
   .post("/searchPropertiesData", propertiesController.searchPropertiesData)
-  .post("/EditUpdate",propertiesController.EditUpdate)
+  .post("/EditUpdate",propertiesController.Edit_Update)
 
 export default router;
 
