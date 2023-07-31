@@ -201,8 +201,16 @@ const updatepropertiesByID = async (req, res, next) => {
   try {
     let id = req.query.id
     let updateData = req.body
-    const updatedData = await properties.findByIdAndUpdate(id, { $set: updateData })
-    res.status(200).json({ messgae: "properties updated" })
+    let data = await properties.findById(id)
+
+    if(data){
+      const updatedData = await properties.findByIdAndUpdate(id, { $set: updateData })
+      return res.status(200).json({ messgae: "properties updated" })
+    }
+    
+      let newModel = new properties(req.body)
+      const newData = await newModel.save()
+      res.status(200).json({ data })
   } catch (error) {
     res.status(400).json({ messgae: "An error Occoured" })
   }
