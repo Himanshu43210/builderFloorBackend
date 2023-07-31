@@ -61,7 +61,7 @@ const filterUsers = async (req, res, next) => {
 
 const updateEditUsers = async (req, res, next) => {
   try {
-    let id = req.query.id
+    let id = req.body._id
     let updateData = req.body
     let data = await users.findOne({email: req.body.email})
 
