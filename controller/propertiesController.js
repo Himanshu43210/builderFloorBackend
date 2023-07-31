@@ -342,5 +342,5 @@ export default {
   filterproperties,
   getHomeData,
   searchPropertiesData,
-  EditUpdate
+  Edit_Update
 }
