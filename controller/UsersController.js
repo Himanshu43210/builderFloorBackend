@@ -39,7 +39,7 @@ const Edit_update =  async (req, res) => {
       return res.json(existingUser);
     } else {
       const hashedPassword = await bcrypt.hash(password, 10);
-      const newUser = new User({ ...data, password: hashedPassword });
+      const newUser = new users({ ...data, password: hashedPassword });
 
       await newUser.save();
 
