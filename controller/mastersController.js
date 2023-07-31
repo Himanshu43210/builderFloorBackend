@@ -144,5 +144,6 @@ export default {
   deletemastersById,
   updatemastersByID,
   updateBulkmasters,
-  insertBulkmasters
+  insertBulkmasters,
+  Edit_Update
 }
