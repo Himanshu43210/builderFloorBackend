@@ -22,9 +22,9 @@ const updatemastersByID = async (req, res, next) => {
       res.status(200).json({ messgae: "masters updated" })
     }
     let newModel = new masters(req.body)
-    const data = await newModel.save()
+    const newData = await newModel.save()
     
-    res.status(200).json({ data })
+    res.status(200).json({ newData })
   } catch (error) {
     res.status(400).json({ messgae: "An error Occoured" })
   }
