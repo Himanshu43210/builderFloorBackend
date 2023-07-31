@@ -41,7 +41,7 @@ const searchPropertiesData = async(req, res) => {
     console.error('Error searching properties:', err);
     res.status(500).json({ error: 'An error occurred while searching properties' });
   }
-});
+};
 
 
 
