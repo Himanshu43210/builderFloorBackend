@@ -103,17 +103,8 @@ const filterUsers = async (req, res, next) => {
 const updateEditUsers = async (req, res, next) => {
   try {
     let id = req.body._id;
-    let updateData = req.body;
-    let data = await users.findOne({ email: req.body.email });
-
-    if (data) {
-      const updatedData = await users.findByIdAndUpdate(id, {
-        $set: updateData,
-      });
-      return res.status(200).json({ messgae: "users updated" });
-    }
     const hashedPassword = await bcrypt.hash(req.body.password || "123", 10);
-    const newUser = new users({
+    const dataToSave = {
       name: req.body.name,
       email: req.body.email,
       phoneNumber: req.body.phoneNumber,
@@ -121,13 +112,20 @@ const updateEditUsers = async (req, res, next) => {
       role: req.body.role.value,
       parentId: req.body.parentId,
       password: hashedPassword,
-    });
-    await newUser.save();
+    };
+    let data = await users.findOne({ _id: req.body._id });
 
-    // Create a new user in the databas
+    if (data) {
+      const updatedData = await users.findByIdAndUpdate(id, {
+        $set: dataToSave,
+      });
+      return res.status(200).json({ messgae: "users updated" });
+    }
+    const newUser = new users(dataToSave);
+    await newUser.save();
     res.send({ message: "New Users Stored." });
   } catch (error) {
-    res.status(400).json({ messgae: "An error Occoured" });
+    res.status(400).json({ messgae: "An error Occoured", error });
   }
 };
 
