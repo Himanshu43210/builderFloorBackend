@@ -7,7 +7,7 @@ router
   .post("/auth/login", usersController.login)
   .get("/list", usersController.getusersList)
   .post("/addUser", usersController.updateEditUsers)
-  .put("/editUser", usersController.updateEditUsers)
+  .post("/editUser", usersController.updateEditUsers)
   .delete("/deleteUser", usersController.deleteusersById)
   .get("/children", usersController.getusersChildren)
   .get("/filter", usersController.filterUsers)
