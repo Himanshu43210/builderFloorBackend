@@ -49,5 +49,5 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api/properties", propertiesRoutes);
-app.use("/api/Users", UsersRoutes);
+app.use("/api/users", UsersRoutes);
 app.use("/api/masters", mastersRoutes);

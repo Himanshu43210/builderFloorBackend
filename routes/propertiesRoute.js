@@ -1,21 +1,19 @@
-import express from 'express';
+import express from "express";
 import propertiesController from "../controller/propertiesController.js";
 
-const router = express.Router()
+const router = express.Router();
 
 router
-  .post("/", propertiesController.storeproperties)
-  .get("/", propertiesController.getpropertiesById)
-  .get("/list", propertiesController.getpropertiesList)
-  .post("/", propertiesController.updatepropertiesByID)
-  .delete("/", propertiesController.deletepropertiesById)
- .post("/search", propertiesController.searchproperties)
-  .get("/filter", propertiesController.filterproperties)
   .get("/getHomeData", propertiesController.getHomeData)
   .post("/searchPropertiesData", propertiesController.searchPropertiesData)
-  .post("/EditUpdate",propertiesController.Edit_Update)
+  .get("/list", propertiesController.getpropertiesList)
+  .post("/addProperty", propertiesController.Edit_Update)
+  .post("/editProperty", propertiesController.Edit_Update)
+  .delete("/deleteProperty", propertiesController.deletepropertiesById)
+  .get("/filter", propertiesController.filterproperties)
+  .post("/search", propertiesController.searchproperties)
+  .post("/", propertiesController.updatepropertiesByID)
+  .get("/", propertiesController.getpropertiesById)
+  .post("/", propertiesController.storeproperties);
 
 export default router;
-
-
-

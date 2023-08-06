@@ -160,7 +160,7 @@ const login = async (req, res) => {
   }
 }
 
-const deleteusersById = async (req, res, next) => {
+const   deleteusersById = async (req, res, next) => {
   try {
     const id = req.query.id
     const deletedUser = await users.findByIdAndRemove(id)

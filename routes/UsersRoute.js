@@ -1,18 +1,18 @@
-import express from 'express';
+import express from "express";
 
-const router = express.Router()
+const router = express.Router();
 import usersController from "../controller/UsersController.js";
 
-
 router
-.post("/", usersController.handleSignup)
-.post("/auth/login", usersController.login)
-.get("/getUser", usersController.getusersById)
-.get("/list", usersController.getusersList)
-.get("/children", usersController.getusersChildren)
-.get("/filter", usersController.filterUsers)
-.post("/updateEdit", usersController.updateEditUsers)
-.delete("/deleteUser", usersController.deleteusersById)
-.post("/EditUpdate", usersController.Edit_update)
+  .post("/auth/login", usersController.login)
+  .get("/list", usersController.getusersList)
+  .post("/addUser", usersController.updateEditUsers)
+  .put("/editUser", usersController.updateEditUsers)
+  .delete("/deleteUser", usersController.deleteusersById)
+  .get("/children", usersController.getusersChildren)
+  .get("/filter", usersController.filterUsers)
+  .post("/EditUpdate", usersController.Edit_update)
+  .get("/getUser", usersController.getusersById)
+  .post("/", usersController.handleSignup);
 
-export default router
+export default router;
