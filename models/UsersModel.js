@@ -1,11 +1,9 @@
 import mongoose from "mongoose";
 const { Schema } = mongoose;
 
-
 const UsersSchema = new Schema(
   {
     name: { type: String, require: [true, "name is required "] },
-
     email: {
       type: String,
       require: [true, "email is required "],
