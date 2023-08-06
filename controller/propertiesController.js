@@ -56,9 +56,9 @@ const searchPropertiesData = async (req, res) => {
   // Construct the Mongoose query object
   const query = {};
 
-  if (criteria.city) {
-    query.city = { $regex: criteria.city.value, $options: "i" };
-  }
+  // if (criteria.city) {
+  //   // query.city = { $regex: criteria.city.value, $options: "i" };
+  // }
 
   if (criteria.budget) {
     query.price = { $gte: criteria.budget[0], $lte: criteria.budget[1] };
