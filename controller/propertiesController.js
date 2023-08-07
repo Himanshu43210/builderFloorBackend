@@ -263,6 +263,7 @@ const getpropertiesById = async (req, res, next) => {
   try {
     let id = req.query.id;
     let data = await properties.findById(id);
+    console.log(data.description?.replace("•", "\n•"));
     res.status(200).json({ data });
   } catch (err) {
     res.status(400).json({ messgae: err.message });
