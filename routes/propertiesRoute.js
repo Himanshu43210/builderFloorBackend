@@ -5,6 +5,7 @@ const router = express.Router();
 
 router
   .get("/getHomeData", propertiesController.getHomeData)
+  .get("/getSimilarProperties", propertiesController.getHomeData)
   .post("/searchPropertiesData", propertiesController.searchPropertiesData)
   .get("/list", propertiesController.getpropertiesList)
   .post("/addProperty", propertiesController.Edit_Update)
