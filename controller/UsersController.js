@@ -10,6 +10,12 @@ const filePath = "./data.json";
 const JWT_SECERET = "techHelps";
 const salt = await bcrypt.genSalt();
 
+export const USER_ROLE = {
+  bfAdmin: "BuilderFloorAdmin",
+  channelPartner: "ChannelPartner",
+  propertyDealer: "PropertyDealer",
+};
+
 const Edit_update = async (req, res) => {
   const { _id, password, ...data } = req.body;
 
@@ -65,6 +71,7 @@ const getusersList = async (req, res, next) => {
       nbHits: data.length,
       pageNumber: page,
       totalPages: totalPages,
+      totalItems: totalDocuments,
     });
   } catch (error) {
     res.status(400).json({ messgae: error.message });
@@ -110,8 +117,11 @@ const updateEditUsers = async (req, res, next) => {
       phoneNumber: req.body.phoneNumber,
       address: req.body.address,
       role: req.body.role.value,
-      parentId: req.body.parentId,
-      password: hashedPassword,
+      parentId:
+        req.body.role.value === USER_ROLE["bfAdmin"]
+          ? "Approved"
+          : req.body.parentId, // password: hashedPassword,
+      password: req.body.password,
     };
     let data = await users.findOne({ _id: req.body._id });
 
@@ -146,7 +156,6 @@ const login = async (req, res) => {
     let user = await users.findOne({ email, password });
     if (!user) {
       return res.status(400).json({
-        success,
         error: "Please try to login with correct credentials",
       });
     }
@@ -158,7 +167,14 @@ const login = async (req, res) => {
     };
     const authToken = jwt.sign(data, JWT_SECERET);
     // res.json(user);
-    res.json({ success, authToken, user });
+    const profile = {
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      parentId: user.parentId,
+    };
+    res.json({ authToken, profile });
   } catch (err) {
     res.status(400).json({ messgae: err.message });
   }

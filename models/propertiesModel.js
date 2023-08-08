@@ -30,10 +30,12 @@ const propertiesSchema = new Schema(
     channelPartner: { type: String },
     channelContact: { type: Number },
     thumbnailName: { type: String },
+    parentId: { type: String },
+    needApprovalBy: { type: String },
   },
   { timestamps: true }
 );
 
-const properties = mongoose.model("properties", propertiesSchema);
+const properties = mongoose.model("testProperties", propertiesSchema);
 
 export default properties;

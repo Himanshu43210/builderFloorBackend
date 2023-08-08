@@ -5,6 +5,7 @@ const mastersSchema = new Schema(
   {
     fieldName: { type: String },
     fieldValue: { type: Array },
+    parentId: { type: String },
   },
   { timestamps: true }
 );

@@ -20,28 +20,57 @@ const convertToCardData = (datFromDb) => {
 };
 const Edit_Update = async (req, res) => {
   const { _id, ...data } = req.body;
-
+  const newData = {
+    ...data,
+    city: data.city?.value,
+    sectorNumber: data.sectorNumber?.value,
+    facing: data.facing?.value,
+    accommodation: data.accommodation?.value,
+    floor: data.floor?.value,
+    possession: data.possession?.value,
+    category: data.category?.value,
+    state: data.state?.value,
+    imageType: data.imageType?.value,
+  };
+  console.log(newData);
   try {
     if (_id) {
       // If _id is present, update the existing document
-      const existingProperty = await properties.findByIdAndUpdate(_id, data, {
-        new: true,
-        runValidators: true,
-      });
-
+      const existingProperty = await properties.findByIdAndUpdate(
+        _id,
+        newData,
+        {
+          new: true,
+          runValidators: true,
+        }
+      );
       if (!existingProperty) {
         return res.status(404).json({ error: "Property not found." });
       }
-
       return res.json(existingProperty);
     } else {
-      // If _id is not present, create a new document
-      const newProperty = new properties(data);
-
+      const newProperty = new properties(newData);
       await newProperty.save();
-
       return res.json(newProperty);
     }
+  } catch (err) {
+    return res.status(500).json({ error: "Failed to save the property." });
+  }
+};
+
+const approveProperty = (req, res) => {
+  try {
+    console.log("Inside Approve Properties");
+    const { _id, needApprovalBy } = req.body;
+    console.log(_id, needApprovalBy);
+    const query = { _id };
+    const update = {
+      needApprovalBy,
+    };
+    properties.updateOne(query, update, (err, result) => {
+      if (err) throw err;
+    }); 
+    return res.status(200).json({ status: "Approved Successfully" });
   } catch (err) {
     return res.status(500).json({ error: "Failed to save the property." });
   }
@@ -121,18 +150,13 @@ const getpropertiesList = async (req, res, next) => {
   try {
     let page = Number(req.query.page) || 1;
     const limit = Number(req.query.limit) || 10;
-    const { city } = req.query;
-
+    const { SortType, sortColumn } = req.query;
+    console.log({ page, limit, SortType, sortColumn });
     const queryObject = {};
 
-    if (city) {
-      queryObject.city = { $regex: city, $options: "i" };
-    }
     let skip = (page - 1) * limit;
 
     let data = await properties.find(queryObject).skip(skip).limit(limit);
-
-    let filteredProperties = data.data;
     const totalDocuments = await properties.countDocuments();
     const totalPages = Math.ceil(totalDocuments / limit);
 
@@ -141,6 +165,7 @@ const getpropertiesList = async (req, res, next) => {
       nbHits: data.length,
       pageNumber: page,
       totalPages: totalPages,
+      totalItems: totalDocuments,
     });
   } catch (error) {
     res.status(400).json({ messgae: error.message });
@@ -263,7 +288,6 @@ const getpropertiesById = async (req, res, next) => {
   try {
     let id = req.query.id;
     let data = await properties.findById(id);
-    console.log(data.description?.replace("•", "\n•"));
     res.status(200).json({ data });
   } catch (err) {
     res.status(400).json({ messgae: err.message });
@@ -350,4 +374,5 @@ export default {
   getHomeData,
   searchPropertiesData,
   Edit_Update,
+  approveProperty,
 };

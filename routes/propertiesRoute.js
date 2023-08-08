@@ -11,6 +11,7 @@ router
   .post("/addProperty", propertiesController.Edit_Update)
   .post("/editProperty", propertiesController.Edit_Update)
   .delete("/deleteProperty", propertiesController.deletepropertiesById)
+  .post("/approveProperty", propertiesController.approveProperty)
   .get("/filter", propertiesController.filterproperties)
   .post("/search", propertiesController.searchproperties)
   .post("/", propertiesController.updatepropertiesByID)
