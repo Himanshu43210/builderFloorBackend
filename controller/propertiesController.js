@@ -1,5 +1,8 @@
 import mongoose from "mongoose";
 import properties from "../models/propertiesModel.js";
+import AWS from "aws-sdk";
+import fs from "fs";
+import path from "path";
 
 const convertToCardData = (datFromDb) => {
   return datFromDb?.map((item) => {
@@ -69,7 +72,7 @@ const approveProperty = (req, res) => {
     };
     properties.updateOne(query, update, (err, result) => {
       if (err) throw err;
-    }); 
+    });
     return res.status(200).json({ status: "Approved Successfully" });
   } catch (err) {
     return res.status(500).json({ error: "Failed to save the property." });
@@ -152,7 +155,7 @@ const getpropertiesList = async (req, res, next) => {
     const limit = Number(req.query.limit) || 10;
     const { SortType, sortColumn } = req.query;
     console.log({ page, limit, SortType, sortColumn });
-    const queryObject = {};
+    const queryObject = { needApprovalBy: "Approved" };
 
     let skip = (page - 1) * limit;
 
@@ -361,6 +364,69 @@ const insertBulkproperties = async (req, res, next) => {
   }
 };
 
+async function ensureFolderStructure(s3, folderPath) {
+  const parts = folderPath.split("/");
+  let currentPath = "";
+  for (const part of parts) {
+    currentPath += part + "/";
+    const params = {
+      Bucket: process.env.S3_BUCKET_NAME,
+      Key: currentPath,
+      Body: "",
+    };
+    await s3.putObject(params).promise();
+  }
+}
+
+const uploadProperties = async (req, res, next) => {
+  try {
+    const { _id, ...data } = req.body;
+    console.log(data);
+    const s3 = new AWS.S3({
+      accessKeyId: process.env.S3_ACCESS_KEY,
+      secretAccessKey: process.env.S3_SECRET_ACCESS_KEY,
+    });
+    const folderPath = data.folder;
+    await ensureFolderStructure(s3, folderPath);
+    const urls = [];
+
+    const uploads = req.files.map((file) => {
+      return new Promise((resolve, reject) => {
+        const s3Key = path
+          .join(folderPath, file.originalname)
+          .replace(/\\/g, "/");
+        const params = {
+          Bucket: process.env.S3_BUCKET_NAME,
+          Key: s3Key,
+          Body: fs.createReadStream(file.path),
+        };
+
+        s3.upload(params, (err, data) => {
+          if (err) {
+            console.error("Error uploading to S3:", err);
+            reject(err);
+          } else {
+            fs.unlinkSync(file.path);
+            urls.push(data.Location);
+            resolve();
+          }
+        });
+      });
+    });
+
+    Promise.all(uploads)
+      .then(() => {
+        const newProperty = new properties({ ...data, images: urls }).save();
+        return res.json(newProperty);
+        // res.status(200).json({ message: "Upload Done", urls });
+      })
+      .catch((err) => res.status(500).send("Error uploading files: " + err));
+  } catch (err) {
+    console.log(err);
+    return res.status(400).json({ message: "Error Upload", err });
+  }
+};
+
 export default {
   getpropertiesList,
   storeproperties,
@@ -375,4 +441,5 @@ export default {
   searchPropertiesData,
   Edit_Update,
   approveProperty,
+  uploadProperties,
 };
