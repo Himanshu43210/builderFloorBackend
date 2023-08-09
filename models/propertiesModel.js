@@ -36,6 +36,6 @@ const propertiesSchema = new Schema(
   { timestamps: true }
 );
 
-const properties = mongoose.model("properties", propertiesSchema);
+const properties = mongoose.model("testProperties", propertiesSchema);
 
 export default properties;

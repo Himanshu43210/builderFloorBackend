@@ -86,7 +86,7 @@ const searchPropertiesData = async (req, res) => {
   const limit = Number(criteria.limit) || 10;
 
   // Construct the Mongoose query object
-  const query = {};
+  const query = { needApprovalBy: "Approved" };
 
   // if (criteria.city) {
   //   // query.city = { $regex: criteria.city.value, $options: "i" };
@@ -155,7 +155,7 @@ const getpropertiesList = async (req, res, next) => {
     const limit = Number(req.query.limit) || 10;
     const { SortType, sortColumn } = req.query;
     console.log({ page, limit, SortType, sortColumn });
-    const queryObject = { needApprovalBy: "Approved" };
+    const queryObject = {};
 
     let skip = (page - 1) * limit;
 
