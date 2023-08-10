@@ -85,8 +85,9 @@ const searchPropertiesData = async (req, res) => {
   let page = Number(criteria.page) || 1;
   const limit = Number(criteria.limit) || 10;
 
+  const query = {};
   // Construct the Mongoose query object
-  const query = { needApprovalBy: "Approved" };
+  // const query = { needApprovalBy: "Approved" };
 
   // if (criteria.city) {
   //   // query.city = { $regex: criteria.city.value, $options: "i" };
