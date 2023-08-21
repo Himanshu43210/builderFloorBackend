@@ -3,7 +3,8 @@ import propertiesController from "../controller/propertiesController.js";
 import multer from "multer";
 
 const router = express.Router();
-const upload = multer({ dest: "uploads/" });
+// const upload = multer({ dest: "uploads/" });
+const upload = multer({ storage: multer.memoryStorage() });
 
 router
   .get("/getHomeData", propertiesController.getHomeData)
@@ -13,7 +14,7 @@ router
   // .post("/addProperty", propertiesController.Edit_Update)
   .post(
     "/editProperty",
-    upload.array("files"),
+    upload.fields([{ name: 'threeSixtyImages' }, { name: 'normalImageFile' }, { name: 'thumbnailFile' }, { name: 'videoFile' }, { name: 'layoutFile' }, { name: 'virtualFile' }]),
     propertiesController.uploadProperties
   )
   .delete("/deleteProperty", propertiesController.deletepropertiesById)
@@ -22,14 +23,9 @@ router
   .post("/search", propertiesController.searchproperties)
   .post(
     "/addProperty",
-    upload.array("files"),
+    upload.fields([{ name: 'threeSixtyImages' }, { name: 'normalImageFile' }, { name: 'thumbnailFile' }, { name: 'videoFile' }, { name: 'layoutFile' }, { name: 'virtualFile' }]),
     propertiesController.uploadProperties
   )
-  // .post(
-  //   "/addProperty",
-  //   upload.fields([{ name: 'threeSixtyImages' }, { name: 'normalImageFile' }, { name: 'thumbnailFile' }, { name: 'videoFile' }, { name: 'layoutFile' }, { name: 'virtualFile' }]),
-  //   propertiesController.uploadProperties
-  // )
   .post("/", propertiesController.updatepropertiesByID)
   .get("/", propertiesController.getpropertiesById)
   .post("/", propertiesController.storeproperties);
