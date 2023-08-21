@@ -32,9 +32,14 @@ const propertiesSchema = new Schema(
     thumbnailName: { type: String },
     parentId: { type: String },
     needApprovalBy: { type: String },
+    normalImages: { type: Array },
+    videos: { type: Array },
+    layouts: { type: Array },
+    virtualFiles: { type: Array },
   },
   { timestamps: true }
 );
+
 
 const properties = mongoose.model("properties", propertiesSchema);
 

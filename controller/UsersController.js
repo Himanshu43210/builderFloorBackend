@@ -116,6 +116,10 @@ const updateEditUsers = async (req, res, next) => {
       email: req.body.email,
       phoneNumber: req.body.phoneNumber,
       address: req.body.address,
+      companyName: req.body.companyName,
+      companyAddress: req.body.companyAddress,
+      state: req.body.state,
+      city: req.body.city,
       role: req.body.role.value,
       parentId:
         req.body.role.value === USER_ROLE["bfAdmin"]

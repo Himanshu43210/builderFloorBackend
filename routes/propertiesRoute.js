@@ -25,6 +25,11 @@ router
     upload.array("files"),
     propertiesController.uploadProperties
   )
+  // .post(
+  //   "/addProperty",
+  //   upload.fields([{ name: 'threeSixtyImages' }, { name: 'normalImageFile' }, { name: 'thumbnailFile' }, { name: 'videoFile' }, { name: 'layoutFile' }, { name: 'virtualFile' }]),
+  //   propertiesController.uploadProperties
+  // )
   .post("/", propertiesController.updatepropertiesByID)
   .get("/", propertiesController.getpropertiesById)
   .post("/", propertiesController.storeproperties);
