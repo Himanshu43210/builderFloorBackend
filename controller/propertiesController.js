@@ -382,51 +382,79 @@ async function ensureFolderStructure(s3, folderPath) {
 const uploadProperties = async (req, res, next) => {
   try {
     const { _id, ...data } = req.body;
-    console.log(data);
-    const s3 = new AWS.S3({
-      accessKeyId: process.env.S3_ACCESS_KEY,
-      secretAccessKey: process.env.S3_SECRET_ACCESS_KEY,
-    });
+    const { threeSixtyImages, normalImageFile, thumbnailFile, videoFile, layoutFile, virtualFile } = req.files;
+
     const folderPath = data.folder;
-    await ensureFolderStructure(s3, folderPath);
-    const urls = [];
+    // await ensureFolderStructure(s3, folderPath);
+    if (threeSixtyImages) {
+      data.images = threeSixtyImages.map((file) => `https://builderfloors.s3.amazonaws.com/${path.join(folderPath, file.originalname).replace(/ /g, '_')}`);
+      await uploadOnS3(threeSixtyImages, folderPath);
+    }
+    if (normalImageFile) {
+      data.normalImages = normalImageFile.map((file) => `https://builderfloors.s3.amazonaws.com/${path.join(folderPath, file.originalname).replace(/ /g, '_')}`);
+      await uploadOnS3(normalImageFile, folderPath);
+    }
+    if (thumbnailFile) {
+      data.thumbnails = thumbnailFile.map((file) => `https://builderfloors.s3.amazonaws.com/${path.join(folderPath, file.originalname).replace(/ /g, '_')}`);
+      await uploadOnS3(thumbnailFile, folderPath);
+    }
+    if (videoFile) {
+      data.videos = videoFile.map((file) => `https://builderfloors.s3.amazonaws.com/${path.join(folderPath, file.originalname).replace(/ /g, '_')}`);
+      await uploadOnS3(videoFile, folderPath);
+    }
+    if (layoutFile) {
+      data.layouts = layoutFile.map((file) => `https://builderfloors.s3.amazonaws.com/${path.join(folderPath, file.originalname).replace(/ /g, '_')}`);
+      await uploadOnS3(layoutFile, folderPath);
+    }
+    if (virtualFile) {
+      data.virtualFiles = virtualFile.map((file) => `https://builderfloors.s3.amazonaws.com/${path.join(folderPath, file.originalname).replace(/ /g, '_')}`);
+      await uploadOnS3(virtualFile, folderPath);
+    }
 
-    const uploads = req.files.map((file) => {
-      return new Promise((resolve, reject) => {
-        const s3Key = path
-          .join(folderPath, file.originalname)
-          .replace(/\\/g, "/");
-        const params = {
-          Bucket: process.env.S3_BUCKET_NAME,
-          Key: s3Key,
-          Body: fs.createReadStream(file.path),
-        };
+    console.log(data);
 
-        s3.upload(params, (err, data) => {
-          if (err) {
-            console.error("Error uploading to S3:", err);
-            reject(err);
-          } else {
-            fs.unlinkSync(file.path);
-            urls.push(data.Location);
-            resolve();
-          }
-        });
-      });
-    });
-
-    Promise.all(uploads)
-      .then(() => {
-        const newProperty = new properties({ ...data, images: urls }).save();
-        return res.json(newProperty);
-        // res.status(200).json({ message: "Upload Done", urls });
-      })
-      .catch((err) => res.status(500).send("Error uploading files: " + err));
+    // Promise.all(uploads)
+    //   .then(() => {
+    const newProperty = new properties(data).save();
+    return res.json(newProperty);
+    //     // res.status(200).json({ message: "Upload Done", urls });
+    //   })
+    //   .catch((err) => res.status(500).send("Error uploading files: " + err));
   } catch (err) {
     console.log(err);
     return res.status(400).json({ message: "Error Upload", err });
   }
 };
+
+const uploadOnS3 = async (files, folderPath) => {
+  const s3 = new AWS.S3({
+    accessKeyId: process.env.S3_ACCESS_KEY,
+    secretAccessKey: process.env.S3_SECRET_ACCESS_KEY,
+  });
+  files.map((file) => {
+    return new Promise((resolve, reject) => {
+      const s3Key = path
+        .join(folderPath, file.originalname)
+        .replace(/ /g, '_');
+      const params = {
+        Bucket: process.env.S3_BUCKET_NAME,
+        Key: s3Key,
+        Body: file.buffer,
+        ContentType: file.mimetype
+      };
+
+      s3.upload(params, (err, data) => {
+        if (err) {
+          console.error("Error uploading to S3:", err);
+          reject(err);
+        } else {
+          console.log(data.Location);
+          resolve();
+        }
+      });
+    });
+  });
+}
 
 export default {
   getpropertiesList,
