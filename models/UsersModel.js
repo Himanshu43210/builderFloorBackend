@@ -13,7 +13,7 @@ const UsersSchema = new Schema(
     address: { type: String },
     password: { type: String },
     role: { type: String, require: [true, "role is required "] },
-    parentId: { type: mongoose.Types.ObjectId },
+    parentId: { type: String },
     companyName: { type: String },
     companyAddress: { type: String },
     state: { type: String },
