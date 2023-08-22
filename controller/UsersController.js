@@ -274,6 +274,7 @@ const getusersChildren = async (req, res, next) => {
 
 const getChannelPartnersList = async (req, res, next) => {
   try {
+    console.log(req.query);
     let page = Number(req.query.page) || 1;
     const limit = Number(req.query.limit) || 10;
 
