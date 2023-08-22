@@ -272,6 +272,30 @@ const getusersChildren = async (req, res, next) => {
   }
 };
 
+const getChannelPartnersList = async (req, res, next) => {
+  try {
+    let page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 10;
+
+    let skip = (page - 1) * limit;
+
+    let data = await users.find({ role: "ChannelPartner" }).skip(skip).limit(limit);
+
+    const totalDocuments = await users.countDocuments({ role: "ChannelPartner" });
+    const totalPages = Math.ceil(totalDocuments / limit);
+
+    res.status(200).json({
+      data,
+      nbHits: data.length,
+      pageNumber: page,
+      totalPages: totalPages,
+      totalItems: totalDocuments,
+    });
+  } catch (error) {
+    res.status(400).json({ messgae: error.message });
+  }
+};
+
 export default {
   getusersList,
   handleSignup,
@@ -283,4 +307,5 @@ export default {
   login,
   filterUsers,
   Edit_update,
+  getChannelPartnersList,
 };

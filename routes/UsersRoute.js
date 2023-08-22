@@ -13,6 +13,7 @@ router
   .get("/filter", usersController.filterUsers)
   .post("/EditUpdate", usersController.Edit_update)
   .get("/getUser", usersController.getusersById)
-  .post("/", usersController.handleSignup);
+  .post("/", usersController.handleSignup)
+  .get("/channelPartnersList", usersController.getChannelPartnersList);
 
 export default router;
