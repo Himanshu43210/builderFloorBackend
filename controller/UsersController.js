@@ -120,9 +120,9 @@ const updateEditUsers = async (req, res, next) => {
       companyAddress: req.body.companyAddress,
       state: req.body.state,
       city: req.body.city,
-      role: req.body.role.value,
+      role: req.body.role,
       parentId:
-        req.body.role.value === USER_ROLE["bfAdmin"]
+        req.body.role === USER_ROLE["bfAdmin"]
           ? "Approved"
           : req.body.parentId, // password: hashedPassword,
       password: req.body.password,
