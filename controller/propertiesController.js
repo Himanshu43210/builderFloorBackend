@@ -30,15 +30,15 @@ const Edit_Update = async (req, res) => {
   const { _id, ...data } = req.body;
   const newData = {
     ...data,
-    city: data.city?.value,
-    sectorNumber: data.sectorNumber?.value,
-    facing: data.facing?.value,
-    accommodation: data.accommodation?.value,
-    floor: data.floor?.value,
-    possession: data.possession?.value,
-    category: data.category?.value,
-    state: data.state?.value,
-    imageType: data.imageType?.value,
+    city: data.city,
+    sectorNumber: data.sectorNumber,
+    facing: data.facing,
+    accommodation: data.accommodation,
+    floor: data.floor,
+    possession: data.possession,
+    category: data.category,
+    state: data.state,
+    imageType: data.imageType,
   };
   console.log(newData);
   try {
@@ -103,14 +103,14 @@ const searchPropertiesData = async (req, res) => {
   }
 
   if (criteria.accommodation) {
-    query.accommodation = criteria.accommodation.value;
+    query.accommodation = criteria.accommodation;
   }
 
   // Add more conditions for other fields in a similar manner
 
   // Sorting
   let sortQuery = {};
-  if (criteria.sortBy && criteria.sortBy.value === "Price High to Low") {
+  if (criteria.sortBy && criteria.sortBy === "Price High to Low") {
     sortQuery = { price: -1 };
   } else {
     // Set the default sorting column and order here
@@ -386,33 +386,32 @@ async function ensureFolderStructure(s3, folderPath) {
 
 const uploadProperties = async (req, res, next) => {
   try {
-    console.log(req.files);
     const { _id, ...data } = req.body;
     const { threeSixtyImages, normalImageFile, thumbnailFile, videoFile, layoutFile, virtualFile } = req.files;
 
     const folderPath = data.folder;
     // await ensureFolderStructure(s3, folderPath);
-    if (threeSixtyImages) {
+    if (threeSixtyImages && threeSixtyImages.length) {
       data.images = threeSixtyImages.map((file) => `https://builderfloors.s3.amazonaws.com/${path.join(folderPath, file.originalname).replace(/ /g, '_')}`);
       await uploadOnS3(threeSixtyImages, folderPath);
     }
-    if (normalImageFile) {
+    if (normalImageFile && normalImageFile.length) {
       data.normalImages = normalImageFile.map((file) => `https://builderfloors.s3.amazonaws.com/${path.join(folderPath, file.originalname).replace(/ /g, '_')}`);
       await uploadOnS3(normalImageFile, folderPath);
     }
-    if (thumbnailFile) {
+    if (thumbnailFile && thumbnailFile.length) {
       data.thumbnails = thumbnailFile.map((file) => `https://builderfloors.s3.amazonaws.com/${path.join(folderPath, file.originalname).replace(/ /g, '_')}`);
       await uploadOnS3(thumbnailFile, folderPath);
     }
-    if (videoFile) {
+    if (videoFile && videoFile.length) {
       data.videos = videoFile.map((file) => `https://builderfloors.s3.amazonaws.com/${path.join(folderPath, file.originalname).replace(/ /g, '_')}`);
       await uploadOnS3(videoFile, folderPath);
     }
-    if (layoutFile) {
+    if (layoutFile && layoutFile.length) {
       data.layouts = layoutFile.map((file) => `https://builderfloors.s3.amazonaws.com/${path.join(folderPath, file.originalname).replace(/ /g, '_')}`);
       await uploadOnS3(layoutFile, folderPath);
     }
-    if (virtualFile) {
+    if (virtualFile && virtualFile.length) {
       data.virtualFiles = virtualFile.map((file) => `https://builderfloors.s3.amazonaws.com/${path.join(folderPath, file.originalname).replace(/ /g, '_')}`);
       await uploadOnS3(virtualFile, folderPath);
     }
@@ -422,7 +421,7 @@ const uploadProperties = async (req, res, next) => {
     // Promise.all(uploads)
     // .then(() => {
     const newProperty = new properties(data).save();
-    return res.json(newProperty);
+    return res.json({message:"Data updated successfully.",result:newProperty});
     //     // res.status(200).json({ message: "Upload Done", urls });
     //   })
     //   .catch((err) => res.status(500).send("Error uploading files: " + err));
