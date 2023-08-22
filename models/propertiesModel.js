@@ -18,7 +18,7 @@ const propertiesSchema = new Schema(
     description: { type: String },
     builderName: { type: String },
     builderContact: { type: Number },
-    price: { type: Number },
+    price: { type: String },
     address: { type: String },
     editor_choice: { type: Boolean },
     category: { type: String },

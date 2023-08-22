@@ -7,6 +7,7 @@ import XLSX from "xlsx";
 import asyncs from "async";
 import _ from "lodash";
 import { map, delay } from "modern-async";
+const errors = [null, "null", "", undefined, "undefined", "unknown", "Unknown", "NULL", "UNDEFINED", "UNKNOWN"];
 
 const convertToCardData = (datFromDb) => {
   return datFromDb?.map((item) => {
@@ -385,6 +386,7 @@ async function ensureFolderStructure(s3, folderPath) {
 
 const uploadProperties = async (req, res, next) => {
   try {
+    console.log(req.files);
     const { _id, ...data } = req.body;
     const { threeSixtyImages, normalImageFile, thumbnailFile, videoFile, layoutFile, virtualFile } = req.files;
 
@@ -419,8 +421,8 @@ const uploadProperties = async (req, res, next) => {
 
     // Promise.all(uploads)
     //   .then(() => {
-    const newProperty = new properties(data).save();
-    return res.json(newProperty);
+    // const newProperty = new properties(data).save();
+    // return res.json(newProperty);
     //     // res.status(200).json({ message: "Upload Done", urls });
     //   })
     //   .catch((err) => res.status(500).send("Error uploading files: " + err));
@@ -461,44 +463,61 @@ const uploadOnS3 = async (files, folderPath) => {
 }
 
 const importProperties = async (req, res) => {
+  let rejected = [];
+  let inserted = 0;
+  let uploaded = 0;
   let data = convertCsvToJson(req.file);
-
   if (
     !data[0].hasOwnProperty("Plot Number") ||
     !data[0].hasOwnProperty("Location") || !data[0].hasOwnProperty("Floor")
   ) {
-    isInvalidFile += 1;
-    return res.json({ uploaded, rejected, inserted, isInvalidFile });
+    return res.json({ message: "Invalid file, please upload a valid file." });
   } else {
     function getoperations(e, callback) {
-      e["sectorNumber"] = e["sectorNumber"].toString();
-      e["plotNumber"] = e["plotNumber"].toString();
+      console.log(e);
       callback(null, {
         updateOne: {
           filter: {
-            propertyID: "",
-            createdByID: req.user.id,
+            plotNumber: e["Plot Number"],
+            sectorNumber: e["Location"],
+            floor: e["Floor"],
           },
           update: {
             $set: {
-              ...e,
-              createdByID: req.user.id,
-              ip: req.body.ip,
-              latlng: [req.body.latitude, req.body.longitude],
-              category: "COMMERCIAL",
+              city: e['City'],
+              sectorNumber: e['Location'],
+              plotNumber: e['Plot Number'],
+              size: e['Size'],
+              facing: e["Facing"],
+              accommodation: e['Accommodation'],
+              parkFacing: e['Park Facing'] == 'YES' ? true : false,
+              corner: e['Corner'] == 'YES' ? true : false,
+              floor: e["Floor"],
+              possession: e["Possession"],
+              title: e["1st Page Title"],
+              detailTitle: e["2 Page Title"],
+              description: e["Description"] || '',
+              builderName: e["Builder Name"],
+              builderContact: e["Builder Contact Number"],
+              price: e["Price"],
+              address: e["Address"],
+              category: "PLOT",
+              imageType: e["Image/Video/360 Image"],
+              folder: e["FOLDER NAME"],
+              channelPartner: e["Channel Partner Name"],
+              channelContact: e["Channel Contact Number"],
+              thumbnailName: e["THUMBNAIL IMAGE NAME"]
             },
           },
           upsert: true,
         },
-        filterD: e,
       });
     }
 
-    let tempData = _.chunk(data, 1000);
+    let tempData = _.chunk(data, 500);
 
     let result = await map(tempData, async (v) => {
       let operations = [];
-      let sectorNumbers = v.map((p) => p.sectorNumber.toString());
       asyncs.map(v, getoperations, function (err, results) {
         if (err) {
           console.log(err);
@@ -507,53 +526,24 @@ const importProperties = async (req, res) => {
         }
       });
 
-      const pipeline = [
-        { $match: { category: "COMMERCIAL", sectorNumber: { $in: sectorNumbers } } },
-        { $project: { _id: 1, plotNumber: 1, sectorNumber: 1, subCategory: 1 } },
-      ];
-
-      const properties = await Properties.aggregate(pipeline);
       const finalOperations = operations.filter((e) => {
-        const plotNumber = e.filterD.plotNumber;
-        const sectorNumber = e.filterD.sectorNumber;
-        const subCategory = e.filterD.subCategory;
-        properties.map((ele) => {
-          if (
-            ele.sectorNumber == sectorNumber &&
-            ele.subCategory == subCategory &&
-            ele.plotNumber == plotNumber
-          ) {
-            e.updateOne.filter.propertyID = ele._id;
-            e.updateOne.update["$set"].propertyID = ele._id;
-            delete e.filterD;
-          }
-        });
         return (
-          properties.map((p) => p.plotNumber).includes(plotNumber) &&
-          properties.map((p) => p.sectorNumber).includes(sectorNumber) &&
-          properties.map((p) => p.subCategory).includes(subCategory) &&
-          !errors.includes(plotNumber) &&
-          !errors.includes(sectorNumber) &&
-          !errors.includes(subCategory) &&
-          !e.filterD
+          !errors.includes(e.updateOne.filter["plotNumber"]) &&
+          !errors.includes(e.updateOne.filter["sectorNumber"]) &&
+          !errors.includes(e.updateOne.filter["floor"])
         );
       });
+
       let rejectData = v.filter((e) => {
-        const plotNumber = e.plotNumber;
-        const sectorNumber = e.sectorNumber;
-        const subCategory = e.subCategory;
         return (
-          !properties.map((p) => p.plotNumber).includes(plotNumber) ||
-          !properties.map((p) => p.sectorNumber).includes(sectorNumber) ||
-          !properties.map((p) => p.subCategory).includes(subCategory) ||
-          errors.includes(plotNumber) ||
-          errors.includes(subCategory) ||
-          errors.includes(sectorNumber)
+          errors.includes(e["Plot Number"]) ||
+          errors.includes(e["Location"]) ||
+          errors.includes(e["Floor"])
         );
       });
       Array.prototype.push.apply(rejected, rejectData);
       await delay();
-      let response = await PlotAuthority.bulkWrite(finalOperations);
+      let response = await properties.bulkWrite(finalOperations);
       return response;
     });
 
@@ -569,7 +559,6 @@ const importProperties = async (req, res) => {
       response: [],
       rejected: rejected,
       inserted: inserted || 0,
-      isInvalidFile,
       uploaded: uploaded || 0,
       message: "Data uploaded"
     });
@@ -577,7 +566,7 @@ const importProperties = async (req, res) => {
 }
 
 const convertCsvToJson = (file) => {
-  workbook = XLSX.read(file.buffer, { type: "buffer" });
+  let workbook = XLSX.read(file.buffer, { type: "buffer" });
   var sheet_name_list = workbook.SheetNames;
   const options = { defval: "" };
   const data = XLSX.utils.sheet_to_json(
@@ -602,4 +591,5 @@ export default {
   Edit_Update,
   approveProperty,
   uploadProperties,
+  importProperties
 };

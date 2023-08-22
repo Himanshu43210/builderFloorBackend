@@ -28,6 +28,7 @@ router
   )
   .post("/", propertiesController.updatepropertiesByID)
   .get("/", propertiesController.getpropertiesById)
-  .post("/", propertiesController.storeproperties);
+  .post("/", propertiesController.storeproperties)
+  .post("/importProperties",upload.single("file"), propertiesController.importProperties);
 
 export default router;
