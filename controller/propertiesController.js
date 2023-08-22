@@ -428,7 +428,7 @@ const uploadProperties = async (req, res, next) => {
     //   .catch((err) => res.status(500).send("Error uploading files: " + err));
   } catch (err) {
     console.log(err);
-    return res.status(400).json({ message: "Error Upload", err });
+    return res.status(400).json({ message: "Error Upload", error: err.message });
   }
 };
 
