@@ -201,70 +201,48 @@ const filterproperties = async (req, res, next) => {
   if (!filter) {
     return res.status(400).json({ error: "No filter provided" });
   }
-
+  let query = {};
   try {
-    let filteredProperties = await properties.find();
-
     if (filter.accommodation && filter.accommodation.length > 0) {
-      filteredProperties = filteredProperties.filter((property) =>
-        filter.accommodation.includes(property.accommodation)
-      );
+      query.accommodation = { $in: filter.accommodation }
     }
 
     if (filter.categories && filter.categories.length > 0) {
-      filteredProperties = filteredProperties.filter((property) =>
-        filter.categories.includes(property.category)
-      );
+      query.category = { $in: filter.categories }
     }
 
     if (filter.cities && filter.cities.length > 0) {
-      filteredProperties = filteredProperties.filter((property) =>
-        filter.cities.includes(property.city)
-      );
+      query.city = { $in: filter.cities }
     }
 
     if (filter.facing && filter.facing.length > 0) {
-      filteredProperties = filteredProperties.filter((property) =>
-        filter.facing.includes(property.facing)
-      );
+      query.facing = { $in: filter.facing }
     }
     //filter= {"accommodation":["3 BHK"],"categories":[],"cities":["KOLKATA","MUMBAI"],"facing":[],"floors":[],"locations":[],"possession":[],"possession":[],"priceRange":[],"sizeRange":[]}
 
     if (filter.floors && filter.floors.length > 0) {
-      filteredProperties = filteredProperties.filter((property) =>
-        filter.floors.includes(property.floor)
-      );
+      query.floor = { $in: filter.floors }
     }
 
     if (filter.possession && filter.possession.length > 0) {
-      filteredProperties = filteredProperties.filter((property) =>
-        filter.possession.includes(property.possession)
-      );
+      query.possession = { $in: filter.possession }
     }
 
     if (filter.locations && filter.locations.length > 0) {
-      filteredProperties = filteredProperties.filter((property) =>
-        filter.locations.includes(property.floor)
-      );
+      query.sectorNumber = { $in: filter.locations }
     }
 
     if (filter.priceRange && filter.priceRange.length === 2) {
       const minPrice = filter.priceRange[0];
       const maxPrice = filter.priceRange[1];
-
-      filteredProperties = filteredProperties.filter(
-        (property) => property.price >= minPrice && property.price <= maxPrice
-      );
+      query.price = { $gte: minPrice, $lte: maxPrice }
     }
 
-    if (filter.sizeRange && filter.sizeRange.length === 2) {
-      const minSize = filter.sizeRange[0];
-      const maxSize = filter.sizeRange[1];
-
-      filteredProperties = filteredProperties.filter(
-        (property) => property.size >= minSize && property.size <= maxSize
-      );
+    if (filter.sizeRange && filter.sizeRange.length > 0) {
+      query.size = { $in: filter.sizeRange }
     }
+
+    let filteredProperties = await properties.find(query);
 
     res.send(filteredProperties);
   } catch (error) {
@@ -421,7 +399,7 @@ const uploadProperties = async (req, res, next) => {
     // Promise.all(uploads)
     // .then(() => {
     const newProperty = new properties(data).save();
-    return res.json({message:"Data updated successfully.",result:newProperty});
+    return res.json({ message: "Data updated successfully.", result: newProperty });
     //     // res.status(200).json({ message: "Upload Done", urls });
     //   })
     //   .catch((err) => res.status(500).send("Error uploading files: " + err));
