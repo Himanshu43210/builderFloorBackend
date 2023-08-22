@@ -386,8 +386,9 @@ async function ensureFolderStructure(s3, folderPath) {
 
 const uploadProperties = async (req, res, next) => {
   try {
+    console.log(req.files);
     const { _id, ...data } = req.body;
-    const { threeSixtyImages, normalImageFile, thumbnailFile, videoFile, layoutFile, virtualFile } = req?.files;
+    const { threeSixtyImages, normalImageFile, thumbnailFile, videoFile, layoutFile, virtualFile } = req.files;
 
     const folderPath = data.folder;
     // await ensureFolderStructure(s3, folderPath);
