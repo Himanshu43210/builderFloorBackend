@@ -420,9 +420,9 @@ const uploadProperties = async (req, res, next) => {
     console.log(data);
 
     // Promise.all(uploads)
-    //   .then(() => {
-    // const newProperty = new properties(data).save();
-    // return res.json(newProperty);
+    // .then(() => {
+    const newProperty = new properties(data).save();
+    return res.json(newProperty);
     //     // res.status(200).json({ message: "Upload Done", urls });
     //   })
     //   .catch((err) => res.status(500).send("Error uploading files: " + err));
