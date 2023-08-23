@@ -114,7 +114,7 @@ const searchPropertiesData = async (req, res) => {
     possession,
     sortBy,
   } = req.body;
-  const query = { needApprovalBy: "Approved" || undefined };
+  const query = { needApprovalBy: "Approved" };
   // Construct the Mongoose query object
   // const query = { needApprovalBy: "Approved" };
 
@@ -187,7 +187,7 @@ const getHomeData = async (req, res) => {
     let page = Number(req.query.page) || 1;
     const limit = Number(req.query.limit) || 10;
     const { city } = req.query;
-    const queryObject = {};
+    const queryObject = { needApprovalBy: "Approved" };
     if (city) {
       queryObject.city = { $regex: city, $options: "i" };
     }
