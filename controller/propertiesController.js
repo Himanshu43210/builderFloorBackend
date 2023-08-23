@@ -120,14 +120,22 @@ const searchPropertiesData = async (req, res) => {
   try {
     // Execute the Mongoose query
     let skip = (page - 1) * limit;
-    const results = await properties
+    const data = await properties
       .find(query)
       .sort(sortQuery)
       .skip(skip)
       .limit(limit)
       .select(selectedFields)
     // Return the results as JSON
-    res.json(results);
+    const totalItems = await properties.countDocuments(query);
+    const totalPages = Math.ceil(totalItems / limit);
+    res.status(200).json({
+      data,
+      nbHits: data.length,
+      pageNumber: page,
+      totalPages,
+      totalItems,
+    });
   } catch (err) {
     console.error("Error searching properties:", err);
     res
@@ -166,7 +174,7 @@ const getpropertiesList = async (req, res, next) => {
     let skip = (page - 1) * limit;
 
     let data = await properties.find(queryObject).skip(skip).limit(limit);
-    const totalDocuments = await properties.countDocuments();
+    const totalDocuments = await properties.countDocuments(queryObject);
     const totalPages = Math.ceil(totalDocuments / limit);
 
     res.status(200).json({
@@ -438,105 +446,109 @@ const uploadOnS3 = async (files, folderPath) => {
 }
 
 const importProperties = async (req, res) => {
-  let rejected = [];
-  let inserted = 0;
-  let uploaded = 0;
-  let data = convertCsvToJson(req.file);
-  if (
-    !data[0].hasOwnProperty("Plot Number") ||
-    !data[0].hasOwnProperty("Location") || !data[0].hasOwnProperty("Floor")
-  ) {
-    return res.json({ message: "Invalid file, please upload a valid file." });
-  } else {
-    function getoperations(e, callback) {
-      console.log(e);
-      callback(null, {
-        updateOne: {
-          filter: {
-            plotNumber: e["Plot Number"],
-            sectorNumber: e["Location"],
-            floor: e["Floor"],
-          },
-          update: {
-            $set: {
-              city: e['City'],
-              sectorNumber: e['Location'],
-              plotNumber: e['Plot Number'],
-              size: e['Size'],
-              facing: e["Facing"],
-              accommodation: e['Accommodation'],
-              parkFacing: e['Park Facing'] == 'YES' ? true : false,
-              corner: e['Corner'] == 'YES' ? true : false,
+  try {
+    let rejected = [];
+    let inserted = 0;
+    let uploaded = 0;
+    let data = convertCsvToJson(req.file);
+    if (
+      !data[0].hasOwnProperty("Plot Number") ||
+      !data[0].hasOwnProperty("Location") || !data[0].hasOwnProperty("Floor")
+    ) {
+      return res.json({ message: "Invalid file, please upload a valid file." });
+    } else {
+      function getoperations(e, callback) {
+        console.log(e);
+        callback(null, {
+          updateOne: {
+            filter: {
+              plotNumber: e["Plot Number"],
+              sectorNumber: e["Location"],
               floor: e["Floor"],
-              possession: e["Possession"],
-              title: e["1st Page Title"],
-              detailTitle: e["2 Page Title"],
-              description: e["Description"] || '',
-              builderName: e["Builder Name"],
-              builderContact: e["Builder Contact Number"],
-              price: e["Price"],
-              address: e["Address"],
-              category: "PLOT",
-              imageType: e["Image/Video/360 Image"],
-              folder: e["FOLDER NAME"],
-              channelPartner: e["Channel Partner Name"],
-              channelContact: e["Channel Contact Number"],
-              thumbnailName: e["THUMBNAIL IMAGE NAME"]
             },
+            update: {
+              $set: {
+                city: e['City'],
+                sectorNumber: e['Location'],
+                plotNumber: e['Plot Number'],
+                size: e['Size'],
+                facing: e["Facing"],
+                accommodation: e['Accommodation'],
+                parkFacing: e['Park Facing'] == 'YES' ? true : false,
+                corner: e['Corner'] == 'YES' ? true : false,
+                floor: e["Floor"],
+                possession: e["Possession"],
+                title: e["1st Page Title"],
+                detailTitle: e["2 Page Title"],
+                description: e["Description"] || '',
+                builderName: e["Builder Name"],
+                builderContact: e["Builder Contact Number"],
+                price: e["Price"],
+                address: e["Address"],
+                category: "PLOT",
+                imageType: e["Image/Video/360 Image"],
+                folder: e["FOLDER NAME"],
+                channelPartner: e["Channel Partner Name"],
+                channelContact: e["Channel Contact Number"],
+                thumbnailName: e["THUMBNAIL IMAGE NAME"]
+              },
+            },
+            upsert: true,
           },
-          upsert: true,
-        },
+        });
+      }
+
+      let tempData = _.chunk(data, 500);
+
+      let result = await map(tempData, async (v) => {
+        let operations = [];
+        asyncs.map(v, getoperations, function (err, results) {
+          if (err) {
+            console.log(err);
+          } else {
+            operations = results;
+          }
+        });
+
+        const finalOperations = operations.filter((e) => {
+          return (
+            !errors.includes(e.updateOne.filter["plotNumber"]) &&
+            !errors.includes(e.updateOne.filter["sectorNumber"]) &&
+            !errors.includes(e.updateOne.filter["floor"])
+          );
+        });
+
+        let rejectData = v.filter((e) => {
+          return (
+            errors.includes(e["Plot Number"]) ||
+            errors.includes(e["Location"]) ||
+            errors.includes(e["Floor"])
+          );
+        });
+        Array.prototype.push.apply(rejected, rejectData);
+        await delay();
+        let response = await properties.bulkWrite(finalOperations);
+        return response;
+      });
+
+      inserted = result.reduce((acc, e) => {
+        let val = e?.nUpserted || e?.result?.nUpserted;
+        return acc + val;
+      }, 0);
+      uploaded = result.reduce((acc, e) => {
+        let val = e?.nModified || e?.result?.nModified;
+        return acc + val;
+      }, 0);
+      return res.json({
+        response: [],
+        rejected: rejected,
+        inserted: inserted || 0,
+        uploaded: uploaded || 0,
+        message: "Data uploaded"
       });
     }
-
-    let tempData = _.chunk(data, 500);
-
-    let result = await map(tempData, async (v) => {
-      let operations = [];
-      asyncs.map(v, getoperations, function (err, results) {
-        if (err) {
-          console.log(err);
-        } else {
-          operations = results;
-        }
-      });
-
-      const finalOperations = operations.filter((e) => {
-        return (
-          !errors.includes(e.updateOne.filter["plotNumber"]) &&
-          !errors.includes(e.updateOne.filter["sectorNumber"]) &&
-          !errors.includes(e.updateOne.filter["floor"])
-        );
-      });
-
-      let rejectData = v.filter((e) => {
-        return (
-          errors.includes(e["Plot Number"]) ||
-          errors.includes(e["Location"]) ||
-          errors.includes(e["Floor"])
-        );
-      });
-      Array.prototype.push.apply(rejected, rejectData);
-      await delay();
-      let response = await properties.bulkWrite(finalOperations);
-      return response;
-    });
-
-    inserted = result.reduce((acc, e) => {
-      let val = e?.nUpserted || e?.result?.nUpserted;
-      return acc + val;
-    }, 0);
-    uploaded = result.reduce((acc, e) => {
-      let val = e?.nModified || e?.result?.nModified;
-      return acc + val;
-    }, 0);
-    return res.json({
-      response: [],
-      rejected: rejected,
-      inserted: inserted || 0,
-      uploaded: uploaded || 0,
-      message: "Data uploaded"
-    });
+  } catch (error) {
+    res.json({ message: "Internal server error", error: error.message });
   }
 }
 
@@ -550,6 +562,15 @@ const convertCsvToJson = (file) => {
   );
   return data;
 };
+
+const getPropertiesByIds = async (req, res) => {
+  try {
+    const data = await properties.find({ _id: req.body.ids }).select(selectedFields);
+    return res.json(data);
+  } catch (error) {
+    res.json({ message: "Internal server error", error: error.message });
+  }
+}
 
 export default {
   getpropertiesList,
@@ -566,5 +587,6 @@ export default {
   Edit_Update,
   approveProperty,
   uploadProperties,
-  importProperties
+  importProperties,
+  getPropertiesByIds
 };
