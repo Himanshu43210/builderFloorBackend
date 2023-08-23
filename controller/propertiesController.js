@@ -8,6 +8,7 @@ import asyncs from "async";
 import _ from "lodash";
 import { map, delay } from "modern-async";
 const errors = [null, "null", "", undefined, "undefined", "unknown", "Unknown", "NULL", "UNDEFINED", "UNKNOWN"];
+const selectedFields = "_id title sectorNumber accommodation floor size price rating facing possession thumbnails"
 
 const convertToCardData = (datFromDb) => {
   return datFromDb?.map((item) => {
@@ -116,7 +117,6 @@ const searchPropertiesData = async (req, res) => {
     // Set the default sorting column and order here
     sortQuery = { default_sort_column: 1 };
   }
-  console.log(query,'----------search query');
   try {
     // Execute the Mongoose query
     let skip = (page - 1) * limit;
@@ -124,10 +124,10 @@ const searchPropertiesData = async (req, res) => {
       .find(query)
       .sort(sortQuery)
       .skip(skip)
-      .limit(limit);
-
+      .limit(limit)
+      .select(selectedFields)
     // Return the results as JSON
-    res.json(convertToCardData(results));
+    res.json(results);
   } catch (err) {
     console.error("Error searching properties:", err);
     res
@@ -367,33 +367,31 @@ const uploadProperties = async (req, res, next) => {
     const { _id, ...data } = req.body;
     const { threeSixtyImages, normalImageFile, thumbnailFile, videoFile, layoutFile, virtualFile } = req.files;
 
-    const folderPath = data.folder;
     // await ensureFolderStructure(s3, folderPath);
     if (threeSixtyImages && threeSixtyImages.length) {
-      data.images = threeSixtyImages.map((file) => `https://builderfloors.s3.amazonaws.com/${path.join(folderPath, file.originalname).replace(/ /g, '_')}`);
-      await uploadOnS3(threeSixtyImages, folderPath);
+      data.images = threeSixtyImages.map((file) => `https://builderfloors.s3.amazonaws.com/${"threeSixtyImages/", file.originalname.replace(/ /g, '_')}`);
+      await uploadOnS3(threeSixtyImages, "threeSixtyImages");
     }
     if (normalImageFile && normalImageFile.length) {
-      data.normalImages = normalImageFile.map((file) => `https://builderfloors.s3.amazonaws.com/${path.join(folderPath, file.originalname).replace(/ /g, '_')}`);
-      await uploadOnS3(normalImageFile, folderPath);
+      data.normalImages = normalImageFile.map((file) => `https://builderfloors.s3.amazonaws.com/${"normalImageFile", file.originalname.replace(/ /g, '_')}`);
+      await uploadOnS3(normalImageFile, "normalImageFile");
     }
     if (thumbnailFile && thumbnailFile.length) {
-      data.thumbnails = thumbnailFile.map((file) => `https://builderfloors.s3.amazonaws.com/${path.join(folderPath, file.originalname).replace(/ /g, '_')}`);
-      await uploadOnS3(thumbnailFile, folderPath);
+      data.thumbnails = thumbnailFile.map((file) => `https://builderfloors.s3.amazonaws.com/${"thumbnailFile", file.originalname.replace(/ /g, '_')}`);
+      await uploadOnS3(thumbnailFile, "thumbnailFile");
     }
     if (videoFile && videoFile.length) {
-      data.videos = videoFile.map((file) => `https://builderfloors.s3.amazonaws.com/${path.join(folderPath, file.originalname).replace(/ /g, '_')}`);
-      await uploadOnS3(videoFile, folderPath);
+      data.videos = videoFile.map((file) => `https://builderfloors.s3.amazonaws.com/${"videoFile", file.originalname.replace(/ /g, '_')}`);
+      await uploadOnS3(videoFile, "videoFile");
     }
     if (layoutFile && layoutFile.length) {
-      data.layouts = layoutFile.map((file) => `https://builderfloors.s3.amazonaws.com/${path.join(folderPath, file.originalname).replace(/ /g, '_')}`);
-      await uploadOnS3(layoutFile, folderPath);
+      data.layouts = layoutFile.map((file) => `https://builderfloors.s3.amazonaws.com/${"layoutFile", file.originalname.replace(/ /g, '_')}`);
+      await uploadOnS3(layoutFile, "layoutFile");
     }
     if (virtualFile && virtualFile.length) {
-      data.virtualFiles = virtualFile.map((file) => `https://builderfloors.s3.amazonaws.com/${path.join(folderPath, file.originalname).replace(/ /g, '_')}`);
-      await uploadOnS3(virtualFile, folderPath);
+      data.virtualFiles = virtualFile.map((file) => `https://builderfloors.s3.amazonaws.com/${"virtualFile", file.originalname.replace(/ /g, '_')}`);
+      await uploadOnS3(virtualFile, "virtualFile");
     }
-
     console.log(data);
 
     // Promise.all(uploads)
