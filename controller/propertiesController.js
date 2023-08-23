@@ -90,7 +90,7 @@ const searchPropertiesData = async (req, res) => {
   const criteria = req.body;
   let page = Number(criteria.page) || 1;
   const limit = Number(criteria.limit) || 10;
-
+  const { budget, Corner, Park, accommodation, city, facing, floor, location, possession, sortBy } = req.body;
   const query = {};
   // Construct the Mongoose query object
   // const query = { needApprovalBy: "Approved" };
@@ -99,24 +99,38 @@ const searchPropertiesData = async (req, res) => {
   //   // query.city = { $regex: criteria.city.value, $options: "i" };
   // }
 
-  if (criteria.budget) {
-    query.price = { $gte: criteria.budget[0], $lte: criteria.budget[1] };
+  if (budget) {
+    query.price = { $gte: budget[0], $lte: budget[1] };
   }
-
-  if (criteria.accommodation) {
-    query.accommodation = criteria.accommodation;
+  if (accommodation) {
+    query.accommodation = accommodation;
+  }
+  if (Corner) {
+    query.corner = true;
+  }
+  if (Park) {
+    query.parkFacing = true;
+  }
+  if (city) {
+    query.city = city;
+  }
+  if (facing) {
+    query.facing = facing;
+  }
+  if (floor) {
+    query.floor = floor;
+  }
+  if (location) {
+    query.sectorNumber = location;
+  }
+  if (possession) {
+    query.possession = possession;
   }
 
   // Add more conditions for other fields in a similar manner
 
   // Sorting
-  let sortQuery = {};
-  if (criteria.sortBy && criteria.sortBy === "Price High to Low") {
-    sortQuery = { price: -1 };
-  } else {
-    // Set the default sorting column and order here
-    sortQuery = { default_sort_column: 1 };
-  }
+  let sortQuery = sortBy === "Price High to Low" ? { price: -1 } : { default_sort_column: 1 };
   try {
     // Execute the Mongoose query
     let skip = (page - 1) * limit;
