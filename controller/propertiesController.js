@@ -483,7 +483,7 @@ const importProperties = async (req, res) => {
                 description: e["Description"] || '',
                 builderName: e["Builder Name"],
                 builderContact: e["Builder Contact Number"],
-                price: e["Price"],
+                price: parseFloat(e["Price"]) ? parseFloat(e["Price"]) * 10000000 : "Price on Request",
                 address: e["Address"],
                 category: "PLOT",
                 imageType: e["Image/Video/360 Image"],
