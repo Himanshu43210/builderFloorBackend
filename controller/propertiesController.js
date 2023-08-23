@@ -116,7 +116,7 @@ const searchPropertiesData = async (req, res) => {
     // Set the default sorting column and order here
     sortQuery = { default_sort_column: 1 };
   }
-
+  console.log(query,'----------search query');
   try {
     // Execute the Mongoose query
     let skip = (page - 1) * limit;
