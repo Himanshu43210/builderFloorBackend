@@ -57,11 +57,38 @@ const Edit_update = async (req, res) => {
 const getusersList = async (req, res, next) => {
   try {
     let page = Number(req.query.page) || 1;
+    console.log("it is here");
     const limit = Number(req.query.limit) || 10;
 
     let skip = (page - 1) * limit;
 
     let data = await users.find().skip(skip).limit(limit);
+
+    const totalDocuments = await users.countDocuments();
+    const totalPages = Math.ceil(totalDocuments / limit);
+
+    res.status(200).json({
+      data,
+      nbHits: data.length,
+      pageNumber: page,
+      totalPages: totalPages,
+      totalItems: totalDocuments,
+    });
+  } catch (error) {
+    res.status(400).json({ messgae: error.message });
+  }
+};
+
+const getAdminUsersList = async (req, res, next) => {
+  try {
+    const id = req.query.id || "";
+    console.log(id);
+    let page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 10;
+
+    let skip = (page - 1) * limit;
+    const query = { parentId: id };
+    let data = await users.find(query).skip(skip).limit(limit);
 
     const totalDocuments = await users.countDocuments();
     const totalPages = Math.ceil(totalDocuments / limit);
@@ -122,9 +149,7 @@ const updateEditUsers = async (req, res, next) => {
       city: req.body.city,
       role: req.body.role,
       parentId:
-        req.body.role === USER_ROLE["bfAdmin"]
-          ? "Approved"
-          : req.body.parentId, // password: hashedPassword,
+        req.body.role === USER_ROLE["bfAdmin"] ? "Approved" : req.body.parentId, // password: hashedPassword,
       password: req.body.password,
     };
     let data = await users.findOne({ _id: req.body._id });
@@ -280,9 +305,14 @@ const getChannelPartnersList = async (req, res, next) => {
 
     let skip = (page - 1) * limit;
 
-    let data = await users.find({ role: "ChannelPartner" }).skip(skip).limit(limit);
+    let data = await users
+      .find({ role: "ChannelPartner" })
+      .skip(skip)
+      .limit(limit);
 
-    const totalDocuments = await users.countDocuments({ role: "ChannelPartner" });
+    const totalDocuments = await users.countDocuments({
+      role: "ChannelPartner",
+    });
     const totalPages = Math.ceil(totalDocuments / limit);
 
     res.status(200).json({
@@ -299,6 +329,7 @@ const getChannelPartnersList = async (req, res, next) => {
 
 export default {
   getusersList,
+  getAdminUsersList,
   handleSignup,
   handleVerifyOTP,
   getusersById,

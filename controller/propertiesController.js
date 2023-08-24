@@ -114,7 +114,12 @@ const searchPropertiesData = async (req, res) => {
     possession,
     sortBy,
   } = req.body;
-  const query = { needApprovalBy: "Approved" };
+  const query = {
+    $or: [
+      { needApprovalBy: { $eq: "Approved" } },
+      { needApprovalBy: { $exists: false } },
+    ],
+  };
   // Construct the Mongoose query object
   // const query = { needApprovalBy: "Approved" };
 
@@ -187,7 +192,7 @@ const getHomeData = async (req, res) => {
     let page = Number(req.query.page) || 1;
     const limit = Number(req.query.limit) || 10;
     const { city } = req.query;
-    const queryObject = { needApprovalBy: "Approved" };
+    const queryObject = {};
     if (city) {
       queryObject.city = { $regex: city, $options: "i" };
     }
@@ -208,6 +213,33 @@ const getpropertiesList = async (req, res, next) => {
     const { SortType, sortColumn } = req.query;
     console.log({ page, limit, SortType, sortColumn });
     const queryObject = {};
+
+    let skip = (page - 1) * limit;
+
+    let data = await properties.find(queryObject).skip(skip).limit(limit);
+    const totalDocuments = await properties.countDocuments(queryObject);
+    const totalPages = Math.ceil(totalDocuments / limit);
+
+    res.status(200).json({
+      data,
+      nbHits: data.length,
+      pageNumber: page,
+      totalPages: totalPages,
+      totalItems: totalDocuments,
+    });
+  } catch (error) {
+    res.status(400).json({ messgae: error.message });
+  }
+};
+
+const getAdminPropertiesList = async (req, res, next) => {
+  try {
+    const id = req.query.id || "";
+    let page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 10;
+    const { SortType, sortColumn } = req.query;
+    console.log({ page, limit, SortType, sortColumn });
+    const queryObject = { $or: [{ parentId: id }, { needApprovalBy: id }] };
 
     let skip = (page - 1) * limit;
 
@@ -394,14 +426,37 @@ const insertBulkproperties = async (req, res, next) => {
   }
 };
 
-async function ensureFolderStructure(s3, folderPath) {
-  const parts = folderPath.split("/");
+const folderNamesMapping = {
+  threeSixtyImages: "360 Image",
+  normalImageFile: "Normal Image",
+  thumbnailFile: "Thumbnail Image",
+  videoFile: "Video File",
+  layoutFile: "Layout File",
+  virtualFile: "Virtual File",
+};
+
+const apiToModelKeyMapping = {
+  threeSixtyImages: "images",
+  normalImageFile: "normalImages",
+  thumbnailFile: "thumbnails",
+  videoFile: "videos",
+  layoutFile: "layouts",
+  virtualFile: "virtualFiles",
+};
+
+function joinS3Path(...args) {
+  return args.join("/");
+}
+
+async function ensureFolderStructure(s3, mainFolderPath, subFolderPath = "") {
+  const fullPath = path.join(mainFolderPath, subFolderPath);
+  const parts = fullPath.split("/");
   let currentPath = "";
   for (const part of parts) {
-    currentPath += part + "/";
+    currentPath = path.join(currentPath, part);
     const params = {
       Bucket: process.env.S3_BUCKET_NAME,
-      Key: currentPath,
+      Key: `${currentPath}/`,
       Body: "",
     };
     await s3.putObject(params).promise();
@@ -410,83 +465,39 @@ async function ensureFolderStructure(s3, folderPath) {
 
 const uploadProperties = async (req, res, next) => {
   try {
-    const { _id, ...data } = req.body;
-    const {
-      threeSixtyImages,
-      normalImageFile,
-      thumbnailFile,
-      videoFile,
-      layoutFile,
-      virtualFile,
-    } = req.files;
+    const { _id, folder, ...otherData } = req.body;
+    // adding upload/ before folder
+    folder = "testUploads/" + folder;
+    const s3 = new AWS.S3({
+      accessKeyId: process.env.S3_ACCESS_KEY,
+      secretAccessKey: process.env.S3_SECRET_ACCESS_KEY,
+    });
 
-    // await ensureFolderStructure(s3, folderPath);
-    if (threeSixtyImages && threeSixtyImages.length) {
-      data.images = threeSixtyImages.map(
-        (file) =>
-          `https://builderfloors.s3.amazonaws.com/${
-            ("threeSixtyImages/", file.originalname.replace(/ /g, "_"))
-          }`
-      );
-      await uploadOnS3(threeSixtyImages, "threeSixtyImages");
-    }
-    if (normalImageFile && normalImageFile.length) {
-      data.normalImages = normalImageFile.map(
-        (file) =>
-          `https://builderfloors.s3.amazonaws.com/${
-            ("normalImageFile", file.originalname.replace(/ /g, "_"))
-          }`
-      );
-      await uploadOnS3(normalImageFile, "normalImageFile");
-    }
-    if (thumbnailFile && thumbnailFile.length) {
-      data.thumbnails = thumbnailFile.map(
-        (file) =>
-          `https://builderfloors.s3.amazonaws.com/${
-            ("thumbnailFile", file.originalname.replace(/ /g, "_"))
-          }`
-      );
-      await uploadOnS3(thumbnailFile, "thumbnailFile");
-    }
-    if (videoFile && videoFile.length) {
-      data.videos = videoFile.map(
-        (file) =>
-          `https://builderfloors.s3.amazonaws.com/${
-            ("videoFile", file.originalname.replace(/ /g, "_"))
-          }`
-      );
-      await uploadOnS3(videoFile, "videoFile");
-    }
-    if (layoutFile && layoutFile.length) {
-      data.layouts = layoutFile.map(
-        (file) =>
-          `https://builderfloors.s3.amazonaws.com/${
-            ("layoutFile", file.originalname.replace(/ /g, "_"))
-          }`
-      );
-      await uploadOnS3(layoutFile, "layoutFile");
-    }
-    if (virtualFile && virtualFile.length) {
-      data.virtualFiles = virtualFile.map(
-        (file) =>
-          `https://builderfloors.s3.amazonaws.com/${
-            ("virtualFile", file.originalname.replace(/ /g, "_"))
-          }`
-      );
-      await uploadOnS3(virtualFile, "virtualFile");
-    }
-    console.log(data);
+    let uploadData = { ...otherData };
 
-    // Promise.all(uploads)
-    // .then(() => {
-    const newProperty = new properties(data).save();
+    for (let fileKey in folderNamesMapping) {
+      if (req.files[fileKey] && req.files[fileKey].length) {
+        const specificFolderPath = folderNamesMapping[fileKey];
+        await ensureFolderStructure(s3, folder, specificFolderPath);
+        const fileUrls = await uploadOnS3(
+          req.files[fileKey],
+          joinS3Path(folder, specificFolderPath)
+        );
+
+        // Mapping keys
+        let mappedKey = fileKey;
+        if (fileKey in apiToModelKeyMapping) {
+          mappedKey = apiToModelKeyMapping[fileKey];
+        }
+        uploadData[mappedKey] = fileUrls; // Assign the URLs to the correct key in uploadData
+      }
+    }
+
+    const newProperty = await new properties(uploadData).save();
     return res.json({
       message: "Data updated successfully.",
       result: newProperty,
     });
-    //     // res.status(200).json({ message: "Upload Done", urls });
-    //   })
-    //   .catch((err) => res.status(500).send("Error uploading files: " + err));
   } catch (err) {
     console.log(err);
     return res
@@ -500,27 +511,35 @@ const uploadOnS3 = async (files, folderPath) => {
     accessKeyId: process.env.S3_ACCESS_KEY,
     secretAccessKey: process.env.S3_SECRET_ACCESS_KEY,
   });
-  files.map((file) => {
-    return new Promise((resolve, reject) => {
-      const s3Key = path.join(folderPath, file.originalname).replace(/ /g, "_");
-      const params = {
-        Bucket: process.env.S3_BUCKET_NAME,
-        Key: s3Key,
-        Body: file.buffer,
-        ContentType: file.mimetype,
-      };
 
-      s3.upload(params, (err, data) => {
-        if (err) {
-          console.error("Error uploading to S3:", err);
-          reject(err);
-        } else {
-          console.log(data.Location);
-          resolve();
-        }
+  const fileUrls = await Promise.all(
+    files.map((file) => {
+      return new Promise((resolve, reject) => {
+        const s3Key = joinS3Path(
+          folderPath,
+          file.originalname.replace(/ /g, "_")
+        );
+        const params = {
+          Bucket: process.env.S3_BUCKET_NAME,
+          Key: s3Key,
+          Body: file.buffer,
+          ContentType: file.mimetype,
+        };
+
+        s3.upload(params, (err, data) => {
+          if (err) {
+            console.error("Error uploading to S3:", err);
+            reject(err);
+          } else {
+            console.log(data.Location);
+            resolve(data.Location); // Return the file URL
+          }
+        });
       });
-    });
-  });
+    })
+  );
+
+  return fileUrls;
 };
 
 const importProperties = async (req, res) => {
@@ -657,6 +676,7 @@ const getPropertiesByIds = async (req, res) => {
 
 export default {
   getpropertiesList,
+  getAdminPropertiesList,
   storeproperties,
   getpropertiesById,
   deletepropertiesById,

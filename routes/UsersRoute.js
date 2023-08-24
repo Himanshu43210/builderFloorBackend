@@ -6,6 +6,7 @@ import usersController from "../controller/UsersController.js";
 router
   .post("/auth/login", usersController.login)
   .get("/list", usersController.getusersList)
+  .get("/adminUserList", usersController.getAdminUsersList)
   .post("/addUser", usersController.updateEditUsers)
   .post("/editUser", usersController.updateEditUsers)
   .delete("/deleteUser", usersController.deleteusersById)

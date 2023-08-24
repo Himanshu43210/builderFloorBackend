@@ -11,10 +11,18 @@ router
   .get("/getSimilarProperties", propertiesController.getHomeData)
   .post("/searchPropertiesData", propertiesController.searchPropertiesData)
   .get("/list", propertiesController.getpropertiesList)
+  .get("/adminPropertyList", propertiesController.getAdminPropertiesList)
   // .post("/addProperty", propertiesController.Edit_Update)
   .post(
     "/editProperty",
-    upload.fields([{ name: 'threeSixtyImages' }, { name: 'normalImageFile' }, { name: 'thumbnailFile' }, { name: 'videoFile' }, { name: 'layoutFile' }, { name: 'virtualFile' }]),
+    upload.fields([
+      { name: "threeSixtyImages" },
+      { name: "normalImageFile" },
+      { name: "thumbnailFile" },
+      { name: "videoFile" },
+      { name: "layoutFile" },
+      { name: "virtualFile" },
+    ]),
     propertiesController.uploadProperties
   )
   .delete("/deleteProperty", propertiesController.deletepropertiesById)
@@ -23,13 +31,24 @@ router
   .post("/search", propertiesController.searchproperties)
   .post(
     "/addProperty",
-    upload.fields([{ name: 'threeSixtyImages' }, { name: 'normalImageFile' }, { name: 'thumbnailFile' }, { name: 'videoFile' }, { name: 'layoutFile' }, { name: 'virtualFile' }]),
+    upload.fields([
+      { name: "threeSixtyImages" },
+      { name: "normalImageFile" },
+      { name: "thumbnailFile" },
+      { name: "videoFile" },
+      { name: "layoutFile" },
+      { name: "virtualFile" },
+    ]),
     propertiesController.uploadProperties
   )
   .post("/", propertiesController.updatepropertiesByID)
   .get("/", propertiesController.getpropertiesById)
   .post("/", propertiesController.storeproperties)
-  .post("/importProperties", upload.single("file"), propertiesController.importProperties)
+  .post(
+    "/importProperties",
+    upload.single("file"),
+    propertiesController.importProperties
+  )
   .post("/getPropertiesByIds", propertiesController.getPropertiesByIds);
 
 export default router;
