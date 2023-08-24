@@ -135,7 +135,7 @@ const searchPropertiesData = async (req, res) => {
     query.parkFacing = true;
   }
   if (city) {
-    query.city = city;
+    query.city = { $regex: city, $options: "i" };
   }
   if (facing) {
     query.facing = facing;
@@ -411,21 +411,13 @@ async function ensureFolderStructure(s3, folderPath) {
 const uploadProperties = async (req, res, next) => {
   try {
     const { _id, ...data } = req.body;
-    const {
-      threeSixtyImages,
-      normalImageFile,
-      thumbnailFile,
-      videoFile,
-      layoutFile,
-      virtualFile,
-    } = req.files;
-
+    const { threeSixtyImages, normalImageFile, thumbnailFile, videoFile, layoutFile, virtualFile } = req.files;
+    data.price = parseFloat(data.price) ? parseFloat(data.price) : "Price on Request"
     // await ensureFolderStructure(s3, folderPath);
     if (threeSixtyImages && threeSixtyImages.length) {
       data.images = threeSixtyImages.map(
         (file) =>
-          `https://builderfloors.s3.amazonaws.com/${
-            ("threeSixtyImages/", file.originalname.replace(/ /g, "_"))
+          `https://builderfloors.s3.amazonaws.com/${("threeSixtyImages/", file.originalname.replace(/ /g, "_"))
           }`
       );
       await uploadOnS3(threeSixtyImages, "threeSixtyImages");
@@ -433,8 +425,7 @@ const uploadProperties = async (req, res, next) => {
     if (normalImageFile && normalImageFile.length) {
       data.normalImages = normalImageFile.map(
         (file) =>
-          `https://builderfloors.s3.amazonaws.com/${
-            ("normalImageFile", file.originalname.replace(/ /g, "_"))
+          `https://builderfloors.s3.amazonaws.com/${("normalImageFile", file.originalname.replace(/ /g, "_"))
           }`
       );
       await uploadOnS3(normalImageFile, "normalImageFile");
@@ -442,8 +433,7 @@ const uploadProperties = async (req, res, next) => {
     if (thumbnailFile && thumbnailFile.length) {
       data.thumbnails = thumbnailFile.map(
         (file) =>
-          `https://builderfloors.s3.amazonaws.com/${
-            ("thumbnailFile", file.originalname.replace(/ /g, "_"))
+          `https://builderfloors.s3.amazonaws.com/${("thumbnailFile", file.originalname.replace(/ /g, "_"))
           }`
       );
       await uploadOnS3(thumbnailFile, "thumbnailFile");
@@ -451,8 +441,7 @@ const uploadProperties = async (req, res, next) => {
     if (videoFile && videoFile.length) {
       data.videos = videoFile.map(
         (file) =>
-          `https://builderfloors.s3.amazonaws.com/${
-            ("videoFile", file.originalname.replace(/ /g, "_"))
+          `https://builderfloors.s3.amazonaws.com/${("videoFile", file.originalname.replace(/ /g, "_"))
           }`
       );
       await uploadOnS3(videoFile, "videoFile");
@@ -460,8 +449,7 @@ const uploadProperties = async (req, res, next) => {
     if (layoutFile && layoutFile.length) {
       data.layouts = layoutFile.map(
         (file) =>
-          `https://builderfloors.s3.amazonaws.com/${
-            ("layoutFile", file.originalname.replace(/ /g, "_"))
+          `https://builderfloors.s3.amazonaws.com/${("layoutFile", file.originalname.replace(/ /g, "_"))
           }`
       );
       await uploadOnS3(layoutFile, "layoutFile");
@@ -469,8 +457,7 @@ const uploadProperties = async (req, res, next) => {
     if (virtualFile && virtualFile.length) {
       data.virtualFiles = virtualFile.map(
         (file) =>
-          `https://builderfloors.s3.amazonaws.com/${
-            ("virtualFile", file.originalname.replace(/ /g, "_"))
+          `https://builderfloors.s3.amazonaws.com/${("virtualFile", file.originalname.replace(/ /g, "_"))
           }`
       );
       await uploadOnS3(virtualFile, "virtualFile");
