@@ -112,7 +112,7 @@ const searchPropertiesData = async (req, res) => {
     query.parkFacing = true;
   }
   if (city) {
-    query.city = city;
+    query.city = { $regex: city, $options: "i" };
   }
   if (facing) {
     query.facing = facing;
@@ -388,7 +388,7 @@ const uploadProperties = async (req, res, next) => {
   try {
     const { _id, ...data } = req.body;
     const { threeSixtyImages, normalImageFile, thumbnailFile, videoFile, layoutFile, virtualFile } = req.files;
-
+    data.price = parseFloat(data.price) ? parseFloat(data.price) : "Price on Request"
     // await ensureFolderStructure(s3, folderPath);
     if (threeSixtyImages && threeSixtyImages.length) {
       data.images = threeSixtyImages.map((file) => `https://builderfloors.s3.amazonaws.com/${"threeSixtyImages/", file.originalname.replace(/ /g, '_')}`);
