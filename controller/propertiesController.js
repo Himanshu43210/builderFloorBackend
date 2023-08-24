@@ -7,8 +7,20 @@ import XLSX from "xlsx";
 import asyncs from "async";
 import _ from "lodash";
 import { map, delay } from "modern-async";
-const errors = [null, "null", "", undefined, "undefined", "unknown", "Unknown", "NULL", "UNDEFINED", "UNKNOWN"];
-const selectedFields = "_id title sectorNumber accommodation floor size price rating facing possession thumbnails"
+const errors = [
+  null,
+  "null",
+  "",
+  undefined,
+  "undefined",
+  "unknown",
+  "Unknown",
+  "NULL",
+  "UNDEFINED",
+  "UNKNOWN",
+];
+const selectedFields =
+  "_id title sectorNumber accommodation floor size price rating facing possession thumbnails";
 
 const convertToCardData = (datFromDb) => {
   return datFromDb?.map((item) => {
@@ -90,8 +102,19 @@ const searchPropertiesData = async (req, res) => {
   const criteria = req.body;
   let page = Number(criteria.page) || 1;
   const limit = Number(criteria.limit) || 10;
-  const { budget, Corner, Park, accommodation, city, facing, floor, location, possession, sortBy } = req.body;
-  const query = {};
+  const {
+    budget,
+    Corner,
+    Park,
+    accommodation,
+    city,
+    facing,
+    floor,
+    location,
+    possession,
+    sortBy,
+  } = req.body;
+  const query = { needApprovalBy: "Approved" };
   // Construct the Mongoose query object
   // const query = { needApprovalBy: "Approved" };
 
@@ -130,7 +153,8 @@ const searchPropertiesData = async (req, res) => {
   // Add more conditions for other fields in a similar manner
 
   // Sorting
-  let sortQuery = sortBy === "Price High to Low" ? { price: -1 } : { default_sort_column: 1 };
+  let sortQuery =
+    sortBy === "Price High to Low" ? { price: -1 } : { default_sort_column: 1 };
   try {
     // Execute the Mongoose query
     let skip = (page - 1) * limit;
@@ -139,7 +163,7 @@ const searchPropertiesData = async (req, res) => {
       .sort(sortQuery)
       .skip(skip)
       .limit(limit)
-      .select(selectedFields)
+      .select(selectedFields);
     // Return the results as JSON
     const totalItems = await properties.countDocuments(query);
     const totalPages = Math.ceil(totalItems / limit);
@@ -163,7 +187,7 @@ const getHomeData = async (req, res) => {
     let page = Number(req.query.page) || 1;
     const limit = Number(req.query.limit) || 10;
     const { city } = req.query;
-    const queryObject = {};
+    const queryObject = { needApprovalBy: "Approved" };
     if (city) {
       queryObject.city = { $regex: city, $options: "i" };
     }
@@ -226,42 +250,42 @@ const filterproperties = async (req, res, next) => {
   let query = {};
   try {
     if (filter.accommodation && filter.accommodation.length > 0) {
-      query.accommodation = { $in: filter.accommodation }
+      query.accommodation = { $in: filter.accommodation };
     }
 
     if (filter.categories && filter.categories.length > 0) {
-      query.category = { $in: filter.categories }
+      query.category = { $in: filter.categories };
     }
 
     if (filter.cities && filter.cities.length > 0) {
-      query.city = { $in: filter.cities }
+      query.city = { $in: filter.cities };
     }
 
     if (filter.facing && filter.facing.length > 0) {
-      query.facing = { $in: filter.facing }
+      query.facing = { $in: filter.facing };
     }
     //filter= {"accommodation":["3 BHK"],"categories":[],"cities":["KOLKATA","MUMBAI"],"facing":[],"floors":[],"locations":[],"possession":[],"possession":[],"priceRange":[],"sizeRange":[]}
 
     if (filter.floors && filter.floors.length > 0) {
-      query.floor = { $in: filter.floors }
+      query.floor = { $in: filter.floors };
     }
 
     if (filter.possession && filter.possession.length > 0) {
-      query.possession = { $in: filter.possession }
+      query.possession = { $in: filter.possession };
     }
 
     if (filter.locations && filter.locations.length > 0) {
-      query.sectorNumber = { $in: filter.locations }
+      query.sectorNumber = { $in: filter.locations };
     }
 
     if (filter.priceRange && filter.priceRange.length === 2) {
       const minPrice = filter.priceRange[0];
       const maxPrice = filter.priceRange[1];
-      query.price = { $gte: minPrice, $lte: maxPrice }
+      query.price = { $gte: minPrice, $lte: maxPrice };
     }
 
     if (filter.sizeRange && filter.sizeRange.length > 0) {
-      query.size = { $in: filter.sizeRange }
+      query.size = { $in: filter.sizeRange };
     }
 
     let filteredProperties = await properties.find(query);
@@ -391,27 +415,51 @@ const uploadProperties = async (req, res, next) => {
     data.price = parseFloat(data.price) ? parseFloat(data.price) : "Price on Request"
     // await ensureFolderStructure(s3, folderPath);
     if (threeSixtyImages && threeSixtyImages.length) {
-      data.images = threeSixtyImages.map((file) => `https://builderfloors.s3.amazonaws.com/${"threeSixtyImages/", file.originalname.replace(/ /g, '_')}`);
+      data.images = threeSixtyImages.map(
+        (file) =>
+          `https://builderfloors.s3.amazonaws.com/${("threeSixtyImages/", file.originalname.replace(/ /g, "_"))
+          }`
+      );
       await uploadOnS3(threeSixtyImages, "threeSixtyImages");
     }
     if (normalImageFile && normalImageFile.length) {
-      data.normalImages = normalImageFile.map((file) => `https://builderfloors.s3.amazonaws.com/${"normalImageFile", file.originalname.replace(/ /g, '_')}`);
+      data.normalImages = normalImageFile.map(
+        (file) =>
+          `https://builderfloors.s3.amazonaws.com/${("normalImageFile", file.originalname.replace(/ /g, "_"))
+          }`
+      );
       await uploadOnS3(normalImageFile, "normalImageFile");
     }
     if (thumbnailFile && thumbnailFile.length) {
-      data.thumbnails = thumbnailFile.map((file) => `https://builderfloors.s3.amazonaws.com/${"thumbnailFile", file.originalname.replace(/ /g, '_')}`);
+      data.thumbnails = thumbnailFile.map(
+        (file) =>
+          `https://builderfloors.s3.amazonaws.com/${("thumbnailFile", file.originalname.replace(/ /g, "_"))
+          }`
+      );
       await uploadOnS3(thumbnailFile, "thumbnailFile");
     }
     if (videoFile && videoFile.length) {
-      data.videos = videoFile.map((file) => `https://builderfloors.s3.amazonaws.com/${"videoFile", file.originalname.replace(/ /g, '_')}`);
+      data.videos = videoFile.map(
+        (file) =>
+          `https://builderfloors.s3.amazonaws.com/${("videoFile", file.originalname.replace(/ /g, "_"))
+          }`
+      );
       await uploadOnS3(videoFile, "videoFile");
     }
     if (layoutFile && layoutFile.length) {
-      data.layouts = layoutFile.map((file) => `https://builderfloors.s3.amazonaws.com/${"layoutFile", file.originalname.replace(/ /g, '_')}`);
+      data.layouts = layoutFile.map(
+        (file) =>
+          `https://builderfloors.s3.amazonaws.com/${("layoutFile", file.originalname.replace(/ /g, "_"))
+          }`
+      );
       await uploadOnS3(layoutFile, "layoutFile");
     }
     if (virtualFile && virtualFile.length) {
-      data.virtualFiles = virtualFile.map((file) => `https://builderfloors.s3.amazonaws.com/${"virtualFile", file.originalname.replace(/ /g, '_')}`);
+      data.virtualFiles = virtualFile.map(
+        (file) =>
+          `https://builderfloors.s3.amazonaws.com/${("virtualFile", file.originalname.replace(/ /g, "_"))
+          }`
+      );
       await uploadOnS3(virtualFile, "virtualFile");
     }
     console.log(data);
@@ -419,13 +467,18 @@ const uploadProperties = async (req, res, next) => {
     // Promise.all(uploads)
     // .then(() => {
     const newProperty = new properties(data).save();
-    return res.json({ message: "Data updated successfully.", result: newProperty });
+    return res.json({
+      message: "Data updated successfully.",
+      result: newProperty,
+    });
     //     // res.status(200).json({ message: "Upload Done", urls });
     //   })
     //   .catch((err) => res.status(500).send("Error uploading files: " + err));
   } catch (err) {
     console.log(err);
-    return res.status(400).json({ message: "Error Upload", error: err.message });
+    return res
+      .status(400)
+      .json({ message: "Error Upload", error: err.message });
   }
 };
 
@@ -436,14 +489,12 @@ const uploadOnS3 = async (files, folderPath) => {
   });
   files.map((file) => {
     return new Promise((resolve, reject) => {
-      const s3Key = path
-        .join(folderPath, file.originalname)
-        .replace(/ /g, '_');
+      const s3Key = path.join(folderPath, file.originalname).replace(/ /g, "_");
       const params = {
         Bucket: process.env.S3_BUCKET_NAME,
         Key: s3Key,
         Body: file.buffer,
-        ContentType: file.mimetype
+        ContentType: file.mimetype,
       };
 
       s3.upload(params, (err, data) => {
@@ -457,7 +508,7 @@ const uploadOnS3 = async (files, folderPath) => {
       });
     });
   });
-}
+};
 
 const importProperties = async (req, res) => {
   try {
@@ -467,7 +518,8 @@ const importProperties = async (req, res) => {
     let data = convertCsvToJson(req.file);
     if (
       !data[0].hasOwnProperty("Plot Number") ||
-      !data[0].hasOwnProperty("Location") || !data[0].hasOwnProperty("Floor")
+      !data[0].hasOwnProperty("Location") ||
+      !data[0].hasOwnProperty("Floor")
     ) {
       return res.json({ message: "Invalid file, please upload a valid file." });
     } else {
@@ -482,29 +534,31 @@ const importProperties = async (req, res) => {
             },
             update: {
               $set: {
-                city: e['City'],
-                sectorNumber: e['Location'],
-                plotNumber: e['Plot Number'],
-                size: e['Size'],
+                city: e["City"],
+                sectorNumber: e["Location"],
+                plotNumber: e["Plot Number"],
+                size: e["Size"],
                 facing: e["Facing"],
-                accommodation: e['Accommodation'],
-                parkFacing: e['Park Facing'] == 'YES' ? true : false,
-                corner: e['Corner'] == 'YES' ? true : false,
+                accommodation: e["Accommodation"],
+                parkFacing: e["Park Facing"] == "YES" ? true : false,
+                corner: e["Corner"] == "YES" ? true : false,
                 floor: e["Floor"],
                 possession: e["Possession"],
                 title: e["1st Page Title"],
                 detailTitle: e["2 Page Title"],
-                description: e["Description"] || '',
+                description: e["Description"] || "",
                 builderName: e["Builder Name"],
                 builderContact: e["Builder Contact Number"],
-                price: parseFloat(e["Price"]) ? parseFloat(e["Price"]) * 10000000 : "Price on Request",
+                price: parseFloat(e["Price"])
+                  ? parseFloat(e["Price"]) * 10000000
+                  : "Price on Request",
                 address: e["Address"],
                 category: "PLOT",
                 imageType: e["Image/Video/360 Image"],
                 folder: e["FOLDER NAME"],
                 channelPartner: e["Channel Partner Name"],
                 channelContact: e["Channel Contact Number"],
-                thumbnailName: e["THUMBNAIL IMAGE NAME"]
+                thumbnailName: e["THUMBNAIL IMAGE NAME"],
               },
             },
             upsert: true,
@@ -558,13 +612,13 @@ const importProperties = async (req, res) => {
         rejected: rejected,
         inserted: inserted || 0,
         uploaded: uploaded || 0,
-        message: "Data uploaded"
+        message: "Data uploaded",
       });
     }
   } catch (error) {
     res.json({ message: "Internal server error", error: error.message });
   }
-}
+};
 
 const convertCsvToJson = (file) => {
   let workbook = XLSX.read(file.buffer, { type: "buffer" });
@@ -579,12 +633,14 @@ const convertCsvToJson = (file) => {
 
 const getPropertiesByIds = async (req, res) => {
   try {
-    const data = await properties.find({ _id: req.body.ids }).select(selectedFields);
+    const data = await properties
+      .find({ _id: req.body.ids })
+      .select(selectedFields);
     return res.json(data);
   } catch (error) {
     res.json({ message: "Internal server error", error: error.message });
   }
-}
+};
 
 export default {
   getpropertiesList,
@@ -602,5 +658,5 @@ export default {
   approveProperty,
   uploadProperties,
   importProperties,
-  getPropertiesByIds
+  getPropertiesByIds,
 };
