@@ -140,7 +140,7 @@ const searchPropertiesData = async (req, res) => {
     query.parkFacing = true;
   }
   if (city) {
-    query.city = city;
+    query.city = { $regex: city, $options: "i" };
   }
   if (facing) {
     query.facing = facing;
