@@ -467,7 +467,7 @@ const uploadProperties = async (req, res, next) => {
   try {
     const { _id, folder, ...otherData } = req.body;
     // adding upload/ before folder
-    folder = "testUploads/" + folder;
+    folder = "upload/" + folder;
     const s3 = new AWS.S3({
       accessKeyId: process.env.S3_ACCESS_KEY,
       secretAccessKey: process.env.S3_SECRET_ACCESS_KEY,
