@@ -465,7 +465,7 @@ async function ensureFolderStructure(s3, mainFolderPath, subFolderPath = "") {
 
 const uploadProperties = async (req, res, next) => {
   try {
-    const { _id, folder, ...otherData } = req.body;
+    let { _id, folder, ...otherData } = req.body;
     // adding upload/ before folder
     folder = "upload/" + folder;
     const s3 = new AWS.S3({
