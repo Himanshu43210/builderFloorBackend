@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { BUILDER_FLOOR_ADMIN } from "../const.js";
 const { Schema } = mongoose;
 
 const UsersSchema = new Schema(
@@ -21,6 +22,10 @@ const UsersSchema = new Schema(
   },
   { timestamps: true }
 );
+
+UsersSchema.methods.isBuilderAdmin = async function () {
+  return this.role === BUILDER_FLOOR_ADMIN;
+};
 
 const users = mongoose.model("users", UsersSchema);
 

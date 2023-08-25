@@ -164,6 +164,7 @@ const updateEditUsers = async (req, res, next) => {
     await newUser.save();
     res.send({ message: "New Users Stored." });
   } catch (error) {
+    console.log(error);
     res.status(400).json({ messgae: "An error Occoured", error });
   }
 };

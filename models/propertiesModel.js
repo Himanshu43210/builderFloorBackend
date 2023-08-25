@@ -18,7 +18,7 @@ const propertiesSchema = new Schema(
     description: { type: String },
     builderName: { type: String },
     builderContact: { type: String },
-    price: { type: Schema.Types.Mixed },
+    price: { type: Number },
     address: { type: String },
     editor_choice: { type: Boolean },
     category: { type: String },
@@ -39,7 +39,6 @@ const propertiesSchema = new Schema(
   },
   { timestamps: true }
 );
-
 
 const properties = mongoose.model("properties", propertiesSchema);
 
