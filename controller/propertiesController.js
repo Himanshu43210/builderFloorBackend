@@ -1,12 +1,11 @@
-import mongoose from "mongoose";
 import properties from "../models/propertiesModel.js";
 import AWS from "aws-sdk";
-import fs from "fs";
-import path from "path";
 import XLSX from "xlsx";
 import asyncs from "async";
 import _ from "lodash";
 import { map, delay } from "modern-async";
+import { USER_ROLE } from "./UsersController.js";
+import { BUILDER_FLOOR_ADMIN, CHANNEL_PARTNER } from "../const.js";
 const errors = [
   null,
   "null",
@@ -53,7 +52,6 @@ const Edit_Update = async (req, res) => {
     state: data.state,
     imageType: data.imageType,
   };
-  console.log(newData);
   try {
     if (_id) {
       // If _id is present, update the existing document
@@ -81,9 +79,7 @@ const Edit_Update = async (req, res) => {
 
 const approveProperty = (req, res) => {
   try {
-    console.log("Inside Approve Properties");
     const { _id, needApprovalBy } = req.body;
-    console.log(_id, needApprovalBy);
     const query = { _id };
     const update = {
       needApprovalBy,
@@ -210,8 +206,7 @@ const getpropertiesList = async (req, res, next) => {
   try {
     let page = Number(req.query.page) || 1;
     const limit = Number(req.query.limit) || 10;
-    const { SortType, sortColumn } = req.query;
-    console.log({ page, limit, SortType, sortColumn });
+    const { sortType, sortColumn } = req.query;
     const queryObject = {};
 
     let skip = (page - 1) * limit;
@@ -235,18 +230,28 @@ const getpropertiesList = async (req, res, next) => {
 const getAdminPropertiesList = async (req, res, next) => {
   try {
     const id = req.query.id || "";
+    const role = req.query.role || "";
     let page = Number(req.query.page) || 1;
     const limit = Number(req.query.limit) || 10;
-    const { SortType, sortColumn } = req.query;
-    console.log({ page, limit, SortType, sortColumn });
-    const queryObject = { $or: [{ parentId: id }, { needApprovalBy: id }] };
-
+    const { sortType, sortColumn } = req.query;
+    let queryObject = {};
+    if (role === USER_ROLE[BUILDER_FLOOR_ADMIN]) {
+      queryObject = {};
+    } else {
+      queryObject = {
+        $or: [{ parentId: id }, { needApprovalBy: id }, { contactId: id }],
+      };
+    }
     let skip = (page - 1) * limit;
+    // Adding sort functionality
+    let data = await properties
+      .find(queryObject)
+      .skip(skip)
+      .limit(limit)
+      .sort({ [sortColumn]: sortType === "desc" ? -1 : 1 });
 
-    let data = await properties.find(queryObject).skip(skip).limit(limit);
     const totalDocuments = await properties.countDocuments(queryObject);
     const totalPages = Math.ceil(totalDocuments / limit);
-
     res.status(200).json({
       data,
       nbHits: data.length,
@@ -255,7 +260,7 @@ const getAdminPropertiesList = async (req, res, next) => {
       totalItems: totalDocuments,
     });
   } catch (error) {
-    res.status(400).json({ messgae: error.message });
+    res.status(400).json({ message: error.message });
   }
 };
 
@@ -274,8 +279,6 @@ const searchproperties = async (req, res, next) => {
 
 const filterproperties = async (req, res, next) => {
   const filter = JSON.parse(req.query.filter);
-  console.log(filter);
-
   if (!filter) {
     return res.status(400).json({ error: "No filter provided" });
   }
@@ -415,7 +418,6 @@ const insertBulkproperties = async (req, res, next) => {
       .fromFile(req.file.path)
       .then(async (data) => {
         for (var x = 0; x < data.length; x++) {
-          console.log(data[x]);
           let newModel = new properties(data[x]);
           await newModel.save();
         }
@@ -448,26 +450,48 @@ function joinS3Path(...args) {
   return args.join("/");
 }
 
+const generateFolderName = (data) => {
+  const folderPath = [
+    "upload/photos",
+    data.plotNumber + data.sectorNumber,
+    data.floor,
+  ].join("/");
+  return folderPath;
+};
+
 async function ensureFolderStructure(s3, mainFolderPath, subFolderPath = "") {
-  const fullPath = path.join(mainFolderPath, subFolderPath);
+  const fullPath = [mainFolderPath, subFolderPath].join("/");
   const parts = fullPath.split("/");
   let currentPath = "";
   for (const part of parts) {
-    currentPath = path.join(currentPath, part);
-    const params = {
-      Bucket: process.env.S3_BUCKET_NAME,
-      Key: `${currentPath}/`,
-      Body: "",
-    };
-    await s3.putObject(params).promise();
+    if (currentPath === "") {
+      currentPath = part;
+    } else {
+      currentPath = [currentPath, part].join("/");
+    }
+    // Only putObject if currentPath is not empty
+    if (currentPath !== "") {
+      const params = {
+        Bucket: process.env.S3_BUCKET_NAME,
+        Key: `${currentPath}/`,
+        Body: "",
+      };
+      try {
+        await s3.putObject(params).promise();
+        // You can add a verification step here if needed
+      } catch (err) {
+        console.error(`Error creating folder ${currentPath}:`, err);
+        throw new Error(`Failed to create folder ${currentPath} in S3`);
+      }
+    }
   }
 }
 
 const uploadProperties = async (req, res, next) => {
   try {
-    let { _id, folder, ...otherData } = req.body;
+    let { _id, ...otherData } = req.body;
     // adding upload/ before folder
-    folder = "upload/" + folder;
+    const folder = generateFolderName(otherData);
     const s3 = new AWS.S3({
       accessKeyId: process.env.S3_ACCESS_KEY,
       secretAccessKey: process.env.S3_SECRET_ACCESS_KEY,
@@ -531,7 +555,6 @@ const uploadOnS3 = async (files, folderPath) => {
             console.error("Error uploading to S3:", err);
             reject(err);
           } else {
-            console.log(data.Location);
             resolve(data.Location); // Return the file URL
           }
         });
@@ -556,7 +579,6 @@ const importProperties = async (req, res) => {
       return res.json({ message: "Invalid file, please upload a valid file." });
     } else {
       function getoperations(e, callback) {
-        console.log(e);
         callback(null, {
           updateOne: {
             filter: {

@@ -1,19 +1,17 @@
-import mongoose from "mongoose";
 import users from "../models/UsersModel.js";
-import csv from "csvtojson";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 
-import sgMail from "@sendgrid/mail";
+import { BUILDER_FLOOR_ADMIN, CHANNEL_PARTNER, SALES_USER } from "../const.js";
 
 const filePath = "./data.json";
 const JWT_SECERET = "techHelps";
 const salt = await bcrypt.genSalt();
 
 export const USER_ROLE = {
-  bfAdmin: "BuilderFloorAdmin",
-  channelPartner: "ChannelPartner",
-  propertyDealer: "PropertyDealer",
+  [BUILDER_FLOOR_ADMIN]: "BuilderFloorAdmin",
+  [CHANNEL_PARTNER]: "ChannelPartner",
+  [SALES_USER]: "PropertyDealer",
 };
 
 const Edit_update = async (req, res) => {
@@ -149,7 +147,9 @@ const updateEditUsers = async (req, res, next) => {
       city: req.body.city,
       role: req.body.role,
       parentId:
-        req.body.role === USER_ROLE["bfAdmin"] ? "Approved" : req.body.parentId, // password: hashedPassword,
+        req.body.role === USER_ROLE[BUILDER_FLOOR_ADMINs]
+          ? "Approved"
+          : req.body.parentId, // password: hashedPassword,
       password: req.body.password,
     };
     let data = await users.findOne({ _id: req.body._id });
