@@ -41,6 +41,6 @@ const propertiesSchema = new Schema(
 );
 
 
-const properties = mongoose.model("testproperties", propertiesSchema);
+const properties = mongoose.model("properties", propertiesSchema);
 
 export default properties;
