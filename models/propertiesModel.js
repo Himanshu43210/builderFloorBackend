@@ -3,35 +3,29 @@ const { Schema } = mongoose;
 
 const propertiesSchema = new Schema(
   {
+    state: { type: String },
     city: { type: String },
     sectorNumber: { type: String },
     plotNumber: { type: String },
     size: { type: String },
-    facing: { type: String },
+    sizeType: { type: String },
+    floor: { type: String },
+    price: { type: Number },
     accommodation: { type: String },
+    facing: { type: String },
     parkFacing: { type: Boolean },
     corner: { type: Boolean },
-    floor: { type: String },
     possession: { type: String },
+    builderName: { type: String },
+    builderContact: { type: String },
     title: { type: String },
     detailTitle: { type: String },
     description: { type: String },
-    builderName: { type: String },
-    builderContact: { type: String },
-    price: { type: Schema.Types.Mixed },
-    address: { type: String },
-    editor_choice: { type: Boolean },
-    category: { type: String },
-    state: { type: String },
-    images: { type: Array },
-    thumbnails: { type: Array },
-    imageType: { type: String },
-    folder: { type: String },
-    channelPartner: { type: String },
-    channelContact: { type: String },
-    thumbnailName: { type: String },
     parentId: { type: String },
+    contactId: { type: String },
     needApprovalBy: { type: String },
+    thumbnails: { type: Array },
+    images: { type: Array },
     normalImages: { type: Array },
     videos: { type: Array },
     layouts: { type: Array },
@@ -39,7 +33,6 @@ const propertiesSchema = new Schema(
   },
   { timestamps: true }
 );
-
 
 const properties = mongoose.model("properties", propertiesSchema);
 

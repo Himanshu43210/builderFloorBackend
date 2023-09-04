@@ -1,19 +1,17 @@
-import mongoose from "mongoose";
 import users from "../models/UsersModel.js";
-import csv from "csvtojson";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 
-import sgMail from "@sendgrid/mail";
+import { BUILDER_FLOOR_ADMIN, CHANNEL_PARTNER, SALES_USER } from "../const.js";
 
 const filePath = "./data.json";
 const JWT_SECERET = "techHelps";
 const salt = await bcrypt.genSalt();
 
 export const USER_ROLE = {
-  bfAdmin: "BuilderFloorAdmin",
-  channelPartner: "ChannelPartner",
-  propertyDealer: "PropertyDealer",
+  [BUILDER_FLOOR_ADMIN]: "BuilderFloorAdmin",
+  [CHANNEL_PARTNER]: "ChannelPartner",
+  [SALES_USER]: "PropertyDealer",
 };
 
 const Edit_update = async (req, res) => {
@@ -57,11 +55,38 @@ const Edit_update = async (req, res) => {
 const getusersList = async (req, res, next) => {
   try {
     let page = Number(req.query.page) || 1;
+    console.log("it is here");
     const limit = Number(req.query.limit) || 10;
 
     let skip = (page - 1) * limit;
 
     let data = await users.find().skip(skip).limit(limit);
+
+    const totalDocuments = await users.countDocuments();
+    const totalPages = Math.ceil(totalDocuments / limit);
+
+    res.status(200).json({
+      data,
+      nbHits: data.length,
+      pageNumber: page,
+      totalPages: totalPages,
+      totalItems: totalDocuments,
+    });
+  } catch (error) {
+    res.status(400).json({ messgae: error.message });
+  }
+};
+
+const getAdminUsersList = async (req, res, next) => {
+  try {
+    const id = req.query.id || "";
+    console.log(id);
+    let page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 10;
+
+    let skip = (page - 1) * limit;
+    const query = { parentId: id };
+    let data = await users.find(query).skip(skip).limit(limit);
 
     const totalDocuments = await users.countDocuments();
     const totalPages = Math.ceil(totalDocuments / limit);
@@ -122,7 +147,7 @@ const updateEditUsers = async (req, res, next) => {
       city: req.body.city,
       role: req.body.role,
       parentId:
-        req.body.role === USER_ROLE["bfAdmin"]
+        req.body.role === USER_ROLE[BUILDER_FLOOR_ADMINs]
           ? "Approved"
           : req.body.parentId, // password: hashedPassword,
       password: req.body.password,
@@ -139,6 +164,7 @@ const updateEditUsers = async (req, res, next) => {
     await newUser.save();
     res.send({ message: "New Users Stored." });
   } catch (error) {
+    console.log(error);
     res.status(400).json({ messgae: "An error Occoured", error });
   }
 };
@@ -280,9 +306,14 @@ const getChannelPartnersList = async (req, res, next) => {
 
     let skip = (page - 1) * limit;
 
-    let data = await users.find({ role: "ChannelPartner" }).skip(skip).limit(limit);
+    let data = await users
+      .find({ role: "ChannelPartner" })
+      .skip(skip)
+      .limit(limit);
 
-    const totalDocuments = await users.countDocuments({ role: "ChannelPartner" });
+    const totalDocuments = await users.countDocuments({
+      role: "ChannelPartner",
+    });
     const totalPages = Math.ceil(totalDocuments / limit);
 
     res.status(200).json({
@@ -299,6 +330,7 @@ const getChannelPartnersList = async (req, res, next) => {
 
 export default {
   getusersList,
+  getAdminUsersList,
   handleSignup,
   handleVerifyOTP,
   getusersById,
