@@ -661,7 +661,7 @@ const importProperties = async (req, res) => {
         let val = e?.nModified || e?.result?.nModified;
         return acc + val;
       }, 0);
-      return res.json({
+      return res.status(200).json({
         response: [],
         rejected: rejected,
         inserted: inserted || 0,
@@ -670,7 +670,7 @@ const importProperties = async (req, res) => {
       });
     }
   } catch (error) {
-    res.json({ message: "Internal server error", error: error.message });
+    res.status(500).json({ message: "Internal server error", error: error.message });
   }
 };
 
@@ -690,9 +690,21 @@ const getPropertiesByIds = async (req, res) => {
     const data = await properties
       .find({ _id: req.body.ids })
       .select(selectedFields);
-    return res.json(data);
+    return res.status(200).json(data);
   } catch (error) {
-    res.json({ message: "Internal server error", error: error.message });
+    res.status(500).json({ message: "Internal server error", error: error.message });
+  }
+};
+
+const getPropertiesListingCounts = async (req, res) => {
+  try {
+    const total = await properties.countDocuments({ parentId: req.query.userId });
+    const approved = await properties.countDocuments({ parentId: req.query.userId, needApprovalBy: "Approved" });
+    const pending = await properties.countDocuments({ parentId: req.query.userId, needApprovalBy: { $ne: "Approved" } });
+    const data = [{ label: "Total Listings", value: total }, { label: "Approved Listings", value: approved }, { label: "Pending Listings", value: pending }]
+    return res.status(200).json({ response: data });
+  } catch (error) {
+    res.status(500).json({ message: "Internal server error", error: error.message });
   }
 };
 
@@ -714,4 +726,5 @@ export default {
   uploadProperties,
   importProperties,
   getPropertiesByIds,
+  getPropertiesListingCounts,
 };

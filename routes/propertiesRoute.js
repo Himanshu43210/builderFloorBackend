@@ -44,11 +44,8 @@ router
   .post("/", propertiesController.updatepropertiesByID)
   .get("/", propertiesController.getpropertiesById)
   .post("/", propertiesController.storeproperties)
-  .post(
-    "/importProperties",
-    upload.single("file"),
-    propertiesController.importProperties
-  )
-  .post("/getPropertiesByIds", propertiesController.getPropertiesByIds);
+  .post("/importProperties", upload.single("file"), propertiesController.importProperties)
+  .post("/getPropertiesByIds", propertiesController.getPropertiesByIds)
+  .get("/getPropertiesListingCounts", propertiesController.getPropertiesListingCounts);
 
 export default router;
