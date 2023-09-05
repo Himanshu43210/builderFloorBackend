@@ -11,7 +11,7 @@ router
   .get("/getSimilarProperties", propertiesController.getHomeData)
   .post("/searchPropertiesData", propertiesController.searchPropertiesData)
   .get("/list", propertiesController.getpropertiesList)
-  .get("/adminPropertyList", propertiesController.getAdminPropertiesList)
+  .post("/adminPropertyList", propertiesController.getAdminPropertiesList)
   // .post("/addProperty", propertiesController.Edit_Update)
   .post(
     "/editProperty",
@@ -46,6 +46,7 @@ router
   .post("/", propertiesController.storeproperties)
   .post("/importProperties", upload.single("file"), propertiesController.importProperties)
   .post("/getPropertiesByIds", propertiesController.getPropertiesByIds)
-  .get("/getPropertiesListingCounts", propertiesController.getPropertiesListingCounts);
+  .get("/getPropertiesListingCounts", propertiesController.getPropertiesListingCounts)
+  .post("/rejectProperty", propertiesController.rejectProperty);
 
 export default router;

@@ -30,6 +30,10 @@ const propertiesSchema = new Schema(
     videos: { type: Array },
     layouts: { type: Array },
     virtualFiles: { type: Array },
+    rejectedByBFAdmin: { type: String },
+    rejectedByBFAdminComments: { type: String },
+    rejectedByCP: { type: String },
+    rejectedByCPComments: { type: String },
   },
   { timestamps: true }
 );

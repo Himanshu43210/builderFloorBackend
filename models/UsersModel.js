@@ -19,6 +19,8 @@ const UsersSchema = new Schema(
     companyAddress: { type: String },
     state: { type: String },
     city: { type: String },
+    locations: { type: Array },
+    status: { type: String }
   },
   { timestamps: true }
 );
