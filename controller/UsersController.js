@@ -328,6 +328,24 @@ const getChannelPartnersList = async (req, res, next) => {
   }
 };
 
+const addUserLocation = async (req, res, next) => {
+  try {
+    await users.findByIdAndUpdate({ _id: req.body.id }, { locations: req.body.locations })
+    return res.status(200).json({ message: "User locations added successfully." })
+  } catch (error) {
+    res.status(400).json({ messgae: error.message });
+  }
+};
+
+const updateUserStatus = async (req, res, next) => {
+  try {
+    await users.findByIdAndUpdate({ _id: req.body.id }, { status: req.body.status })
+    return res.status(200).json({ message: "User status updated successfully." })
+  } catch (error) {
+    res.status(400).json({ messgae: error.message });
+  }
+};
+
 export default {
   getusersList,
   getAdminUsersList,
@@ -341,4 +359,6 @@ export default {
   filterUsers,
   Edit_update,
   getChannelPartnersList,
+  addUserLocation,
+  updateUserStatus
 };

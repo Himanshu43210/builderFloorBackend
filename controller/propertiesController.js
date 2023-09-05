@@ -6,6 +6,7 @@ import _ from "lodash";
 import { map, delay } from "modern-async";
 import { USER_ROLE } from "./UsersController.js";
 import { BUILDER_FLOOR_ADMIN, CHANNEL_PARTNER } from "../const.js";
+import users from "../models/UsersModel.js";
 const errors = [
   null,
   "null",
@@ -229,28 +230,53 @@ const getpropertiesList = async (req, res, next) => {
 
 const getAdminPropertiesList = async (req, res, next) => {
   try {
-    const id = req.query.id || "";
-    const role = req.query.role || "";
+    const { budget, accommodation, Corner, Park, city, facing, floor, location, possession, id, role, sortType, sortColumn } = req.body.filter
+    const query = {};
+    if (budget) {
+      query.price = { $gte: budget[0], $lte: budget[1] };
+    }
+    if (accommodation) {
+      query.accommodation = accommodation;
+    }
+    if (Corner) {
+      query.corner = true;
+    }
+    if (Park) {
+      query.parkFacing = true;
+    }
+    if (city) {
+      query.city = { $regex: city, $options: "i" };
+    }
+    if (facing) {
+      query.facing = facing;
+    }
+    if (floor) {
+      query.floor = floor;
+    }
+    if (location) {
+      query.sectorNumber = location;
+    }
+    if (possession) {
+      query.possession = possession;
+    }
+
     let page = Number(req.query.page) || 1;
     const limit = Number(req.query.limit) || 10;
-    const { sortType, sortColumn } = req.query;
-    let queryObject = {};
+
     if (role === USER_ROLE[BUILDER_FLOOR_ADMIN]) {
-      queryObject = {};
+
     } else {
-      queryObject = {
-        $or: [{ parentId: id }, { needApprovalBy: id }, { contactId: id }],
-      };
+      query["$or"] = [{ parentId: id }, { needApprovalBy: id }, { contactId: id }]
     }
     let skip = (page - 1) * limit;
     // Adding sort functionality
     let data = await properties
-      .find(queryObject)
+      .find(query)
       .skip(skip)
       .limit(limit)
       .sort({ [sortColumn]: sortType === "desc" ? -1 : 1 });
 
-    const totalDocuments = await properties.countDocuments(queryObject);
+    const totalDocuments = await properties.countDocuments(query);
     const totalPages = Math.ceil(totalDocuments / limit);
     res.status(200).json({
       data,
@@ -708,6 +734,38 @@ const getPropertiesListingCounts = async (req, res) => {
   }
 };
 
+const rejectProperty = async (req, res, next) => {
+  try {
+    const data = {}
+    const { rejectedByBFAdmin, rejectedByBFAdminComments, rejectedByCP, rejectedByCPComments, userId, id } = req.body;
+    if (!id || !userId || !rejectedByBFAdmin && !rejectedByCP) {
+      return res.status(404).json({ message: "All fields are required." });
+    }
+    if (rejectedByBFAdmin) {
+      data.rejectedByBFAdmin = rejectedByBFAdmin;
+      data.rejectedByBFAdminComments = rejectedByBFAdminComments;
+
+      data.rejectedByCP = "";
+      data.rejectedByCPComments = "";
+    } else {
+      data.rejectedByCP = rejectedByCP;
+      data.rejectedByCPComments = rejectedByCPComments;
+
+      data.rejectedByBFAdmin = "";
+      data.rejectedByBFAdminComments = "";
+    }
+    const user = await users.findById(userId);
+    if (user) {
+      await properties.findByIdAndUpdate({ _id: id }, data)
+      return res.status(200).json({ message: "Property status updated successfully." })
+    } else {
+      return res.status(404).json({ message: "Invalid useId" });
+    }
+  } catch (error) {
+    res.status(400).json({ messgae: error.message });
+  }
+};
+
 export default {
   getpropertiesList,
   getAdminPropertiesList,
@@ -727,4 +785,5 @@ export default {
   importProperties,
   getPropertiesByIds,
   getPropertiesListingCounts,
+  rejectProperty,
 };
