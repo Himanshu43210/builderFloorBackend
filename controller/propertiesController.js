@@ -230,7 +230,7 @@ const getpropertiesList = async (req, res, next) => {
 
 const getAdminPropertiesList = async (req, res, next) => {
   try {
-    const { budget, accommodation, Corner, Park, city, facing, floor, location, possession, id, role, sortType, sortColumn } = req.body.filter
+    const { budget, accommodation, Corner, Park, city, facing, floor, location, possession, id, role, sortType, sortColumn } = req.body;
     const query = {};
     if (budget) {
       query.price = { $gte: budget[0], $lte: budget[1] };
