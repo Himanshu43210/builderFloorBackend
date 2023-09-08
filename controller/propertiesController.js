@@ -766,6 +766,85 @@ const rejectProperty = async (req, res, next) => {
   }
 };
 
+const getPropertiesCountsByUserId = async (req, res) => {
+  try {
+    const data = await users.aggregate([
+      {
+        $match: {
+          parentId: req.body.userId
+        }
+      },
+      {
+        $lookup: {
+          from: "properties",
+          localField: "_id",
+          foreignField: "parentId",
+          as: "user_properties"
+        }
+      },
+      {
+        $addFields: {
+          approved_count: {
+            $sum: {
+              $map: {
+                input: "$user_properties",
+                as: "prop",
+                in: {
+                  $cond: [
+                    { $eq: ["$$prop.needApprovalBy", "Approved"] },
+                    1,
+                    0
+                  ]
+                }
+              }
+            }
+          },
+          pending_count: {
+            $sum: {
+              $map: {
+                input: "$user_properties",
+                as: "prop",
+                in: {
+                  $cond: [
+                    { $ne: ["$$prop.needApprovalBy", "Approved"] },
+                    1,
+                    0
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        $group: {
+          _id: "$_id",
+          name: { $first: "$name" },
+          city: { $first: "$address" },
+          phoneNumber: { $first: "$phoneNumber" },
+          total_count: { $sum: { $size: "$user_properties" } },
+          approved_count: { $first: "$approved_count" },
+          pending_count: { $first: "$pending_count" }
+        }
+      },
+      {
+        $project: {
+          _id: 0,
+          name: 1,
+          total_count: 1,
+          approved_count: 1,
+          pending_count: 1,
+          city: 1,
+          phoneNumber: 1,
+        }
+      }
+    ]);
+    return res.status(200).json({ response: data });
+  } catch (error) {
+    res.status(500).json({ messgae: error.message });
+  }
+}
+
 export default {
   getpropertiesList,
   getAdminPropertiesList,
@@ -786,4 +865,5 @@ export default {
   getPropertiesByIds,
   getPropertiesListingCounts,
   rejectProperty,
+  getPropertiesCountsByUserId,
 };

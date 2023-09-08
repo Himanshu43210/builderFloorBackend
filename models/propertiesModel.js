@@ -21,7 +21,7 @@ const propertiesSchema = new Schema(
     title: { type: String },
     detailTitle: { type: String },
     description: { type: String },
-    parentId: { type: String },
+    parentId: { type: mongoose.Types.ObjectId },
     contactId: { type: String },
     needApprovalBy: { type: String },
     thumbnails: { type: Array },

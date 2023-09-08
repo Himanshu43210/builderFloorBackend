@@ -47,6 +47,7 @@ router
   .post("/importProperties", upload.single("file"), propertiesController.importProperties)
   .post("/getPropertiesByIds", propertiesController.getPropertiesByIds)
   .get("/getPropertiesListingCounts", propertiesController.getPropertiesListingCounts)
-  .post("/rejectProperty", propertiesController.rejectProperty);
+  .post("/rejectProperty", propertiesController.rejectProperty)
+  .post("/getPropertiesCountsByUserId", propertiesController.getPropertiesCountsByUserId);
 
 export default router;
