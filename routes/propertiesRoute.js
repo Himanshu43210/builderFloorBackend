@@ -48,6 +48,6 @@ router
   .post("/getPropertiesByIds", propertiesController.getPropertiesByIds)
   .get("/getPropertiesListingCounts", propertiesController.getPropertiesListingCounts)
   .post("/rejectProperty", propertiesController.rejectProperty)
-  .post("/getPropertiesCountsByUserId", propertiesController.getPropertiesCountsByUserId);
+  .get("/getPropertiesCountsByUserId", propertiesController.getPropertiesCountsByUserId);
 
 export default router;

@@ -771,7 +771,7 @@ const getPropertiesCountsByUserId = async (req, res) => {
     const data = await users.aggregate([
       {
         $match: {
-          parentId: req.body.userId
+          parentId: req.query.userId
         }
       },
       {
