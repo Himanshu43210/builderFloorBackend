@@ -146,6 +146,8 @@ const updateEditUsers = async (req, res, next) => {
       state: req.body.state,
       city: req.body.city,
       role: req.body.role,
+      locations: req.body.locations,
+      status: typeof req.body.status == "string" ? req.body.status : req.body.status.value,
       parentId:
         req.body.role === USER_ROLE[BUILDER_FLOOR_ADMIN]
           ? "Approved"
