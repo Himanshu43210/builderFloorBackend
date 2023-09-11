@@ -688,7 +688,7 @@ const importProperties = async (req, res) => {
         return acc + val;
       }, 0);
       return res.status(200).json({
-        response: [],
+        data: [],
         rejected: rejected,
         inserted: inserted || 0,
         uploaded: uploaded || 0,
@@ -839,7 +839,7 @@ const getPropertiesCountsByUserId = async (req, res) => {
         }
       }
     ]);
-    return res.status(200).json({ response: data });
+    return res.status(200).json({ data });
   } catch (error) {
     res.status(500).json({ messgae: error.message });
   }
