@@ -147,7 +147,7 @@ const updateEditUsers = async (req, res, next) => {
       city: req.body.city,
       role: req.body.role,
       parentId:
-        req.body.role === USER_ROLE[BUILDER_FLOOR_ADMINs]
+        req.body.role === USER_ROLE[BUILDER_FLOOR_ADMIN]
           ? "Approved"
           : req.body.parentId, // password: hashedPassword,
       password: req.body.password,
