@@ -744,7 +744,6 @@ const rejectProperty = async (req, res, next) => {
     if (rejectedByBFAdmin) {
       data.rejectedByBFAdmin = rejectedByBFAdmin;
       data.rejectedByBFAdminComments = rejectedByBFAdminComments;
-
       data.rejectedByCP = "";
       data.rejectedByCPComments = "";
     } else {
@@ -845,6 +844,31 @@ const getPropertiesCountsByUserId = async (req, res) => {
   }
 }
 
+const getPropertiesListByUserId = async (req, res, next) => {
+  try {
+    let page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 10;
+    let skip = (page - 1) * limit;
+
+    let data = await properties.find({ parentId: req.query.userId })
+      .skip(skip)
+      .limit(limit);
+
+    const totalDocuments = await users.countDocuments({ parentId: req.query.userId });
+    const totalPages = Math.ceil(totalDocuments / limit);
+
+    res.status(200).json({
+      data,
+      nbHits: data.length,
+      pageNumber: page,
+      totalPages: totalPages,
+      totalItems: totalDocuments,
+    });
+  } catch (error) {
+    res.status(400).json({ messgae: error.message });
+  }
+};
+
 export default {
   getpropertiesList,
   getAdminPropertiesList,
@@ -866,4 +890,5 @@ export default {
   getPropertiesListingCounts,
   rejectProperty,
   getPropertiesCountsByUserId,
+  getPropertiesListByUserId
 };
