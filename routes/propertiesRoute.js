@@ -63,6 +63,12 @@ router
   .get("/getApprovalProperties", propertiesController.getApprovalProperties)
   .post("/", propertiesController.updatepropertiesByID)
   .get("/", propertiesController.getpropertiesById)
-  .post("/", propertiesController.storeproperties);
-
+  .post("/", propertiesController.storeproperties)
+  .post("/importProperties", upload.single("file"), propertiesController.importProperties)
+  .post("/getPropertiesByIds", propertiesController.getPropertiesByIds)
+  .get("/getPropertiesListingCounts", propertiesController.getPropertiesListingCounts)
+  .post("/rejectProperty", propertiesController.rejectProperty)
+  .get("/getPropertiesCountsByUserId", propertiesController.getPropertiesCountsByUserId)
+  .get("/getPropertiesListByUserId", propertiesController.getPropertiesListByUserId)
+  .get("/getApprovedPropertiesList", propertiesController.getApprovedPropertiesList);
 export default router;
