@@ -49,6 +49,7 @@ router
   .get("/getPropertiesListingCounts", propertiesController.getPropertiesListingCounts)
   .post("/rejectProperty", propertiesController.rejectProperty)
   .get("/getPropertiesCountsByUserId", propertiesController.getPropertiesCountsByUserId)
-  .get("/getPropertiesListByUserId", propertiesController.getPropertiesListByUserId);
+  .get("/getPropertiesListByUserId", propertiesController.getPropertiesListByUserId)
+  .get("/getApprovedPropertiesList", propertiesController.getApprovedPropertiesList);
 
 export default router;

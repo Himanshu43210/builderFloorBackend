@@ -854,9 +854,31 @@ const getPropertiesListByUserId = async (req, res, next) => {
       .skip(skip)
       .limit(limit);
 
-    const totalDocuments = await users.countDocuments({ parentId: req.query.userId });
+    const totalDocuments = await properties.countDocuments({ parentId: req.query.userId });
     const totalPages = Math.ceil(totalDocuments / limit);
 
+    res.status(200).json({
+      data,
+      nbHits: data.length,
+      pageNumber: page,
+      totalPages: totalPages,
+      totalItems: totalDocuments,
+    });
+  } catch (error) {
+    res.status(400).json({ messgae: error.message });
+  }
+};
+
+const getApprovedPropertiesList = async (req, res, next) => {
+  try {
+    let page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 20;
+    let skip = (page - 1) * limit;
+    let data = await properties.find({ needApprovalBy: "Approved" })
+      .skip(skip)
+      .limit(limit);
+    const totalDocuments = await properties.countDocuments({ needApprovalBy: "Approved" });
+    const totalPages = Math.ceil(totalDocuments / limit);
     res.status(200).json({
       data,
       nbHits: data.length,
@@ -890,5 +912,6 @@ export default {
   getPropertiesListingCounts,
   rejectProperty,
   getPropertiesCountsByUserId,
-  getPropertiesListByUserId
+  getPropertiesListByUserId,
+  getApprovedPropertiesList
 };

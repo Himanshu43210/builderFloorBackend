@@ -20,7 +20,7 @@ const UsersSchema = new Schema(
     state: { type: String },
     city: { type: String },
     locations: { type: Array },
-    status: { type: String }
+    status: { type: String, default: "active" }
   },
   { timestamps: true }
 );
