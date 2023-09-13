@@ -5,7 +5,7 @@ const propertiesSchema = new Schema(
   {
     state: { type: String },
     city: { type: String },
-    sectorNumber: { type: String },
+    location: { type: String },
     plotNumber: { type: String },
     size: { type: String },
     sizeType: { type: String },
@@ -38,6 +38,6 @@ const propertiesSchema = new Schema(
   { timestamps: true }
 );
 
-const properties = mongoose.model("properties", propertiesSchema);
+const properties = mongoose.model("propertiesT", propertiesSchema);
 
 export default properties;
