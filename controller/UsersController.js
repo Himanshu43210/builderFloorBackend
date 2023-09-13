@@ -146,13 +146,13 @@ const updateEditUsers = async (req, res, next) => {
       state: req.body.state,
       city: req.body.city,
       role: req.body.role,
-      locations: req.body.locations,
-      status: typeof req.body.status == "string" ? req.body.status : req.body.status.value,
+      location: req.body.location,
+      status: req.body.status,
       parentId:
         req.body.role === USER_ROLE[BUILDER_FLOOR_ADMIN]
           ? "Approved"
           : req.body.parentId, // password: hashedPassword,
-      password: req.body.password,
+      password: req.body.password || "123",
     };
     let data = await users.findOne({ _id: req.body._id });
 
@@ -205,6 +205,11 @@ const login = async (req, res) => {
       email: user.email,
       role: user.role,
       parentId: user.parentId,
+      companyName: user.companyName,
+      companyAddress: user.companyAddress,
+      state: user.state,
+      city: user.city,
+      location: user.location,
     };
     res.json({ authToken, profile });
   } catch (err) {
@@ -332,8 +337,13 @@ const getChannelPartnersList = async (req, res, next) => {
 
 const addUserLocation = async (req, res, next) => {
   try {
-    await users.findByIdAndUpdate({ _id: req.body.id }, { locations: req.body.locations })
-    return res.status(200).json({ message: "User locations added successfully." })
+    await users.findByIdAndUpdate(
+      { _id: req.body.id },
+      { location: req.body.location }
+    );
+    return res
+      .status(200)
+      .json({ message: "User location added successfully." });
   } catch (error) {
     res.status(400).json({ messgae: error.message });
   }
@@ -341,8 +351,13 @@ const addUserLocation = async (req, res, next) => {
 
 const updateUserStatus = async (req, res, next) => {
   try {
-    await users.findByIdAndUpdate({ _id: req.body.id }, { status: req.body.status })
-    return res.status(200).json({ message: "User status updated successfully." })
+    await users.findByIdAndUpdate(
+      { _id: req.body.id },
+      { status: req.body.status }
+    );
+    return res
+      .status(200)
+      .json({ message: "User status updated successfully." });
   } catch (error) {
     res.status(400).json({ messgae: error.message });
   }
@@ -362,5 +377,5 @@ export default {
   Edit_update,
   getChannelPartnersList,
   addUserLocation,
-  updateUserStatus
+  updateUserStatus,
 };

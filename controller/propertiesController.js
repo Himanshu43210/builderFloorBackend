@@ -20,14 +20,14 @@ const errors = [
   "UNKNOWN",
 ];
 const selectedFields =
-  "_id title sectorNumber accommodation floor size price rating facing possession thumbnails";
+  "_id title location accommodation floor size price rating facing possession thumbnails";
 
 const convertToCardData = (datFromDb) => {
   return datFromDb?.map((item) => {
     return {
       _id: item._id,
       title: item.title,
-      sectorNumber: item.sectorNumber,
+      location: item.location,
       accommodation: item.accommodation,
       floor: item.floor,
       size: item.size,
@@ -44,7 +44,7 @@ const Edit_Update = async (req, res) => {
   const newData = {
     ...data,
     city: data.city,
-    sectorNumber: data.sectorNumber,
+    location: data.location,
     facing: data.facing,
     accommodation: data.accommodation,
     floor: data.floor,
@@ -146,7 +146,7 @@ const searchPropertiesData = async (req, res) => {
     query.floor = floor;
   }
   if (location) {
-    query.sectorNumber = location;
+    query.location = location;
   }
   if (possession) {
     query.possession = possession;
@@ -230,7 +230,23 @@ const getpropertiesList = async (req, res, next) => {
 
 const getAdminPropertiesList = async (req, res, next) => {
   try {
-    const { budget, accommodation, Corner, Park, city, facing, floor, location, possession, id, role, sortType, sortColumn } = req.body;
+    let {
+      budget,
+      accommodation,
+      Corner,
+      Park,
+      city,
+      facing,
+      floor,
+      location,
+      possession,
+      id,
+      role,
+      sortType,
+      sortColumn,
+    } = req.body;
+    id = req.query.id;
+    role = req.query.role;
     const query = {};
     if (budget) {
       query.price = { $gte: budget[0], $lte: budget[1] };
@@ -254,7 +270,7 @@ const getAdminPropertiesList = async (req, res, next) => {
       query.floor = floor;
     }
     if (location) {
-      query.sectorNumber = location;
+      query.location = location;
     }
     if (possession) {
       query.possession = possession;
@@ -262,11 +278,14 @@ const getAdminPropertiesList = async (req, res, next) => {
 
     let page = Number(req.query.page) || 1;
     const limit = Number(req.query.limit) || 10;
-
+    console.log(role, id);
     if (role === USER_ROLE[BUILDER_FLOOR_ADMIN]) {
-
     } else {
-      query["$or"] = [{ parentId: id }, { needApprovalBy: id }, { contactId: id }]
+      query["$or"] = [
+        { parentId: id },
+        { needApprovalBy: id },
+        { contactId: id },
+      ];
     }
     let skip = (page - 1) * limit;
     // Adding sort functionality
@@ -336,7 +355,7 @@ const filterproperties = async (req, res, next) => {
     }
 
     if (filter.locations && filter.locations.length > 0) {
-      query.sectorNumber = { $in: filter.locations };
+      query.location = { $in: filter.locations };
     }
 
     if (filter.priceRange && filter.priceRange.length === 2) {
@@ -479,7 +498,7 @@ function joinS3Path(...args) {
 const generateFolderName = (data) => {
   const folderPath = [
     "upload/photos",
-    data.plotNumber + data.sectorNumber,
+    data.plotNumber + data.location,
     data.floor,
   ].join("/");
   return folderPath;
@@ -609,13 +628,13 @@ const importProperties = async (req, res) => {
           updateOne: {
             filter: {
               plotNumber: e["Plot Number"],
-              sectorNumber: e["Location"],
+              location: e["Location"],
               floor: e["Floor"],
             },
             update: {
               $set: {
                 city: e["City"],
-                sectorNumber: e["Location"],
+                location: e["Location"],
                 plotNumber: e["Plot Number"],
                 size: e["Size"],
                 facing: e["Facing"],
@@ -661,7 +680,7 @@ const importProperties = async (req, res) => {
         const finalOperations = operations.filter((e) => {
           return (
             !errors.includes(e.updateOne.filter["plotNumber"]) &&
-            !errors.includes(e.updateOne.filter["sectorNumber"]) &&
+            !errors.includes(e.updateOne.filter["location"]) &&
             !errors.includes(e.updateOne.filter["floor"])
           );
         });
@@ -696,7 +715,9 @@ const importProperties = async (req, res) => {
       });
     }
   } catch (error) {
-    res.status(500).json({ message: "Internal server error", error: error.message });
+    res
+      .status(500)
+      .json({ message: "Internal server error", error: error.message });
   }
 };
 
@@ -718,27 +739,50 @@ const getPropertiesByIds = async (req, res) => {
       .select(selectedFields);
     return res.status(200).json(data);
   } catch (error) {
-    res.status(500).json({ message: "Internal server error", error: error.message });
+    res
+      .status(500)
+      .json({ message: "Internal server error", error: error.message });
   }
 };
 
 const getPropertiesListingCounts = async (req, res) => {
   try {
-    const total = await properties.countDocuments({ parentId: req.query.userId });
-    const approved = await properties.countDocuments({ parentId: req.query.userId, needApprovalBy: "Approved" });
-    const pending = await properties.countDocuments({ parentId: req.query.userId, needApprovalBy: { $ne: "Approved" } });
-    const data = [{ label: "Total Listings", value: total }, { label: "Approved Listings", value: approved }, { label: "Pending Listings", value: pending }]
+    const total = await properties.countDocuments({
+      parentId: req.query.userId,
+    });
+    const approved = await properties.countDocuments({
+      parentId: req.query.userId,
+      needApprovalBy: "Approved",
+    });
+    const pending = await properties.countDocuments({
+      parentId: req.query.userId,
+      needApprovalBy: { $ne: "Approved" },
+    });
+    const data = [
+      { label: "Total Listings", value: total },
+      { label: "Approved Listings", value: approved },
+      { label: "Pending Listings", value: pending },
+    ];
     return res.status(200).json({ response: data });
   } catch (error) {
-    res.status(500).json({ message: "Internal server error", error: error.message });
+    res
+      .status(500)
+      .json({ message: "Internal server error", error: error.message });
   }
 };
 
 const rejectProperty = async (req, res, next) => {
   try {
-    const data = {}
-    const { rejectedByBFAdmin, rejectedByBFAdminComments, rejectedByCP, rejectedByCPComments, userId, id } = req.body;
-    if (!id || !userId || !rejectedByBFAdmin && !rejectedByCP) {
+    const data = {};
+    const {
+      rejectedByBFAdmin,
+      rejectedByBFAdminComments,
+      rejectedByCP,
+      rejectedByCPComments,
+      userId,
+      id,
+    } = req.body;
+    if (!id || !userId || (!rejectedByBFAdmin && !rejectedByCP)) {
       return res.status(404).json({ message: "All fields are required." });
     }
     if (rejectedByBFAdmin) {
@@ -753,10 +797,13 @@ const rejectProperty = async (req, res, next) => {
       data.rejectedByBFAdmin = "";
       data.rejectedByBFAdminComments = "";
     }
+    data.needApprovalBy = "Rejected";
     const user = await users.findById(userId);
     if (user) {
-      await properties.findByIdAndUpdate({ _id: id }, data)
-      return res.status(200).json({ message: "Property status updated successfully." })
+      await properties.findByIdAndUpdate({ _id: id }, data);
+      return res
+        .status(200)
+        .json({ message: "Property status updated successfully." });
     } else {
       return res.status(404).json({ message: "Invalid useId" });
     }
@@ -770,16 +817,16 @@ const getPropertiesCountsByUserId = async (req, res) => {
     const data = await users.aggregate([
       {
         $match: {
-          parentId: req.query.userId
-        }
+          parentId: req.query.userId,
+        },
       },
       {
         $lookup: {
           from: "properties",
           localField: "_id",
           foreignField: "parentId",
-          as: "user_properties"
-        }
+          as: "user_properties",
+        },
       },
       {
         $addFields: {
@@ -789,14 +836,10 @@ const getPropertiesCountsByUserId = async (req, res) => {
                 input: "$user_properties",
                 as: "prop",
                 in: {
-                  $cond: [
-                    { $eq: ["$$prop.needApprovalBy", "Approved"] },
-                    1,
-                    0
-                  ]
-                }
-              }
-            }
+                  $cond: [{ $eq: ["$$prop.needApprovalBy", "Approved"] }, 1, 0],
+                },
+              },
+            },
           },
           pending_count: {
             $sum: {
@@ -804,16 +847,12 @@ const getPropertiesCountsByUserId = async (req, res) => {
                 input: "$user_properties",
                 as: "prop",
                 in: {
-                  $cond: [
-                    { $ne: ["$$prop.needApprovalBy", "Approved"] },
-                    1,
-                    0
-                  ]
-                }
-              }
-            }
-          }
-        }
+                  $cond: [{ $ne: ["$$prop.needApprovalBy", "Approved"] }, 1, 0],
+                },
+              },
+            },
+          },
+        },
       },
       {
         $group: {
@@ -823,26 +862,26 @@ const getPropertiesCountsByUserId = async (req, res) => {
           phoneNumber: { $first: "$phoneNumber" },
           total_count: { $sum: { $size: "$user_properties" } },
           approved_count: { $first: "$approved_count" },
-          pending_count: { $first: "$pending_count" }
-        }
+          pending_count: { $first: "$pending_count" },
+        },
       },
       {
         $project: {
-          _id: 0,
+          _id: 1,
           name: 1,
           total_count: 1,
           approved_count: 1,
           pending_count: 1,
           city: 1,
           phoneNumber: 1,
-        }
-      }
+        },
+      },
     ]);
     return res.status(200).json({ data });
   } catch (error) {
     res.status(500).json({ messgae: error.message });
   }
-}
+};
 
 const getPropertiesListByUserId = async (req, res, next) => {
   try {
@@ -850,11 +889,41 @@ const getPropertiesListByUserId = async (req, res, next) => {
     const limit = Number(req.query.limit) || 10;
     let skip = (page - 1) * limit;
 
-    let data = await properties.find({ parentId: req.query.userId })
+    let data = await properties
+      .find({ parentId: req.query.userId })
       .skip(skip)
       .limit(limit);
 
     const totalDocuments = await properties.countDocuments({ parentId: req.query.userId });
+    const totalPages = Math.ceil(totalDocuments / limit);
+
+    res.status(200).json({
+      data,
+      nbHits: data.length,
+      pageNumber: page,
+      totalPages: totalPages,
+      totalItems: totalDocuments,
+    });
+  } catch (error) {
+    res.status(400).json({ messgae: error.message });
+  }
+};
+
+const getApprovalProperties = async (req, res, next) => {
+  try {
+    const id = req.query.id;
+    let page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 10;
+    let skip = (page - 1) * limit;
+    console.log(id);
+    let data = await properties
+      .find({ needApprovalBy: id })
+      .skip(skip)
+      .limit(limit);
+
+    const totalDocuments = await properties.countDocuments({
+      needApprovalBy: id,
+    });
     const totalPages = Math.ceil(totalDocuments / limit);
 
     res.status(200).json({
@@ -913,5 +982,6 @@ export default {
   rejectProperty,
   getPropertiesCountsByUserId,
   getPropertiesListByUserId,
-  getApprovedPropertiesList
+  getApprovedPropertiesList,
+  getApprovalProperties,
 };
