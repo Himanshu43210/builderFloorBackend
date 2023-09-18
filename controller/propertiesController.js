@@ -206,7 +206,7 @@ const getHomeData = async (req, res) => {
 const getpropertiesList = async (req, res, next) => {
   try {
     let page = Number(req.query.page) || 0;
-    const limit = Number(req.query.limit) || 10;
+    const limit = Number(req.query.limit) < 10 ? 10 : Number(req.query.limit);
     const { sortType, sortColumn } = req.query;
     const queryObject = {};
 
