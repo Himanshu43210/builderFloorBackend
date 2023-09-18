@@ -56,7 +56,7 @@ const getusersList = async (req, res, next) => {
   try {
     let page = Number(req.query.page) || 0;
     console.log("it is here");
-    const limit = Number(req.query.limit) || 10;
+    const limit = Number(req.query.limit) < 10 ? 10 : Number(req.query.limit);
 
     let skip = (page) * limit;
 
@@ -82,13 +82,13 @@ const getAdminUsersList = async (req, res, next) => {
     const id = req.query.id || "";
     console.log(id);
     let page = Number(req.query.page) || 0;
-    const limit = Number(req.query.limit) || 10;
+    const limit = Number(req.query.limit) < 10 ? 10 : Number(req.query.limit);
 
     let skip = (page) * limit;
     const query = { parentId: id };
     let data = await users.find(query).skip(skip).limit(limit);
 
-    const totalDocuments = await users.countDocuments();
+    const totalDocuments = await users.countDocuments(query);
     const totalPages = Math.ceil(totalDocuments / limit);
 
     res.status(200).json({
@@ -309,7 +309,7 @@ const getChannelPartnersList = async (req, res, next) => {
   try {
     console.log(req.query);
     let page = Number(req.query.page) || 0;
-    const limit = Number(req.query.limit) || 10;
+    const limit = Number(req.query.limit) < 10 ? 10 : Number(req.query.limit);
 
     let skip = (page) * limit;
 
