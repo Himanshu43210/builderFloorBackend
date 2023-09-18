@@ -88,7 +88,7 @@ const getAdminUsersList = async (req, res, next) => {
     const query = { parentId: id };
     let data = await users.find(query).skip(skip).limit(limit);
 
-    const totalDocuments = await users.countDocuments();
+    const totalDocuments = await users.countDocuments(query);
     const totalPages = Math.ceil(totalDocuments / limit);
 
     res.status(200).json({
