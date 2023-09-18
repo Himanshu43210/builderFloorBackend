@@ -11,7 +11,7 @@ const UsersSchema = new Schema(
       unique: true,
     },
     phoneNumber: { type: String },
-    address: { type: String },
+    // address: { type: String },
     password: { type: String },
     role: { type: String, require: [true, "role is required "] },
     parentId: { type: String },
@@ -19,7 +19,7 @@ const UsersSchema = new Schema(
     companyAddress: { type: String },
     state: { type: String },
     city: { type: String },
-    location: { type: String },
+    // location: { type: String },
     status: { type: String, default: "active" },
   },
   { timestamps: true }

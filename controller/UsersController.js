@@ -68,7 +68,7 @@ const getusersList = async (req, res, next) => {
     res.status(200).json({
       data,
       nbHits: data.length,
-      pageNumber: page,
+      pageNumber: page - 1,
       totalPages: totalPages,
       totalItems: totalDocuments,
     });
@@ -94,7 +94,7 @@ const getAdminUsersList = async (req, res, next) => {
     res.status(200).json({
       data,
       nbHits: data.length,
-      pageNumber: page,
+      pageNumber: page - 1,
       totalPages: totalPages,
       totalItems: totalDocuments,
     });
@@ -140,13 +140,13 @@ const updateEditUsers = async (req, res, next) => {
       name: req.body.name,
       email: req.body.email,
       phoneNumber: req.body.phoneNumber,
-      address: req.body.address,
+      // address: req.body.address,
       companyName: req.body.companyName,
       companyAddress: req.body.companyAddress,
       state: req.body.state,
       city: req.body.city,
       role: req.body.role,
-      location: req.body.location,
+      // location: req.body.location,
       status: req.body.status,
       parentId:
         req.body.role === USER_ROLE[BUILDER_FLOOR_ADMIN]
@@ -253,7 +253,7 @@ const handleSignup = async (req, res) => {
         name: req.body.name,
         email: req.body.email,
         phoneNumber: req.body.phoneNumber,
-        address: req.body.address,
+        companyAddress: req.body.companyAddress,
         role: req.body.role,
         parentId: req.body.parentId,
         password: hashedPassword,
@@ -326,7 +326,7 @@ const getChannelPartnersList = async (req, res, next) => {
     res.status(200).json({
       data,
       nbHits: data.length,
-      pageNumber: page,
+      pageNumber: page - 1,
       totalPages: totalPages,
       totalItems: totalDocuments,
     });

@@ -48,7 +48,7 @@ const getmastersList = async (req, res, next) => {
     res.status(200).json({
       data,
       nbHits: data.length,
-      pageNumber: page,
+      pageNumber: page - 1,
       totalPages: totalPages,
       totalItems: totalDocuments,
     });
