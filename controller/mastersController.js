@@ -33,13 +33,13 @@ const Edit_Update = async (req, res) => {
 
 const getmastersList = async (req, res, next) => {
   try {
-    let page = Number(req.query.page) || 1;
+    let page = Number(req.query.page) || 0;
     const limit = Number(req.query.limit) || 10;
     const { SortType, sortColumn } = req.query;
     console.log({ page, limit, SortType, sortColumn });
     const queryObject = {};
 
-    let skip = (page - 1) * limit;
+    let skip = (page) * limit;
 
     let data = await masters.find(queryObject).skip(skip).limit(limit);
     const totalDocuments = await masters.countDocuments();
@@ -48,7 +48,7 @@ const getmastersList = async (req, res, next) => {
     res.status(200).json({
       data,
       nbHits: data.length,
-      pageNumber: page - 1,
+      pageNumber: page,
       totalPages: totalPages,
       totalItems: totalDocuments,
     });
