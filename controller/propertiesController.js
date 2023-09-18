@@ -172,7 +172,7 @@ const searchPropertiesData = async (req, res) => {
     res.status(200).json({
       data,
       nbHits: data.length,
-      pageNumber: page,
+      pageNumber: page - 1,
       totalPages,
       totalItems,
     });
@@ -219,7 +219,7 @@ const getpropertiesList = async (req, res, next) => {
     res.status(200).json({
       data,
       nbHits: data.length,
-      pageNumber: page,
+      pageNumber: page - 1,
       totalPages: totalPages,
       totalItems: totalDocuments,
     });
@@ -300,7 +300,7 @@ const getAdminPropertiesList = async (req, res, next) => {
     res.status(200).json({
       data,
       nbHits: data.length,
-      pageNumber: page,
+      pageNumber: page - 1,
       totalPages: totalPages,
       totalItems: totalDocuments,
     });
@@ -858,7 +858,7 @@ const getPropertiesCountsByUserId = async (req, res) => {
         $group: {
           _id: "$_id",
           name: { $first: "$name" },
-          city: { $first: "$address" },
+          city: { $first: "$companyAddress" },
           phoneNumber: { $first: "$phoneNumber" },
           total_count: { $sum: { $size: "$user_properties" } },
           approved_count: { $first: "$approved_count" },
@@ -900,7 +900,7 @@ const getPropertiesListByUserId = async (req, res, next) => {
     res.status(200).json({
       data,
       nbHits: data.length,
-      pageNumber: page,
+      pageNumber: page - 1,
       totalPages: totalPages,
       totalItems: totalDocuments,
     });
@@ -929,7 +929,7 @@ const getApprovalProperties = async (req, res, next) => {
     res.status(200).json({
       data,
       nbHits: data.length,
-      pageNumber: page,
+      pageNumber: page - 1,
       totalPages: totalPages,
       totalItems: totalDocuments,
     });
@@ -951,7 +951,7 @@ const getApprovedPropertiesList = async (req, res, next) => {
     res.status(200).json({
       data,
       nbHits: data.length,
-      pageNumber: page,
+      pageNumber: page - 1,
       totalPages: totalPages,
       totalItems: totalDocuments,
     });
