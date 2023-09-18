@@ -97,7 +97,7 @@ const approveProperty = (req, res) => {
 const searchPropertiesData = async (req, res) => {
   // Parse the JSON payload from the request
   const criteria = req.body;
-  let page = Number(criteria.page) || 1;
+  let page = Number(criteria.page) || 0;
   const limit = Number(criteria.limit) || 10;
   const {
     budget,
@@ -159,7 +159,7 @@ const searchPropertiesData = async (req, res) => {
     sortBy === "Price High to Low" ? { price: -1 } : { default_sort_column: 1 };
   try {
     // Execute the Mongoose query
-    let skip = (page - 1) * limit;
+    let skip = (page) * limit;
     const data = await properties
       .find(query)
       .sort(sortQuery)
@@ -172,7 +172,7 @@ const searchPropertiesData = async (req, res) => {
     res.status(200).json({
       data,
       nbHits: data.length,
-      pageNumber: page - 1,
+      pageNumber: page,
       totalPages,
       totalItems,
     });
@@ -186,14 +186,14 @@ const searchPropertiesData = async (req, res) => {
 
 const getHomeData = async (req, res) => {
   try {
-    let page = Number(req.query.page) || 1;
+    let page = Number(req.query.page) || 0;
     const limit = Number(req.query.limit) || 10;
     const { city } = req.query;
     const queryObject = {};
     if (city) {
       queryObject.city = { $regex: city, $options: "i" };
     }
-    let skip = (page - 1) * limit;
+    let skip = (page) * limit;
     let data = await properties.find(queryObject).skip(skip).limit(limit);
     // const totalDocuments = await properties.countDocuments();
     // const totalPages = Math.ceil(totalDocuments / limit);
@@ -205,12 +205,12 @@ const getHomeData = async (req, res) => {
 
 const getpropertiesList = async (req, res, next) => {
   try {
-    let page = Number(req.query.page) || 1;
+    let page = Number(req.query.page) || 0;
     const limit = Number(req.query.limit) || 10;
     const { sortType, sortColumn } = req.query;
     const queryObject = {};
 
-    let skip = (page - 1) * limit;
+    let skip = (page) * limit;
 
     let data = await properties.find(queryObject).skip(skip).limit(limit);
     const totalDocuments = await properties.countDocuments(queryObject);
@@ -219,7 +219,7 @@ const getpropertiesList = async (req, res, next) => {
     res.status(200).json({
       data,
       nbHits: data.length,
-      pageNumber: page - 1,
+      pageNumber: page,
       totalPages: totalPages,
       totalItems: totalDocuments,
     });
@@ -276,7 +276,7 @@ const getAdminPropertiesList = async (req, res, next) => {
       query.possession = possession;
     }
 
-    let page = Number(req.query.page) || 1;
+    let page = Number(req.query.page) || 0;
     const limit = Number(req.query.limit) || 10;
     console.log(role, id);
     if (role === USER_ROLE[BUILDER_FLOOR_ADMIN]) {
@@ -287,7 +287,7 @@ const getAdminPropertiesList = async (req, res, next) => {
         { contactId: id },
       ];
     }
-    let skip = (page - 1) * limit;
+    let skip = (page) * limit;
     // Adding sort functionality
     let data = await properties
       .find(query)
@@ -300,7 +300,7 @@ const getAdminPropertiesList = async (req, res, next) => {
     res.status(200).json({
       data,
       nbHits: data.length,
-      pageNumber: page - 1,
+      pageNumber: page,
       totalPages: totalPages,
       totalItems: totalDocuments,
     });
@@ -885,9 +885,9 @@ const getPropertiesCountsByUserId = async (req, res) => {
 
 const getPropertiesListByUserId = async (req, res, next) => {
   try {
-    let page = Number(req.query.page) || 1;
+    let page = Number(req.query.page) || 0;
     const limit = Number(req.query.limit) || 10;
-    let skip = (page - 1) * limit;
+    let skip = (page) * limit;
 
     let data = await properties
       .find({ parentId: req.query.userId })
@@ -900,7 +900,7 @@ const getPropertiesListByUserId = async (req, res, next) => {
     res.status(200).json({
       data,
       nbHits: data.length,
-      pageNumber: page - 1,
+      pageNumber: page,
       totalPages: totalPages,
       totalItems: totalDocuments,
     });
@@ -912,9 +912,9 @@ const getPropertiesListByUserId = async (req, res, next) => {
 const getApprovalProperties = async (req, res, next) => {
   try {
     const id = req.query.id;
-    let page = Number(req.query.page) || 1;
+    let page = Number(req.query.page) || 0;
     const limit = Number(req.query.limit) || 10;
-    let skip = (page - 1) * limit;
+    let skip = (page) * limit;
     console.log(id);
     let data = await properties
       .find({ needApprovalBy: id })
@@ -929,7 +929,7 @@ const getApprovalProperties = async (req, res, next) => {
     res.status(200).json({
       data,
       nbHits: data.length,
-      pageNumber: page - 1,
+      pageNumber: page,
       totalPages: totalPages,
       totalItems: totalDocuments,
     });
@@ -940,9 +940,9 @@ const getApprovalProperties = async (req, res, next) => {
 
 const getApprovedPropertiesList = async (req, res, next) => {
   try {
-    let page = Number(req.query.page) || 1;
+    let page = Number(req.query.page) || 0;
     const limit = Number(req.query.limit) || 20;
-    let skip = (page - 1) * limit;
+    let skip = (page) * limit;
     let data = await properties.find({ needApprovalBy: "Approved" })
       .skip(skip)
       .limit(limit);
@@ -951,7 +951,7 @@ const getApprovedPropertiesList = async (req, res, next) => {
     res.status(200).json({
       data,
       nbHits: data.length,
-      pageNumber: page - 1,
+      pageNumber: page,
       totalPages: totalPages,
       totalItems: totalDocuments,
     });
