@@ -17,6 +17,7 @@ router
   .post("/", usersController.handleSignup)
   .get("/channelPartnersList", usersController.getChannelPartnersList)
   .post("/addUserLocation", usersController.addUserLocation)
-  .put("/updateUserStatus", usersController.updateUserStatus);
+  .put("/updateUserStatus", usersController.updateUserStatus)
+  .post("/sendOTP", usersController.sendOTP);
 
 export default router;
