@@ -1,6 +1,9 @@
 import users from "../models/UsersModel.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
+import otpModel from "../models/otpModel.js";
+import otpGenerator from "otp-generator";
+import transporter from "../utils/mail-transporter.js"
 
 import { BUILDER_FLOOR_ADMIN, CHANNEL_PARTNER, SALES_USER } from "../const.js";
 
@@ -162,6 +165,30 @@ const updateEditUsers = async (req, res, next) => {
       });
       return res.status(200).json({ messgae: "users updated" });
     }
+
+    const { name, email, password, phoneNumber, role, otp, companyName, companyAddress, parentId, state, city } = req.body;
+    if (!name || !email || !password || !phoneNumber || !role || !otp || !companyName || !companyAddress || !parentId || !state || !city) {
+      return res.status(403).json({
+        success: false,
+        message: 'All fields are required',
+      });
+    }
+
+    const existingUser = await users.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({
+        success: false,
+        message: 'User already exists',
+      });
+    }
+
+    const response = await otpModel.find({ email }).sort({ createdAt: -1 }).limit(1);
+    if (response.length === 0 || otp !== response[0].otp) {
+      return res.status(400).json({
+        success: false,
+        message: 'The OTP is not valid',
+      });
+    }
     const newUser = new users(dataToSave);
     await newUser.save();
     res.send({ message: "New Users Stored." });
@@ -234,32 +261,44 @@ const deleteusersById = async (req, res, next) => {
 
 const handleSignup = async (req, res) => {
   try {
-    // Find the user in the database by email
-    const user = await users.findOne({ email: req.body.email });
 
-    // If the user already exists, return an error
-    if (user && user.isVerified) {
-      return res.status(409).send({ message: "User already exists." });
-    }
-
-    // Generate a new OTP if the user exists but is not verified
-    let otp;
-    if (user && !user.isVerified) {
-      await user.save();
-    } else {
-      // Create a new user in the database
-      const hashedPassword = await bcrypt.hash(req.body.password || "123", 10);
-      const newUser = new users({
-        name: req.body.name,
-        email: req.body.email,
-        phoneNumber: req.body.phoneNumber,
-        companyAddress: req.body.companyAddress,
-        role: req.body.role,
-        parentId: req.body.parentId,
-        password: hashedPassword,
+    const { name, email, password, phoneNumber, role, otp, companyName, companyAddress, parentId } = req.body;
+    if (!name || !email || !password || !phoneNumber || !role || !otp || !companyName || !companyAddress || !parentId) {
+      return res.status(403).json({
+        success: false,
+        message: 'All fields are required',
       });
-      await newUser.save();
     }
+
+    const existingUser = await users.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({
+        success: false,
+        message: 'User already exists',
+      });
+    }
+
+    const response = await otpModel.find({ email }).sort({ createdAt: -1 }).limit(1);
+    if (response.length === 0 || otp !== response[0].otp) {
+      return res.status(400).json({
+        success: false,
+        message: 'The OTP is not valid',
+      });
+    }
+
+    // Create a new user in the database
+    const hashedPassword = await bcrypt.hash(req.body.password || "123", 10);
+    const newUser = new users({
+      name: req.body.name,
+      email: req.body.email,
+      phoneNumber: req.body.phoneNumber,
+      companyAddress: req.body.companyAddress,
+      companyName: req.body.companyName,
+      role: req.body.role,
+      parentId: req.body.parentId,
+      password: hashedPassword,
+    });
+    await newUser.save();
     // Create a new user in the databas
     res.send({ message: "Sign Up succesfully." });
   } catch (error) {
@@ -363,6 +402,47 @@ const updateUserStatus = async (req, res, next) => {
   }
 };
 
+const sendOTP = async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) {
+      return res.status(403).json({
+        success: false,
+        message: 'Email is required',
+      });
+    }
+    let otp = otpGenerator.generate(6, {
+      upperCaseAlphabets: false,
+      lowerCaseAlphabets: false,
+      specialChars: false,
+    });
+
+    await new otpModel({ email, otp }).save();
+
+    let info = await transporter.sendMail({
+      from: "propertyp247@gmail.com",
+      to: [email, "dpundir72@gmail.com"],
+      subject: "Verification Email",
+      html: `
+            <div
+              style="max-width: 90%; margin: auto; padding-top: 20px;"
+            >
+              <br/>
+              <span style="font-weight:800; display:block;">${otp} is your verification code for builderfloor.com .</span>
+            </div>
+          `,
+    });
+
+    res.status(200).json({
+      success: true,
+      message: 'OTP sent successfully',
+    });
+  } catch (error) {
+    console.log(error.message);
+    return res.status(500).json({ success: false, error: error.message });
+  }
+};
+
 export default {
   getusersList,
   getAdminUsersList,
@@ -378,4 +458,5 @@ export default {
   getChannelPartnersList,
   addUserLocation,
   updateUserStatus,
+  sendOTP,
 };
