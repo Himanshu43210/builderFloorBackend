@@ -21,6 +21,7 @@ const UsersSchema = new Schema(
     city: { type: String },
     // location: { type: String },
     status: { type: String, default: "active" },
+    filters: { type: Schema.Types.Mixed }
   },
   { timestamps: true }
 );

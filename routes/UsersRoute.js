@@ -18,6 +18,7 @@ router
   .get("/channelPartnersList", usersController.getChannelPartnersList)
   .post("/addUserLocation", usersController.addUserLocation)
   .put("/updateUserStatus", usersController.updateUserStatus)
-  .post("/sendOTP", usersController.sendOTP);
+  .post("/sendOTP", usersController.sendOTP)
+  .post("/addUserFilters", usersController.addUserFilters);
 
 export default router;

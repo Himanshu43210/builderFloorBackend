@@ -152,6 +152,9 @@ const searchPropertiesData = async (req, res) => {
     query.possession = possession;
   }
 
+  if (req.query.search) {
+    query["$or"] = await serchPropertyData(req.query.search)
+  }
   // Add more conditions for other fields in a similar manner
 
   // Sorting
@@ -209,7 +212,9 @@ const getpropertiesList = async (req, res, next) => {
     const limit = Number(req.query.limit) < 10 ? 10 : Number(req.query.limit);
     const { sortType, sortColumn } = req.query;
     const queryObject = {};
-
+    if (req.query.search) {
+      queryObject["$or"] = await serchPropertyData(req.query.search)
+    }
     let skip = (page) * limit;
 
     let data = await properties.find(queryObject).skip(skip).limit(limit);
@@ -281,10 +286,15 @@ const getAdminPropertiesList = async (req, res, next) => {
     console.log(role, id);
     if (role === USER_ROLE[BUILDER_FLOOR_ADMIN]) {
     } else {
+      let search = [];
+      if (req.query.search) {
+        search = await serchPropertyData(req.query.search)
+      }
       query["$or"] = [
         { parentId: id },
         { needApprovalBy: id },
         { contactId: id },
+        ...search
       ];
     }
     let skip = (page) * limit;
@@ -885,16 +895,20 @@ const getPropertiesCountsByUserId = async (req, res) => {
 
 const getPropertiesListByUserId = async (req, res, next) => {
   try {
+    let query = { parentId: req.query.userId }
+    if (req.query.search) {
+      query["$or"] = await serchPropertyData(req.query.search)
+    }
     let page = Number(req.query.page) || 0;
     const limit = Number(req.query.limit) || 10;
     let skip = (page) * limit;
 
     let data = await properties
-      .find({ parentId: req.query.userId })
+      .find(query)
       .skip(skip)
       .limit(limit);
 
-    const totalDocuments = await properties.countDocuments({ parentId: req.query.userId });
+    const totalDocuments = await properties.countDocuments(query);
     const totalPages = Math.ceil(totalDocuments / limit);
 
     res.status(200).json({
@@ -911,19 +925,19 @@ const getPropertiesListByUserId = async (req, res, next) => {
 
 const getApprovalProperties = async (req, res, next) => {
   try {
-    const id = req.query.id;
+    let query = { needApprovalBy: req.query.id }
+    if (req.query.search) {
+      query["$or"] = await serchPropertyData(req.query.search)
+    }
     let page = Number(req.query.page) || 0;
     const limit = Number(req.query.limit) || 10;
     let skip = (page) * limit;
-    console.log(id);
     let data = await properties
-      .find({ needApprovalBy: id })
+      .find(query)
       .skip(skip)
       .limit(limit);
 
-    const totalDocuments = await properties.countDocuments({
-      needApprovalBy: id,
-    });
+    const totalDocuments = await properties.countDocuments(query);
     const totalPages = Math.ceil(totalDocuments / limit);
 
     res.status(200).json({
@@ -940,13 +954,17 @@ const getApprovalProperties = async (req, res, next) => {
 
 const getApprovedPropertiesList = async (req, res, next) => {
   try {
+    let query = { needApprovalBy: "Approved" }
+    if (req.query.search) {
+      query["$or"] = await serchPropertyData(req.query.search)
+    }
     let page = Number(req.query.page) || 0;
-    const limit = Number(req.query.limit) || 20;
+    const limit = Number(req.query.limit) || 10;
     let skip = (page) * limit;
-    let data = await properties.find({ needApprovalBy: "Approved" })
+    let data = await properties.find(query)
       .skip(skip)
       .limit(limit);
-    const totalDocuments = await properties.countDocuments({ needApprovalBy: "Approved" });
+    const totalDocuments = await properties.countDocuments(query);
     const totalPages = Math.ceil(totalDocuments / limit);
     res.status(200).json({
       data,
@@ -959,6 +977,29 @@ const getApprovedPropertiesList = async (req, res, next) => {
     res.status(400).json({ messgae: error.message });
   }
 };
+
+const serchPropertyData = async (search) => {
+  const regex = new RegExp(search, 'i');
+  const fieldsToSearch = [
+    'state',
+    'city',
+    'location',
+    'plotNumber',
+    'size',
+    'sizeType',
+    'floor',
+    'accommodation',
+    'facing',
+    'possession',
+    'builderName',
+    'builderContact',
+    'title',
+    'detailTitle',
+    'description',
+    'needApprovalBy',
+  ];
+  return fieldsToSearch.map((field) => ({ [field]: regex }));
+}
 
 export default {
   getpropertiesList,
