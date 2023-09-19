@@ -60,12 +60,14 @@ const getusersList = async (req, res, next) => {
     let page = Number(req.query.page) || 0;
     console.log("it is here");
     const limit = Number(req.query.limit) < 10 ? 10 : Number(req.query.limit);
-
     let skip = (page) * limit;
+    const query = {};
+    if (req.query.search) {
+      query["$or"] = await serchUserData(req.query.search)
+    }
+    let data = await users.find(query).skip(skip).limit(limit);
 
-    let data = await users.find().skip(skip).limit(limit);
-
-    const totalDocuments = await users.countDocuments();
+    const totalDocuments = await users.countDocuments(query);
     const totalPages = Math.ceil(totalDocuments / limit);
 
     res.status(200).json({
@@ -89,6 +91,9 @@ const getAdminUsersList = async (req, res, next) => {
 
     let skip = (page) * limit;
     const query = { parentId: id };
+    if (req.query.search) {
+      query["$or"] = await serchUserData(req.query.search)
+    }
     let data = await users.find(query).skip(skip).limit(limit);
 
     const totalDocuments = await users.countDocuments(query);
@@ -349,20 +354,19 @@ const getusersChildren = async (req, res, next) => {
 
 const getChannelPartnersList = async (req, res, next) => {
   try {
-    console.log(req.query);
     let page = Number(req.query.page) || 0;
     const limit = Number(req.query.limit) < 10 ? 10 : Number(req.query.limit);
-
     let skip = (page) * limit;
-
+    let query = { role: "ChannelPartner" }
+    if (req.query.search) {
+      query["$or"] = await serchUserData(req.query.search)
+    }
     let data = await users
-      .find({ role: "ChannelPartner" })
+      .find(query)
       .skip(skip)
       .limit(limit);
 
-    const totalDocuments = await users.countDocuments({
-      role: "ChannelPartner",
-    });
+    const totalDocuments = await users.countDocuments(query);
     const totalPages = Math.ceil(totalDocuments / limit);
 
     res.status(200).json({
@@ -446,6 +450,36 @@ const sendOTP = async (req, res) => {
   }
 };
 
+const addUserFilters = async (req, res) => {
+  try {
+    const { masterFilter, userId } = req.body;
+    const user = await users.findOne({ _id: userId }).select('_id');
+    if (!user) {
+      return res.status(400).json({ success: false, message: "User does not exist." });
+    }
+    const data = await users.findByIdAndUpdate({ _id: userId }, { filters: masterFilter });
+    return res.status(200).json({ data, message: "Filter added successfully." })
+  } catch (error) {
+    return res.status(500).json({ success: false, error: error.message });
+  }
+}
+
+const serchUserData = async (search) => {
+  const regex = new RegExp(search, 'i');
+  const fieldsToSearch = [
+    'name',
+    'email',
+    'phoneNumber',
+    'role',
+    'companyName',
+    'companyAddress',
+    'state',
+    'city',
+    'status',
+  ];
+  return fieldsToSearch.map((field) => ({ [field]: regex }));
+}
+
 export default {
   getusersList,
   getAdminUsersList,
@@ -462,4 +496,5 @@ export default {
   addUserLocation,
   updateUserStatus,
   sendOTP,
+  addUserFilters
 };
