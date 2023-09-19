@@ -166,8 +166,8 @@ const updateEditUsers = async (req, res, next) => {
       return res.status(200).json({ messgae: "users updated" });
     }
 
-    const { name, email, password, phoneNumber, role, otp, companyName, companyAddress, parentId, state, city } = req.body;
-    if (!name || !email || !password || !phoneNumber || !role || !otp || !companyName || !companyAddress || !parentId || !state || !city) {
+    const { name, email, password, phoneNumber, role, emailOtp, companyName, companyAddress, parentId, state, city } = req.body;
+    if (!name || !email || !password || !phoneNumber || !role || !emailOtp || !companyName || !companyAddress || !parentId || !state || !city) {
       return res.status(403).json({
         success: false,
         message: 'All fields are required',
@@ -182,13 +182,16 @@ const updateEditUsers = async (req, res, next) => {
       });
     }
 
-    const response = await otpModel.find({ email }).sort({ createdAt: -1 }).limit(1);
-    if (response.length === 0 || otp !== response[0].otp) {
-      return res.status(400).json({
-        success: false,
-        message: 'The OTP is not valid',
-      });
+    if (emailOtp !== "verified") {
+      const response = await otpModel.find({ email }).sort({ createdAt: -1 }).limit(1);
+      if (response.length === 0 || emailOtp !== response[0].otp) {
+        return res.status(400).json({
+          success: false,
+          message: 'The OTP is not valid',
+        });
+      }
     }
+
     const newUser = new users(dataToSave);
     await newUser.save();
     res.send({ message: "New Users Stored." });

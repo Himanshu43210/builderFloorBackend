@@ -13,6 +13,4 @@ const transporter = nodemailer.createTransport({
     },
 });
 
-console.log({ MAIL_PASS: process.env.MAIL_PASS });
-
 export default transporter;
