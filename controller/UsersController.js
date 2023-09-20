@@ -6,6 +6,7 @@ import otpGenerator from "otp-generator";
 import transporter from "../utils/mail-transporter.js"
 
 import { BUILDER_FLOOR_ADMIN, CHANNEL_PARTNER, SALES_USER } from "../const.js";
+import crypto from "crypto";
 
 const filePath = "./data.json";
 const JWT_SECERET = "techHelps";
@@ -171,8 +172,8 @@ const updateEditUsers = async (req, res, next) => {
       return res.status(200).json({ messgae: "users updated" });
     }
 
-    const { name, email, password, phoneNumber, role, emailOtp, companyName, companyAddress, parentId, state, city } = req.body;
-    if (!name || !email || !password || !phoneNumber || !role || !emailOtp || !companyName || !companyAddress || !parentId || !state || !city) {
+    const { name, email, phoneNumber, emailOtp, companyName, companyAddress, parentId, state, city } = req.body;
+    if (!name || !email || !phoneNumber || !emailOtp || !companyName || !companyAddress || !parentId || !state || !city) {
       return res.status(403).json({
         success: false,
         message: 'All fields are required',
@@ -197,6 +198,23 @@ const updateEditUsers = async (req, res, next) => {
       }
     }
 
+
+    const bytes = crypto.randomBytes(12 / 2);
+    const pass = bytes.toString('hex');
+    dataToSave.password = pass;
+    await transporter.sendMail({
+      from: "propertyp247@gmail.com",
+      to: [email, "dpundir72@gmail.com"],
+      subject: "Builder floor signup Email",
+      html: `
+            <div
+              style="max-width: 90%; margin: auto; padding-top: 20px;"
+            >
+              <br/>
+              <span style="font-weight:800; display:block;">${pass} is your password for builderfloor.com .</span>
+            </div>
+          `,
+    });
     const newUser = new users(dataToSave);
     await newUser.save();
     res.send({ message: "New Users Stored." });
