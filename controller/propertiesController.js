@@ -929,16 +929,38 @@ const getApprovalProperties = async (req, res, next) => {
     if (req.query.search) {
       query["$or"] = await serchPropertyData(req.query.search)
     }
-    let page = Number(req.query.page) || 0;
-    const limit = Number(req.query.limit) || 10;
-    let skip = (page) * limit;
-    let data = await properties
-      .find(query).populate("parentId")
-      .skip(skip)
-      .limit(limit);
+    const page = Number(req.query.page) || 0;
+    const size = Number(req.query.limit) || 10;
+    const skip = { $skip: size * page };
+    const limit = { $limit: size };
+    let data = await properties.aggregate([
+      {
+        $match: query
+      },
+      {
+        $lookup: {
+          from: "users", // Corrected from "form" to "from"
+          localField: "parentId",
+          foreignField: "_id",
+          pipeline: [
+            {
+              $project: {
+                name: 1,
+                email: 1,
+                phoneNumber: 1,
+                _id: 0,
+              },
+            },
+          ],
+          as: "user"
+        }
+      },
+      skip,
+      limit,
+    ]);
 
     const totalDocuments = await properties.countDocuments(query);
-    const totalPages = Math.ceil(totalDocuments / limit);
+    const totalPages = Math.ceil(totalDocuments / size);
 
     res.status(200).json({
       data,
