@@ -939,7 +939,7 @@ const getApprovalProperties = async (req, res, next) => {
       },
       {
         $lookup: {
-          from: "users", // Corrected from "form" to "from"
+          from: "users",
           localField: "parentId",
           foreignField: "_id",
           pipeline: [
@@ -948,16 +948,35 @@ const getApprovalProperties = async (req, res, next) => {
                 name: 1,
                 email: 1,
                 phoneNumber: 1,
-                _id: 0,
-              },
-            },
+                _id: 0
+              }
+            }
           ],
           as: "user"
         }
       },
+      {
+        $unwind: {
+          path: "$user",
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      {
+        $addFields: {
+          createdByName: "$user.name",
+          createdByEmail: "$user.email",
+          createdByPhoneNumber: "$user.phoneNumber"
+        }
+      },
+      {
+        $project: {
+          user: 0 // Remove the 'user' field if you no longer need it
+        }
+      },
       skip,
-      limit,
+      limit
     ]);
+
 
     const totalDocuments = await properties.countDocuments(query);
     const totalPages = Math.ceil(totalDocuments / size);
