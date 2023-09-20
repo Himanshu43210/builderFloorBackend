@@ -925,7 +925,7 @@ const getPropertiesListByUserId = async (req, res, next) => {
 
 const getApprovalProperties = async (req, res, next) => {
   try {
-    let query = { parentId: req.query.id }
+    let query = { needApprovalBy: req.query.id }
     if (req.query.search) {
       query["$or"] = await serchPropertyData(req.query.search)
     }
@@ -933,10 +933,10 @@ const getApprovalProperties = async (req, res, next) => {
     const limit = Number(req.query.limit) || 10;
     let skip = (page) * limit;
     let data = await properties
-      .find(query).populate('parentId')
+      .find(query).populate("parentId")
       .skip(skip)
       .limit(limit);
-    console.log(data,limit,skip,query);
+
     const totalDocuments = await properties.countDocuments(query);
     const totalPages = Math.ceil(totalDocuments / limit);
 
