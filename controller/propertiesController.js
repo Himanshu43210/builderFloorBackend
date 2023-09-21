@@ -931,11 +931,10 @@ const getApprovalProperties = async (req, res, next) => {
     let query = { needApprovalBy: req.query.id || req.query.userId }
     let userQuery = {}
     if (req.query.search) {
-      query["$or"] = await serchPropertyData(req.query.search);
+      // query["$or"] = await serchPropertyData(req.query.search);
       userQuery["$or"] = await serchUserData(req.query.search);
 
     }
-    console.log(query);
     const page = Number(req.query.page) || 0;
     const size = Number(req.query.limit) || 10;
     const skip = { $skip: size * page };
@@ -966,6 +965,16 @@ const getApprovalProperties = async (req, res, next) => {
         }
       },
       {
+        $addFields: {
+          userExists: { $gt: [{ $size: "$user" }, 0] } // Check if the "user" array has any elements
+        }
+      },
+      {
+        $match: {
+          userExists: true // Only keep documents where userExists is true
+        }
+      },
+      {
         $unwind: {
           path: "$user",
           preserveNullAndEmptyArrays: true
@@ -980,7 +989,8 @@ const getApprovalProperties = async (req, res, next) => {
       },
       {
         $project: {
-          user: 0 // Remove the 'user' field if you no longer need it
+          user: 0, // Remove the 'user' field if you no longer need it
+          userExists: 0 // Remove the 'userExists' field from the final result
         }
       },
       skip,
@@ -988,15 +998,63 @@ const getApprovalProperties = async (req, res, next) => {
     ]);
 
 
-    const totalDocuments = await properties.countDocuments(query);
-    const totalPages = Math.ceil(totalDocuments / size);
+
+    const totalDocuments = await properties.aggregate([
+      {
+        $match: query
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "parentId",
+          foreignField: "_id",
+          pipeline: [
+            {
+              $match: userQuery
+            },
+            {
+              $project: {
+                name: 1,
+                email: 1,
+                phoneNumber: 1,
+                _id: 0
+              }
+            }
+          ],
+          as: "user"
+        }
+      },
+      {
+        $addFields: {
+          userExists: { $gt: [{ $size: "$user" }, 0] } // Check if the "user" array has any elements
+        }
+      },
+      {
+        $match: {
+          userExists: true // Only keep documents where userExists is true
+        }
+      },
+      {
+        $unwind: {
+          path: "$user",
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      {
+        $group: {
+          _id: null,
+          count: { $sum: 1 },
+        },
+      },
+    ]);
+    const totalPages = Math.ceil(totalDocuments[0].count / size);
 
     res.status(200).json({
       data,
       nbHits: data.length,
       pageNumber: page,
       totalPages: totalPages,
-      totalItems: totalDocuments,
+      totalItems: totalDocuments[0].count,
     });
   } catch (error) {
     res.status(400).json({ messgae: error.message });
