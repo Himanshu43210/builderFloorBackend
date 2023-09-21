@@ -299,13 +299,11 @@ const getAdminPropertiesList = async (req, res, next) => {
     }
     let skip = (page) * limit;
     // Adding sort functionality
-    console.log(query);
     let data = await properties
       .find(query)
       .skip(skip)
       .limit(limit)
       .sort({ [sortColumn]: sortType === "desc" ? -1 : 1 });
-
     const totalDocuments = await properties.countDocuments(query);
     const totalPages = Math.ceil(totalDocuments / limit);
     res.status(200).json({
@@ -556,7 +554,9 @@ const uploadProperties = async (req, res, next) => {
     let uploadData = { ...otherData };
 
     for (let fileKey in folderNamesMapping) {
+      console.log(fileKey,"==fileKey");
       if (req.files[fileKey] && req.files[fileKey].length) {
+        console.log(req.files,'========if');
         const specificFolderPath = folderNamesMapping[fileKey];
         await ensureFolderStructure(s3, folder, specificFolderPath);
         const fileUrls = await uploadOnS3(
