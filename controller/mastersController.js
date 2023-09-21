@@ -74,24 +74,10 @@ const getmastersList = async (req, res, next) => {
 };
 const getMasterDataOnHome = async (req, res, next) => {
   try {
-    let page = Number(req.query.page) || 0;
-    const limit = Number(req.query.limit) || 10;
-    const { SortType, sortColumn } = req.query;
-    console.log({ page, limit, SortType, sortColumn });
-    const queryObject = {};
-
-    let skip = page * limit;
-
-    let data = await masters.find(queryObject).skip(skip).limit(limit);
-    const totalDocuments = await masters.countDocuments();
-    const totalPages = Math.ceil(totalDocuments / limit);
+    let data = await masters.find();
 
     res.status(200).json({
       data: transformHomeData(data),
-      nbHits: data.length,
-      pageNumber: page,
-      totalPages: totalPages,
-      totalItems: totalDocuments,
     });
   } catch (error) {
     res.status(400).json({ messgae: error.message });
