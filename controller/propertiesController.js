@@ -283,13 +283,13 @@ const getAdminPropertiesList = async (req, res, next) => {
 
     let page = Number(req.query.page) || 0;
     const limit = Number(req.query.limit) || 10;
-    console.log(role, id);
+    let search = [];
+    if (req.query.search) {
+      search = await serchPropertyData(req.query.search)
+    }
     if (role === USER_ROLE[BUILDER_FLOOR_ADMIN]) {
+      query["$or"] = await serchPropertyData(req.query.search)
     } else {
-      let search = [];
-      if (req.query.search) {
-        search = await serchPropertyData(req.query.search)
-      }
       query["$or"] = [
         { parentId: id },
         { needApprovalBy: id },
@@ -299,6 +299,7 @@ const getAdminPropertiesList = async (req, res, next) => {
     }
     let skip = (page) * limit;
     // Adding sort functionality
+    console.log(query);
     let data = await properties
       .find(query)
       .skip(skip)
@@ -933,6 +934,7 @@ const getApprovalProperties = async (req, res, next) => {
     const size = Number(req.query.limit) || 10;
     const skip = { $skip: size * page };
     const limit = { $limit: size };
+    console.log(query);
     let data = await properties.aggregate([
       {
         $match: query
