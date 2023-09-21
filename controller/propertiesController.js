@@ -825,11 +825,13 @@ const rejectProperty = async (req, res, next) => {
 
 const getPropertiesCountsByUserId = async (req, res) => {
   try {
+    let query = { parentId: req.query.userId }
+    if (req.query.search) {
+      query["$or"] = await serchUserData(req.query.search);
+    }
     const data = await users.aggregate([
       {
-        $match: {
-          parentId: req.query.userId,
-        },
+        $match: query
       },
       {
         $lookup: {
@@ -927,14 +929,16 @@ const getPropertiesListByUserId = async (req, res, next) => {
 const getApprovalProperties = async (req, res, next) => {
   try {
     let query = { needApprovalBy: req.query.id }
+    let userQuery = {}
     if (req.query.search) {
-      query["$or"] = await serchPropertyData(req.query.search)
+      query["$or"] = await serchPropertyData(req.query.search);
+      userQuery["$or"] = await serchUserData(req.query.search);
+
     }
     const page = Number(req.query.page) || 0;
     const size = Number(req.query.limit) || 10;
     const skip = { $skip: size * page };
     const limit = { $limit: size };
-    console.log(query);
     let data = await properties.aggregate([
       {
         $match: query
@@ -945,6 +949,9 @@ const getApprovalProperties = async (req, res, next) => {
           localField: "parentId",
           foreignField: "_id",
           pipeline: [
+            {
+              $match: userQuery
+            },
             {
               $project: {
                 name: 1,
@@ -1043,6 +1050,23 @@ const serchPropertyData = async (search) => {
   ];
   return fieldsToSearch.map((field) => ({ [field]: regex }));
 }
+
+const serchUserData = async (search) => {
+  const regex = new RegExp(search, 'i');
+  const fieldsToSearch = [
+    'name',
+    'email',
+    'phoneNumber',
+    'role',
+    'companyName',
+    'companyAddress',
+    'state',
+    'city',
+    'status',
+  ];
+  return fieldsToSearch.map((field) => ({ [field]: regex }));
+}
+
 
 export default {
   getpropertiesList,
