@@ -1,6 +1,22 @@
 import mongoose from "mongoose";
 import masters from "../models/mastersModel.js";
 
+const transformHomeData = (data) => {
+  return data.reduce((acc, curr) => {
+    const { fieldName, fieldLabel, fieldValue } = curr;
+
+    // Initialize the array for the fieldName if it doesn't exist
+    if (!acc[fieldName]) {
+      acc[fieldName] = [];
+    }
+
+    // Push the transformed object into the array
+    acc[fieldName].push({ label: fieldLabel, value: fieldValue });
+
+    return acc;
+  }, {});
+};
+
 const Edit_Update = async (req, res) => {
   const { _id, ...data } = req.body;
   console.log(data);
@@ -39,7 +55,7 @@ const getmastersList = async (req, res, next) => {
     console.log({ page, limit, SortType, sortColumn });
     const queryObject = {};
 
-    let skip = (page) * limit;
+    let skip = page * limit;
 
     let data = await masters.find(queryObject).skip(skip).limit(limit);
     const totalDocuments = await masters.countDocuments();
@@ -47,6 +63,31 @@ const getmastersList = async (req, res, next) => {
 
     res.status(200).json({
       data,
+      nbHits: data.length,
+      pageNumber: page,
+      totalPages: totalPages,
+      totalItems: totalDocuments,
+    });
+  } catch (error) {
+    res.status(400).json({ messgae: error.message });
+  }
+};
+const getMasterDataOnHome = async (req, res, next) => {
+  try {
+    let page = Number(req.query.page) || 0;
+    const limit = Number(req.query.limit) || 10;
+    const { SortType, sortColumn } = req.query;
+    console.log({ page, limit, SortType, sortColumn });
+    const queryObject = {};
+
+    let skip = page * limit;
+
+    let data = await masters.find(queryObject).skip(skip).limit(limit);
+    const totalDocuments = await masters.countDocuments();
+    const totalPages = Math.ceil(totalDocuments / limit);
+
+    res.status(200).json({
+      data: transformHomeData(data),
       nbHits: data.length,
       pageNumber: page,
       totalPages: totalPages,
@@ -157,6 +198,7 @@ const insertBulkmasters = async (req, res, next) => {
 
 export default {
   getmastersList,
+  getMasterDataOnHome,
   storemasters,
   getmastersById,
   deletemastersById,
