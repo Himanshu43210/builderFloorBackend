@@ -5,7 +5,7 @@ const propertiesSchema = new Schema(
   {
     state: { type: String },
     city: { type: String },
-    location: { type: String },
+    sectorNumber: { type: String },
     plotNumber: { type: String },
     size: { type: String },
     sizeType: { type: String },

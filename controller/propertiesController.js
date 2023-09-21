@@ -27,7 +27,7 @@ const convertToCardData = (datFromDb) => {
     return {
       _id: item._id,
       title: item.title,
-      location: item.location,
+      sectorNumber: item.sectorNumber,
       accommodation: item.accommodation,
       floor: item.floor,
       size: item.size,
@@ -44,7 +44,7 @@ const Edit_Update = async (req, res) => {
   const newData = {
     ...data,
     city: data.city,
-    location: data.location,
+    location: data.sectorNumber,
     facing: data.facing,
     accommodation: data.accommodation,
     floor: data.floor,
@@ -146,7 +146,7 @@ const searchPropertiesData = async (req, res) => {
     query.floor = floor;
   }
   if (location) {
-    query.location = location;
+    query.sectorNumber = sectorNumber;
   }
   if (possession) {
     query.possession = possession;
@@ -275,7 +275,7 @@ const getAdminPropertiesList = async (req, res, next) => {
       query.floor = floor;
     }
     if (location) {
-      query.location = location;
+      query.sectorNumber = locatsectorNumberion;
     }
     if (possession) {
       query.possession = possession;
@@ -509,7 +509,7 @@ function joinS3Path(...args) {
 const generateFolderName = (data) => {
   const folderPath = [
     "upload/photos",
-    data.plotNumber + data.location,
+    data.plotNumber + data.sectorNumber,
     data.floor,
   ].join("/");
   return folderPath;
@@ -611,7 +611,7 @@ const uploadOnS3 = async (files, folderPath) => {
             console.error("Error uploading to S3:", err);
             reject(err);
           } else {
-            resolve(data.Location); // Return the file URL
+            resolve(data.sectorNumber); // Return the file URL
           }
         });
       });
