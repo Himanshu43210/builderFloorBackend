@@ -554,9 +554,7 @@ const uploadProperties = async (req, res, next) => {
     let uploadData = { ...otherData };
 
     for (let fileKey in folderNamesMapping) {
-      console.log(fileKey,"==fileKey");
       if (req.files[fileKey] && req.files[fileKey].length) {
-        console.log(req.files,'========if');
         const specificFolderPath = folderNamesMapping[fileKey];
         await ensureFolderStructure(s3, folder, specificFolderPath);
         const fileUrls = await uploadOnS3(
@@ -611,7 +609,7 @@ const uploadOnS3 = async (files, folderPath) => {
             console.error("Error uploading to S3:", err);
             reject(err);
           } else {
-            resolve(data.sectorNumber); // Return the file URL
+            resolve(data.Location); // Return the file URL
           }
         });
       });
