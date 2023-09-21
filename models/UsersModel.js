@@ -19,7 +19,7 @@ const UsersSchema = new Schema(
     companyAddress: { type: String },
     state: { type: String },
     city: { type: String },
-    // location: { type: String },
+    location: { type: Array },
     status: { type: String, default: "active" },
     filters: { type: Schema.Types.Mixed }
   },

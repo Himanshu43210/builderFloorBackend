@@ -155,7 +155,7 @@ const updateEditUsers = async (req, res, next) => {
       state: req.body.state,
       city: req.body.city,
       role: req.body.role,
-      // location: req.body.location,
+      location: req.body.location,
       status: req.body.status,
       parentId:
         req.body.role === USER_ROLE[BUILDER_FLOOR_ADMIN]
