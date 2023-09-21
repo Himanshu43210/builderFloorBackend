@@ -5,6 +5,7 @@ const router = express.Router();
 
 router
   .get("/list", mastersController.getmastersList)
+  .get("/getMasterDataOnHome", mastersController.getMasterDataOnHome)
   .post("/addMaster", mastersController.Edit_Update) 
   .post("/editMaster", mastersController.Edit_Update) 
   .delete("/deleteMaster", mastersController.deletemastersById)
