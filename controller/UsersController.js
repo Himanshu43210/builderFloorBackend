@@ -188,7 +188,7 @@ const updateEditUsers = async (req, res, next) => {
       });
     }
 
-    if (emailOtp) {
+    if (emailOtp && emailOtp != 'verified') {
       const response = await otpModel.find({ email }).sort({ createdAt: -1 }).limit(1);
       if (response.length === 0 || emailOtp !== response[0].otp) {
         return res.status(400).json({
@@ -196,7 +196,7 @@ const updateEditUsers = async (req, res, next) => {
           message: 'The OTP is not valid',
         });
       }
-    } else {
+    } else if (emailOtp == 'verified') { } else {
       return res.status(403).json({
         success: false,
         message: 'emailOtp field is required',
