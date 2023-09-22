@@ -131,10 +131,10 @@ const searchPropertiesData = async (req, res) => {
     query.accommodation = accommodation;
   }
   if (Corner) {
-    query.corner = true;
+    query.corner = "Yes";
   }
   if (Park) {
-    query.parkFacing = true;
+    query.parkFacing = "Yes";
   }
   if (city) {
     query.city = { $regex: city, $options: "i" };
@@ -153,7 +153,7 @@ const searchPropertiesData = async (req, res) => {
   }
 
   if (req.query.search) {
-    query["$or"] = await serchPropertyData(req.query.search)
+    query["$or"] = await serchPropertyData(req.query.search);
   }
   // Add more conditions for other fields in a similar manner
 
@@ -162,7 +162,7 @@ const searchPropertiesData = async (req, res) => {
     sortBy === "Price High to Low" ? { price: -1 } : { default_sort_column: 1 };
   try {
     // Execute the Mongoose query
-    let skip = (page) * limit;
+    let skip = page * limit;
     const data = await properties
       .find(query)
       .sort(sortQuery)
@@ -196,7 +196,7 @@ const getHomeData = async (req, res) => {
     if (city) {
       queryObject.city = { $regex: city, $options: "i" };
     }
-    let skip = (page) * limit;
+    let skip = page * limit;
     let data = await properties.find(queryObject).skip(skip).limit(limit);
     // const totalDocuments = await properties.countDocuments();
     // const totalPages = Math.ceil(totalDocuments / limit);
@@ -213,9 +213,9 @@ const getpropertiesList = async (req, res, next) => {
     const { sortType, sortColumn } = req.query;
     const queryObject = {};
     if (req.query.search) {
-      queryObject["$or"] = await serchPropertyData(req.query.search)
+      queryObject["$or"] = await serchPropertyData(req.query.search);
     }
-    let skip = (page) * limit;
+    let skip = page * limit;
 
     let data = await properties.find(queryObject).skip(skip).limit(limit);
     const totalDocuments = await properties.countDocuments(queryObject);
@@ -285,19 +285,19 @@ const getAdminPropertiesList = async (req, res, next) => {
     const limit = Number(req.query.limit) || 10;
     let search = [];
     if (req.query.search) {
-      search = await serchPropertyData(req.query.search)
+      search = await serchPropertyData(req.query.search);
     }
     if (role === USER_ROLE[BUILDER_FLOOR_ADMIN]) {
-      query["$or"] = await serchPropertyData(req.query.search)
+      query["$or"] = await serchPropertyData(req.query.search);
     } else {
       query["$or"] = [
         { parentId: id },
         { needApprovalBy: id },
         { contactId: id },
-        ...search
+        ...search,
       ];
     }
-    let skip = (page) * limit;
+    let skip = page * limit;
     // Adding sort functionality
     let data = await properties
       .find(query)
@@ -823,13 +823,13 @@ const rejectProperty = async (req, res, next) => {
 
 const getPropertiesCountsByUserId = async (req, res) => {
   try {
-    let query = { parentId: req.query.userId }
+    let query = { parentId: req.query.userId };
     if (req.query.search) {
       query["$or"] = await serchUserData(req.query.search);
     }
     const data = await users.aggregate([
       {
-        $match: query
+        $match: query,
       },
       {
         $lookup: {
@@ -896,18 +896,15 @@ const getPropertiesCountsByUserId = async (req, res) => {
 
 const getPropertiesListByUserId = async (req, res, next) => {
   try {
-    let query = { parentId: req.query.userId }
+    let query = { parentId: req.query.userId };
     if (req.query.search) {
-      query["$or"] = await serchPropertyData(req.query.search)
+      query["$or"] = await serchPropertyData(req.query.search);
     }
     let page = Number(req.query.page) || 0;
     const limit = Number(req.query.limit) || 10;
-    let skip = (page) * limit;
+    let skip = page * limit;
 
-    let data = await properties
-      .find(query)
-      .skip(skip)
-      .limit(limit);
+    let data = await properties.find(query).skip(skip).limit(limit);
 
     const totalDocuments = await properties.countDocuments(query);
     const totalPages = Math.ceil(totalDocuments / limit);
@@ -926,12 +923,11 @@ const getPropertiesListByUserId = async (req, res, next) => {
 
 const getApprovalProperties = async (req, res, next) => {
   try {
-    let query = { needApprovalBy: req.query.id || req.query.userId }
-    let userQuery = {}
+    let query = { needApprovalBy: req.query.id || req.query.userId };
+    let userQuery = {};
     if (req.query.search) {
       // query["$or"] = await serchPropertyData(req.query.search);
       userQuery["$or"] = await serchUserData(req.query.search);
-
     }
     const page = Number(req.query.page) || 0;
     const size = Number(req.query.limit) || 10;
@@ -939,7 +935,7 @@ const getApprovalProperties = async (req, res, next) => {
     const limit = { $limit: size };
     let data = await properties.aggregate([
       {
-        $match: query
+        $match: query,
       },
       {
         $lookup: {
@@ -948,58 +944,56 @@ const getApprovalProperties = async (req, res, next) => {
           foreignField: "_id",
           pipeline: [
             {
-              $match: userQuery
+              $match: userQuery,
             },
             {
               $project: {
                 name: 1,
                 email: 1,
                 phoneNumber: 1,
-                _id: 0
-              }
-            }
+                _id: 0,
+              },
+            },
           ],
-          as: "user"
-        }
+          as: "user",
+        },
       },
       {
         $addFields: {
-          userExists: { $gt: [{ $size: "$user" }, 0] } // Check if the "user" array has any elements
-        }
+          userExists: { $gt: [{ $size: "$user" }, 0] }, // Check if the "user" array has any elements
+        },
       },
       {
         $match: {
-          userExists: true // Only keep documents where userExists is true
-        }
+          userExists: true, // Only keep documents where userExists is true
+        },
       },
       {
         $unwind: {
           path: "$user",
-          preserveNullAndEmptyArrays: true
-        }
+          preserveNullAndEmptyArrays: true,
+        },
       },
       {
         $addFields: {
           createdByName: "$user.name",
           createdByEmail: "$user.email",
-          createdByPhoneNumber: "$user.phoneNumber"
-        }
+          createdByPhoneNumber: "$user.phoneNumber",
+        },
       },
       {
         $project: {
           user: 0, // Remove the 'user' field if you no longer need it
-          userExists: 0 // Remove the 'userExists' field from the final result
-        }
+          userExists: 0, // Remove the 'userExists' field from the final result
+        },
       },
       skip,
-      limit
+      limit,
     ]);
-
-
 
     const totalDocuments = await properties.aggregate([
       {
-        $match: query
+        $match: query,
       },
       {
         $lookup: {
@@ -1008,35 +1002,35 @@ const getApprovalProperties = async (req, res, next) => {
           foreignField: "_id",
           pipeline: [
             {
-              $match: userQuery
+              $match: userQuery,
             },
             {
               $project: {
                 name: 1,
                 email: 1,
                 phoneNumber: 1,
-                _id: 0
-              }
-            }
+                _id: 0,
+              },
+            },
           ],
-          as: "user"
-        }
+          as: "user",
+        },
       },
       {
         $addFields: {
-          userExists: { $gt: [{ $size: "$user" }, 0] } // Check if the "user" array has any elements
-        }
+          userExists: { $gt: [{ $size: "$user" }, 0] }, // Check if the "user" array has any elements
+        },
       },
       {
         $match: {
-          userExists: true // Only keep documents where userExists is true
-        }
+          userExists: true, // Only keep documents where userExists is true
+        },
       },
       {
         $unwind: {
           path: "$user",
-          preserveNullAndEmptyArrays: true
-        }
+          preserveNullAndEmptyArrays: true,
+        },
       },
       {
         $group: {
@@ -1061,16 +1055,14 @@ const getApprovalProperties = async (req, res, next) => {
 
 const getApprovedPropertiesList = async (req, res, next) => {
   try {
-    let query = { needApprovalBy: "Approved" }
+    let query = { needApprovalBy: "Approved" };
     if (req.query.search) {
-      query["$or"] = await serchPropertyData(req.query.search)
+      query["$or"] = await serchPropertyData(req.query.search);
     }
     let page = Number(req.query.page) || 0;
     const limit = Number(req.query.limit) || 10;
-    let skip = (page) * limit;
-    let data = await properties.find(query)
-      .skip(skip)
-      .limit(limit);
+    let skip = page * limit;
+    let data = await properties.find(query).skip(skip).limit(limit);
     const totalDocuments = await properties.countDocuments(query);
     const totalPages = Math.ceil(totalDocuments / limit);
     res.status(200).json({
@@ -1086,44 +1078,43 @@ const getApprovedPropertiesList = async (req, res, next) => {
 };
 
 const serchPropertyData = async (search) => {
-  const regex = new RegExp(search, 'i');
+  const regex = new RegExp(search, "i");
   const fieldsToSearch = [
-    'state',
-    'city',
-    'location',
-    'plotNumber',
-    'size',
-    'sizeType',
-    'floor',
-    'accommodation',
-    'facing',
-    'possession',
-    'builderName',
-    'builderContact',
-    'title',
-    'detailTitle',
-    'description',
-    'needApprovalBy',
+    "state",
+    "city",
+    "location",
+    "plotNumber",
+    "size",
+    "sizeType",
+    "floor",
+    "accommodation",
+    "facing",
+    "possession",
+    "builderName",
+    "builderContact",
+    "title",
+    "detailTitle",
+    "description",
+    "needApprovalBy",
   ];
   return fieldsToSearch.map((field) => ({ [field]: regex }));
-}
+};
 
 const serchUserData = async (search) => {
-  const regex = new RegExp(search, 'i');
+  const regex = new RegExp(search, "i");
   const fieldsToSearch = [
-    'name',
-    'email',
-    'phoneNumber',
-    'role',
-    'companyName',
-    'companyAddress',
-    'state',
-    'city',
-    'status',
+    "name",
+    "email",
+    "phoneNumber",
+    "role",
+    "companyName",
+    "companyAddress",
+    "state",
+    "city",
+    "status",
   ];
   return fieldsToSearch.map((field) => ({ [field]: regex }));
-}
-
+};
 
 export default {
   getpropertiesList,
