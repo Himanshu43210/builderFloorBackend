@@ -188,15 +188,15 @@ const updateEditUsers = async (req, res, next) => {
       });
     }
 
-    if (emailOtp != 'undefined') {
-      const response = await otpModel.find({ email }).sort({ createdAt: -1 }).limit(1);
-      if (response.length === 0 || emailOtp !== response[0].otp) {
-        return res.status(400).json({
-          success: false,
-          message: 'The OTP is not valid',
-        });
-      }
-    }
+    // if (emailOtp != 'undefined') {
+    //   const response = await otpModel.find({ email }).sort({ createdAt: -1 }).limit(1);
+    //   if (response.length === 0 || emailOtp !== response[0].otp) {
+    //     return res.status(400).json({
+    //       success: false,
+    //       message: 'The OTP is not valid',
+    //     });
+    //   }
+    // }
 
 
     const bytes = crypto.randomBytes(12 / 2);
