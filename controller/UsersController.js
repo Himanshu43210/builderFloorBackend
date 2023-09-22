@@ -304,13 +304,13 @@ const handleSignup = async (req, res) => {
       });
     }
 
-    const response = await otpModel.find({ email }).sort({ createdAt: -1 }).limit(1);
-    if (response.length === 0 || otp !== response[0].otp) {
-      return res.status(400).json({
-        success: false,
-        message: 'The OTP is not valid',
-      });
-    }
+    // const response = await otpModel.find({ email }).sort({ createdAt: -1 }).limit(1);
+    // if (response.length === 0 || otp !== response[0].otp) {
+    //   return res.status(400).json({
+    //     success: false,
+    //     message: 'The OTP is not valid',
+    //   });
+    // }
 
     // Create a new user in the database
     const hashedPassword = await bcrypt.hash(req.body.password || "123", 10);
