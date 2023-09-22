@@ -19,6 +19,7 @@ router
   .post("/addUserLocation", usersController.addUserLocation)
   .put("/updateUserStatus", usersController.updateUserStatus)
   .post("/sendOTP", usersController.sendOTP)
-  .post("/addUserFilters", usersController.addUserFilters);
+  .post("/addUserFilters", usersController.addUserFilters)
+  .post("/verifyEmailOtp", usersController.verifyEmailOtp);
 
 export default router;

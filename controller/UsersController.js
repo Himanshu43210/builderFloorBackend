@@ -172,7 +172,7 @@ const updateEditUsers = async (req, res, next) => {
       return res.status(200).json({ messgae: "users updated" });
     }
 
-    const { name, email, phoneNumber, emailOtp, companyName, companyAddress, parentId, state, city } = req.body;
+    const { name, email, phoneNumber, companyName, companyAddress, parentId, state, city } = req.body;
     if (!name || !email || !phoneNumber || !companyName || !companyAddress || !parentId || !state || !city) {
       return res.status(403).json({
         success: false,
@@ -185,21 +185,6 @@ const updateEditUsers = async (req, res, next) => {
       return res.status(400).json({
         success: false,
         message: 'User already exists',
-      });
-    }
-
-    if (emailOtp && emailOtp != 'verified') {
-      const response = await otpModel.find({ email }).sort({ createdAt: -1 }).limit(1);
-      if (response.length === 0 || emailOtp !== response[0].otp) {
-        return res.status(400).json({
-          success: false,
-          message: 'The OTP is not valid',
-        });
-      }
-    } else if (emailOtp == 'verified') { } else {
-      return res.status(403).json({
-        success: false,
-        message: 'emailOtp field is required',
       });
     }
 
@@ -486,6 +471,34 @@ const addUserFilters = async (req, res) => {
   }
 }
 
+const verifyEmailOtp = async (req, res) => {
+  try {
+    const { otp, email } = req.body;
+
+    if (!otp || !email) {
+      return res.status(403).json({
+        success: false,
+        message: 'Email and otp fields are required',
+      });
+    }
+
+    const response = await otpModel.find({ email }).sort({ createdAt: -1 }).limit(1);
+    if (response.length === 0 || otp !== response[0].otp) {
+      return res.status(400).json({
+        success: false,
+        message: 'The OTP is not valid',
+      });
+    } else {
+      return res.status(200).json({
+        success: true,
+        message: 'Verified',
+      });
+    }
+  } catch (error) {
+    return res.status(500).json({ success: false, error: error.message });
+  }
+}
+
 const serchUserData = async (search) => {
   const regex = new RegExp(search, 'i');
   const fieldsToSearch = [
@@ -518,5 +531,6 @@ export default {
   addUserLocation,
   updateUserStatus,
   sendOTP,
-  addUserFilters
+  addUserFilters,
+  verifyEmailOtp
 };
