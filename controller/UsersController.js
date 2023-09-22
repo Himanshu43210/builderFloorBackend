@@ -188,17 +188,20 @@ const updateEditUsers = async (req, res, next) => {
       });
     }
 
-    // if (emailOtp != 'undefined') {
-    //   const response = await otpModel.find({ email }).sort({ createdAt: -1 }).limit(1);
-    //   if (response.length === 0 || emailOtp !== response[0].otp) {
-    //     return res.status(400).json({
-    //       success: false,
-    //       message: 'The OTP is not valid',
-    //     });
-    //   }
-    // }
-
-    
+    if (emailOtp && emailOtp != 'verified') {
+      const response = await otpModel.find({ email }).sort({ createdAt: -1 }).limit(1);
+      if (response.length === 0 || emailOtp !== response[0].otp) {
+        return res.status(400).json({
+          success: false,
+          message: 'The OTP is not valid',
+        });
+      }
+    } else if (emailOtp == 'verified') { } else {
+      return res.status(403).json({
+        success: false,
+        message: 'emailOtp field is required',
+      });
+    }
 
     const bytes = crypto.randomBytes(12 / 2);
     const pass = bytes.toString('hex');
