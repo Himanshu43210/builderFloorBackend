@@ -173,7 +173,7 @@ const updateEditUsers = async (req, res, next) => {
     }
 
     const { name, email, phoneNumber, emailOtp, companyName, companyAddress, parentId, state, city } = req.body;
-    if (!name || !email || !phoneNumber || !emailOtp || !companyName || !companyAddress || !parentId || !state || !city) {
+    if (!name || !email || !phoneNumber || !companyName || !companyAddress || !parentId || !state || !city) {
       return res.status(403).json({
         success: false,
         message: 'All fields are required',
@@ -188,7 +188,7 @@ const updateEditUsers = async (req, res, next) => {
       });
     }
 
-    if (emailOtp !== "verified") {
+    if (emailOtp != 'undefined') {
       const response = await otpModel.find({ email }).sort({ createdAt: -1 }).limit(1);
       if (response.length === 0 || emailOtp !== response[0].otp) {
         return res.status(400).json({
