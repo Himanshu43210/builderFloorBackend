@@ -1035,16 +1035,17 @@ const getApprovalProperties = async (req, res, next) => {
         },
       },
     ]);
-    const totalPages = Math.ceil(totalDocuments[0].count / size);
+    const totalPages = Math.ceil((totalDocuments[0]?.count || 0) / size);
 
     res.status(200).json({
       data,
       nbHits: data.length,
       pageNumber: page,
       totalPages: totalPages,
-      totalItems: totalDocuments[0].count,
+      totalItems: totalDocuments[0]?.count || 0,
     });
   } catch (error) {
+    console.log(error);
     res.status(400).json({ messgae: error.message });
   }
 };
