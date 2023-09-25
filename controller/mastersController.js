@@ -165,19 +165,47 @@ const updateBulkmasters = async (req, res, next) => {
   }
 };
 
+// const insertBulkmasters = async (req, res, next) => {
+//   try {
+//     csv()
+//       .fromFile(req.file.path)
+//       .then(async (data) => {
+//         for (var x = 0; x < data.length; x++) {
+//           console.log(data[x]);
+//           let newModel = new masters(data[x]);
+//           await newModel.save();
+//         }
+//       });
+//     res.status(200).json({ message: "Bulk Insert Done" });
+//   } catch (error) {
+//     res.status(400).json({ messgae: "An error Occoured" });
+//   }
+// };
+
+import XLSX from "xlsx";
 const insertBulkmasters = async (req, res, next) => {
   try {
-    csv()
-      .fromFile(req.file.path)
-      .then(async (data) => {
-        for (var x = 0; x < data.length; x++) {
-          console.log(data[x]);
-          let newModel = new masters(data[x]);
-          await newModel.save();
-        }
-      });
-    res.status(200).json({ message: "Bulk Insert Done" });
+    let workbook = XLSX.read(req.file.buffer, { type: "buffer" });
+    var sheet_name_list = workbook.SheetNames;
+    const options = { defval: "" };
+    const data = XLSX.utils.sheet_to_json(
+      workbook.Sheets[sheet_name_list[0]],
+      options
+    );
+
+    let bulkData = data.map(ele => {
+      return {
+        fieldName: "title",
+        fieldLabel: ele['Primary Title'],
+        fieldValue: ele['Primary Title'],
+        parentId: "64e867d86a2061a0973a9a6c",
+      }
+    });
+
+    const uploaded = await masters.insertMany(bulkData)
+    res.status(200).json({ uploaded, message: "Bulk Insert Done" });
   } catch (error) {
+    console.log(error);
     res.status(400).json({ messgae: "An error Occoured" });
   }
 };
