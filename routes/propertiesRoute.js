@@ -70,5 +70,7 @@ router
   .post("/rejectProperty", propertiesController.rejectProperty)
   .get("/getPropertiesCountsByUserId", propertiesController.getPropertiesCountsByUserId)
   .get("/getPropertiesListByUserId", propertiesController.getPropertiesListByUserId)
-  .get("/getApprovedPropertiesList", propertiesController.getApprovedPropertiesList);
+  .get("/getApprovedPropertiesList", propertiesController.getApprovedPropertiesList)
+  .post("/changeProperty",upload.single('file'), propertiesController.changeProperty);
+
 export default router;

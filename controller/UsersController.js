@@ -5,7 +5,7 @@ import otpModel from "../models/otpModel.js";
 import otpGenerator from "otp-generator";
 import transporter from "../utils/mail-transporter.js"
 
-import { BUILDER_FLOOR_ADMIN, CHANNEL_PARTNER, SALES_USER } from "../const.js";
+import { BUILDER_FLOOR_ADMIN, CHANNEL_PARTNER, SALES_USER, NORMAL_USER } from "../const.js";
 import crypto from "crypto";
 
 const filePath = "./data.json";
@@ -154,7 +154,7 @@ const updateEditUsers = async (req, res, next) => {
       companyAddress: req.body.companyAddress,
       state: req.body.state,
       city: req.body.city,
-      role: req.body.role,
+      role: req.body.role || NORMAL_USER,
       location: req.body.location,
       status: req.body.status,
       parentId:

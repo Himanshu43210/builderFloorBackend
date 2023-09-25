@@ -7,6 +7,7 @@ import { map, delay } from "modern-async";
 import { USER_ROLE } from "./UsersController.js";
 import { BUILDER_FLOOR_ADMIN, CHANNEL_PARTNER } from "../const.js";
 import users from "../models/UsersModel.js";
+
 const errors = [
   null,
   "null",
@@ -1113,6 +1114,25 @@ const serchUserData = async (search) => {
   return fieldsToSearch.map((field) => ({ [field]: regex }));
 };
 
+const changeProperty = async (req, res) => {
+  let workbook = XLSX.read(req.file.buffer, { type: "buffer" });
+  var sheet_name_list = workbook.SheetNames;
+  const options = { defval: "" };
+  const data = XLSX.utils.sheet_to_json(
+    workbook.Sheets[sheet_name_list[0]],
+    options
+  );
+
+  for (let element of data) {
+    const update = await properties.updateMany({ sectorNumber: element['OLD LOCATION'] }, {
+      $set: {
+        sectorNumber: element['NEW LOCATION NAME']
+      }
+    });
+    console.log(update)
+  }
+}
+
 export default {
   getpropertiesList,
   getAdminPropertiesList,
@@ -1137,4 +1157,5 @@ export default {
   getPropertiesListByUserId,
   getApprovedPropertiesList,
   getApprovalProperties,
+  changeProperty,
 };
