@@ -78,21 +78,17 @@ const Edit_Update = async (req, res) => {
   }
 };
 
-const approveProperty = (req, res) => {
+const approveProperty = async (req, res) => {
   try {
     const { _id, needApprovalBy } = req.body;
-    const query = { _id };
-    const update = {
-      needApprovalBy,
-    };
-    properties.updateOne(query, update, (err, result) => {
-      if (err) throw err;
-    });
-    return res.status(200).json({ status: "Approved Successfully" });
-  } catch (err) {
-    return res.status(500).json({ error: "Failed to save the property." });
+    console.log({ _id, needApprovalBy });
+    const data = await properties.findByIdAndUpdate({ _id }, { needApprovalBy });
+    return res.status(200).json({ data, message: "Property approved successfully" })
+  } catch (error) {
+    return res.status(500).json({ error: error.message })
   }
 };
+
 
 const searchPropertiesData = async (req, res) => {
   // Parse the JSON payload from the request
