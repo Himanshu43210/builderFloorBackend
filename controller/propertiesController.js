@@ -541,39 +541,41 @@ async function ensureFolderStructure(s3, mainFolderPath, subFolderPath = "") {
 const uploadProperties = async (req, res, next) => {
   try {
     let { _id, ...otherData } = req.body;
-    console.log(req.files,'=======',req.body);
     // adding upload/ before folder
-    // const folder = generateFolderName(otherData);
-    // const s3 = new AWS.S3({
-    //   accessKeyId: process.env.S3_ACCESS_KEY,
-    //   secretAccessKey: process.env.S3_SECRET_ACCESS_KEY,
-    // });
+    const folder = generateFolderName(otherData);
+    const s3 = new AWS.S3({
+      accessKeyId: process.env.S3_ACCESS_KEY,
+      secretAccessKey: process.env.S3_SECRET_ACCESS_KEY,
+    });
 
-    // let uploadData = { ...otherData };
+    let uploadData = { ...otherData };
 
-    // for (let fileKey in folderNamesMapping) {
-    //   if (req.files[fileKey] && req.files[fileKey].length) {
-    //     const specificFolderPath = folderNamesMapping[fileKey];
-    //     await ensureFolderStructure(s3, folder, specificFolderPath);
-    //     const fileUrls = await uploadOnS3(
-    //       req.files[fileKey],
-    //       joinS3Path(folder, specificFolderPath)
-    //     );
+    for (let fileKey in folderNamesMapping) {
+      if (req.files[fileKey] && req.files[fileKey].length) {
+        const specificFolderPath = folderNamesMapping[fileKey];
+        await ensureFolderStructure(s3, folder, specificFolderPath);
+        const fileUrls = await uploadOnS3(
+          req.files[fileKey],
+          joinS3Path(folder, specificFolderPath)
+        );
 
-    //     // Mapping keys
-    //     let mappedKey = fileKey;
-    //     if (fileKey in apiToModelKeyMapping) {
-    //       mappedKey = apiToModelKeyMapping[fileKey];
-    //     }
-    //     uploadData[mappedKey] = fileUrls; // Assign the URLs to the correct key in uploadData
-    //   }
-    // }
+        // Mapping keys
+        let mappedKey = fileKey;
+        if (fileKey in apiToModelKeyMapping) {
+          mappedKey = apiToModelKeyMapping[fileKey];
+        }
+        uploadData[mappedKey] = fileUrls; // Assign the URLs to the correct key in uploadData
+      }
+    }
     let newProperty;
-    // if (_id) {
-    //   newProperty = await properties.findByIdAndUpdate({ _id }, uploadData);
-    // } else {
-    //   newProperty = await new properties(uploadData).save();
-    // }
+    if (_id) {
+      // if(filesToBeDeleted && uploadData.filesToBeDeleted.length){
+
+      // }
+      newProperty = await properties.findByIdAndUpdate({ _id }, uploadData);
+    } else {
+      newProperty = await new properties(uploadData).save();
+    }
     return res.json({
       message: "Data updated successfully.",
       result: newProperty,
