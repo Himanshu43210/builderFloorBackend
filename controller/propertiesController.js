@@ -541,6 +541,7 @@ async function ensureFolderStructure(s3, mainFolderPath, subFolderPath = "") {
 const uploadProperties = async (req, res, next) => {
   try {
     let { _id, ...otherData } = req.body;
+    console.log(req.files);
     // adding upload/ before folder
     const folder = generateFolderName(otherData);
     const s3 = new AWS.S3({
