@@ -567,8 +567,12 @@ const uploadProperties = async (req, res, next) => {
         uploadData[mappedKey] = fileUrls; // Assign the URLs to the correct key in uploadData
       }
     }
-
-    const newProperty = await new properties(uploadData).save();
+    let newProperty;
+    if (_id) {
+      newProperty = await properties.findByIdAndUpdate({ _id }, uploadData);
+    } else {
+      newProperty = await new properties(uploadData).save();
+    }
     return res.json({
       message: "Data updated successfully.",
       result: newProperty,
