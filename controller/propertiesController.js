@@ -564,18 +564,18 @@ const uploadProperties = async (req, res, next) => {
         if (fileKey in apiToModelKeyMapping) {
           mappedKey = apiToModelKeyMapping[fileKey];
         }
-        uploadData[mappedKey] = fileUrls; // Assign the URLs to the correct key in uploadData
+
+        if (_id) {
+          const exist = await properties.findById(_id);
+          uploadData[mappedKey] = [...exist[mappedKey], ...uploadData[mappedKey]];
+        } else {
+          uploadData[mappedKey] = fileUrls; // Assign the URLs to the correct key in uploadData
+        }
       }
     }
     let newProperty;
     if (_id) {
       // if(filesToBeDeleted && uploadData.filesToBeDeleted.length){
-      const exist = await properties.findById(_id);
-      uploadData.normalImages = uploadData?.normalImages?.length ? exist?.normalImages?.concat(uploadData?.normalImages) : exist?.normalImages;
-      uploadData.images = uploadData?.images?.length ? exist?.images?.concat(uploadData?.images) : exist?.images;
-      uploadData.videos = uploadData?.videos?.length ? exist?.videos?.concat(uploadData?.videos) : exist?.videos;
-      uploadData.floorImages = uploadData?.floorImages?.length ? exist?.floorImages?.concat(uploadData?.floorImages) : exist?.floorImages;
-      uploadData.thumbnails = uploadData?.thumbnails?.length ? exist?.thumbnails?.concat(uploadData?.thumbnails) : exist?.thumbnails;
       newProperty = await properties.findByIdAndUpdate({ _id }, uploadData);
     } else {
       newProperty = await new properties(uploadData).save();
