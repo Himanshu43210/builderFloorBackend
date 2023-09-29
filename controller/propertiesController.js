@@ -566,8 +566,7 @@ const uploadProperties = async (req, res, next) => {
         }
 
         if (_id) {
-          const exist = await properties.findById(_id);
-          uploadData[mappedKey] = [...exist[mappedKey], ...uploadData[mappedKey]];
+          uploadData[mappedKey] = uploadData[mappedKey].length ? [...uploadData[mappedKey], ...fileUrls] : fileUrls;
         } else {
           uploadData[mappedKey] = fileUrls; // Assign the URLs to the correct key in uploadData
         }
