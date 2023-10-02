@@ -540,6 +540,7 @@ async function ensureFolderStructure(s3, mainFolderPath, subFolderPath = "") {
 
 const uploadProperties = async (req, res, next) => {
   try {
+    console.log(req.body)
     let { _id, ...otherData } = req.body;
     // adding upload/ before folder
     const folder = generateFolderName(otherData);
@@ -566,7 +567,7 @@ const uploadProperties = async (req, res, next) => {
         }
 
         if (_id) {
-          uploadData[mappedKey] = uploadData[mappedKey].length ? [...uploadData[mappedKey], ...fileUrls] : fileUrls;
+          uploadData[mappedKey] = uploadData[mappedKey].length > 0 ? [...uploadData[mappedKey], ...fileUrls] : fileUrls;
         } else {
           uploadData[mappedKey] = fileUrls; // Assign the URLs to the correct key in uploadData
         }
