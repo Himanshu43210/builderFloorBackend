@@ -567,13 +567,25 @@ const uploadProperties = async (req, res, next) => {
         }
 
         if (_id) {
-          uploadData[mappedKey] = uploadData[mappedKey]?.split(",")
-          uploadData[mappedKey] = uploadData[mappedKey].length > 0 ? [...uploadData[mappedKey], ...fileUrls] : fileUrls;
+          const exist = await properties.findById(_id);
+          if (uploadData.filesToBeDeleted?.length > 3) {
+            let filesToBeDeleted = uploadData?.filesToBeDeleted?.split(",")
+            for (let needTodelete of filesToBeDeleted) {
+              let indexToDelete = exist[mappedKey].indexOf(needTodelete);
+              // Check if the element exists in the array before deleting
+              if (indexToDelete !== -1) {
+                // Use the splice method to remove the element at the specified index
+                exist[mappedKey].splice(indexToDelete, 1);
+              }
+            }
+          }
+          uploadData[mappedKey] = exist[mappedKey].length > 0 ? [...exist[mappedKey], ...fileUrls] : fileUrls;
         } else {
           uploadData[mappedKey] = fileUrls; // Assign the URLs to the correct key in uploadData
         }
       }
     }
+    console.log(uploadData, "=============exist");
     let newProperty;
     if (_id) {
       // if(filesToBeDeleted && uploadData.filesToBeDeleted.length){
