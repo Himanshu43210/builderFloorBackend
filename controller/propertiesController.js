@@ -285,7 +285,9 @@ const getAdminPropertiesList = async (req, res, next) => {
       search = await serchPropertyData(req.query.search);
     }
     if (role === USER_ROLE[BUILDER_FLOOR_ADMIN]) {
-      query["$or"] = await serchPropertyData(req.query.search);
+      if (req.query.search){
+        query["$or"] = await serchPropertyData(req.query.search);
+      }
     } else {
       query["$or"] = [
         { parentId: id },
