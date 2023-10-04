@@ -1108,7 +1108,6 @@ const serchPropertyData = async (search) => {
     "city",
     "location",
     "plotNumber",
-    "size",
     "sizeType",
     "floor",
     "accommodation",
