@@ -98,6 +98,7 @@ const searchPropertiesData = async (req, res) => {
   const limit = Number(criteria.limit) || 10;
   const {
     budget,
+    size,
     corner,
     parkFacing,
     accommodation,
@@ -121,8 +122,11 @@ const searchPropertiesData = async (req, res) => {
   //   // query.city = { $regex: criteria.city.value, $options: "i" };
   // }
 
-  if (budget) {
+  if (budget?.length) {
     query.price = { $gte: budget[0], $lte: budget[1] };
+  }
+  if (size?.length) {
+    query.size = { $gte: size[0], $lte: size[1] };
   }
   if (accommodation) {
     query.accommodation = accommodation;
@@ -285,7 +289,7 @@ const getAdminPropertiesList = async (req, res, next) => {
       search = await serchPropertyData(req.query.search);
     }
     if (role === USER_ROLE[BUILDER_FLOOR_ADMIN]) {
-      if (req.query.search){
+      if (req.query.search) {
         query["$or"] = await serchPropertyData(req.query.search);
       }
     } else {
