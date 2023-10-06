@@ -98,8 +98,8 @@ const searchPropertiesData = async (req, res) => {
   const limit = Number(criteria.limit) || 10;
   const {
     budget,
-    Corner,
-    Park,
+    corner,
+    parkFacing,
     accommodation,
     city,
     facing,
@@ -127,11 +127,11 @@ const searchPropertiesData = async (req, res) => {
   if (accommodation) {
     query.accommodation = accommodation;
   }
-  if (Corner) {
-    query.corner = "Yes";
+  if (corner) {
+    query.corner = corner;
   }
-  if (Park) {
-    query.parkFacing = "Yes";
+  if (parkFacing) {
+    query.parkFacing = parkFacing;
   }
   if (city) {
     query.city = { $regex: city, $options: "i" };
@@ -143,7 +143,7 @@ const searchPropertiesData = async (req, res) => {
     query.floor = floor;
   }
   if (location) {
-    query.sectorNumber = sectorNumber;
+    query.sectorNumber = location;
   }
   if (possession) {
     query.possession = possession;
