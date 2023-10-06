@@ -21,7 +21,7 @@ const errors = [
   "UNKNOWN",
 ];
 const selectedFields =
-  "_id title location accommodation floor size price rating facing possession thumbnails";
+  "_id title location accommodation floor size price rating facing possession thumbnails sectorNumber plotNumber";
 
 const convertToCardData = (datFromDb) => {
   return datFromDb?.map((item) => {
