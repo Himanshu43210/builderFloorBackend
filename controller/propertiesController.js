@@ -160,7 +160,7 @@ const searchPropertiesData = async (req, res) => {
 
   // Sorting
   let sortQuery =
-    sortBy === "Price High to Low" ? { price: -1 } : { default_sort_column: 1 };
+    sortBy === "Price High to Low" ? { price: -1 } : { price: 1 };
   try {
     // Execute the Mongoose query
     let skip = page * limit;
@@ -198,7 +198,10 @@ const getHomeData = async (req, res) => {
       queryObject.city = { $regex: city, $options: "i" };
     }
     let skip = page * limit;
-    let data = await properties.find(queryObject).skip(skip).limit(limit);
+    const sortColumn = (req?.query?.sortColumn && req?.query?.sortColumn !== "") ? req?.query?.sortColumn : "updatedAt";
+    const sortType = req?.query?.sortType === "desc" ? -1 : 1;
+    let sortQuery = {[sortColumn] : sortType};
+    let data = await properties.find(queryObject).sort(sortQuery).skip(skip).limit(limit);
     // const totalDocuments = await properties.countDocuments();
     // const totalPages = Math.ceil(totalDocuments / limit);
     res.status(200).json(convertToCardData(data));
