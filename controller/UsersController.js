@@ -239,7 +239,13 @@ const login = async (req, res) => {
         id: user.id,
       },
     };
+
+    let _id = user?._id;
+    if (user?.role == "SalesUser") {
+      _id = user?.parentId || user?._id;
+    }
     const authToken = jwt.sign(data, JWT_SECERET);
+    const parentUser = await users.findOne({ _id });
     // res.json(user);
     const profile = {
       _id: user._id,
@@ -253,7 +259,7 @@ const login = async (req, res) => {
       city: user.city,
       location: user.location,
     };
-    res.json({ authToken, profile });
+    return res.json({ authToken, profile, parentUser });
   } catch (err) {
     res.status(400).json({ messgae: err.message });
   }
