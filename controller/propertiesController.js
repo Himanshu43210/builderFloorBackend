@@ -40,6 +40,15 @@ const convertToCardData = (datFromDb) => {
     };
   });
 };
+
+const mapFields = (datFromDb) => {
+  return datFromDb?.map((property) => {
+    property.parentId = property?.parentId?.role == "SalesUser" ? property?.parentId?.pid : property?.parentId;
+    property.parentId.pid = property.parentId.pid._id;
+    return property;
+  });
+};
+
 const Edit_Update = async (req, res) => {
   const { _id, ...data } = req.body;
   const newData = {
@@ -310,14 +319,14 @@ const getAdminPropertiesList = async (req, res, next) => {
     let skip = page * limit;
     // Adding sort functionality
     let data = await properties
-      .find(query)
+      .find(query).populate({ path: 'parentId', populate: { path: 'pid' } })
       .skip(skip)
       .limit(limit)
       .sort({ [sortColumn]: sortType === "desc" ? -1 : 1 });
     const totalDocuments = await properties.countDocuments(query);
     const totalPages = Math.ceil(totalDocuments / limit);
     res.status(200).json({
-      data,
+      data: mapFields(data),
       nbHits: data.length,
       pageNumber: page,
       totalPages: totalPages,
@@ -419,8 +428,9 @@ const updatepropertiesByID = async (req, res, next) => {
 const getpropertiesById = async (req, res, next) => {
   try {
     let id = req.query.id;
-    let data = await properties.findById(id);
-    res.status(200).json({ data });
+    let data = await properties.findById(id).populate({ path: 'parentId', populate: { path: 'pid' } });
+    let result = mapFields([data])
+    res.status(200).json({ data: result[0] });
   } catch (err) {
     res.status(400).json({ messgae: err.message });
   }
