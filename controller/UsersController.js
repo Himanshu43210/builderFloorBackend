@@ -162,6 +162,7 @@ const updateEditUsers = async (req, res, next) => {
           ? "Approved"
           : req.body.parentId, // password: hashedPassword,
       password: req.body.password || "123",
+      pid: req.body.parentId,
     };
     let data = await users.findOne({ _id: req.body._id });
 

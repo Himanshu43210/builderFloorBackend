@@ -21,7 +21,8 @@ const UsersSchema = new Schema(
     city: { type: String },
     location: { type: Array },
     status: { type: String, default: "active" },
-    filters: { type: Schema.Types.Mixed }
+    filters: { type: Schema.Types.Mixed },
+    pid: { type: Schema.Types.ObjectId, ref: "users" }
   },
   { timestamps: true }
 );
