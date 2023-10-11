@@ -1179,6 +1179,30 @@ const changeProperty = async (req, res) => {
   }
 }
 
+const mostVisitedAndContactClicked = async (req, res) => {
+  try {
+    const { id } = req.body;
+    const { state } = req.params;
+    const property = await properties.findById(id).select('_id mostVisited mostVisitedDate contactCLicked contactCLickedDate');
+    if (!property) {
+      return res.status(400).json({ status: 400, message: "Property does not exist." })
+    }
+
+    if (state == "visited") {
+      property.mostVisited += 1;
+      property.mostVisitedDate = new Date();
+    }
+    if (state == "contactClicked") {
+      property.contactCLicked += 1;
+      property.contactCLickedDate = new Date();
+    }
+    await properties.findByIdAndUpdate({ _id: id }, property);
+    res.status(200).json({ status: 200, message: "Property updated successfully." });
+  } catch (error) {
+    res.status(500).json({ status: 500, message: error.message })
+  }
+}
+
 export default {
   getpropertiesList,
   getAdminPropertiesList,
@@ -1204,4 +1228,5 @@ export default {
   getApprovedPropertiesList,
   getApprovalProperties,
   changeProperty,
+  mostVisitedAndContactClicked,
 };
