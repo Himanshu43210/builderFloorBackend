@@ -208,7 +208,7 @@ const getHomeData = async (req, res) => {
     let page = Number(req.query.page) || 0;
     const limit = Number(req.query.limit) || 10;
     const { city } = req.query;
-    const queryObject = {};
+    const queryObject = { needApprovalBy: "Approved" };
     if (city) {
       queryObject.city = { $regex: city, $options: "i" };
     }
