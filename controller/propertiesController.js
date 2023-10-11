@@ -43,7 +43,9 @@ const convertToCardData = (datFromDb) => {
 
 const mapFields = (datFromDb) => {
   return datFromDb?.map((property) => {
+    let parentId = property?.parentId?._id;
     property.parentId = property?.parentId?.role == "SalesUser" ? property?.parentId?.pid : property?.parentId;
+    property.parentId._id = parentId;
     property.parentId.pid = property.parentId.pid._id;
     return property;
   });
