@@ -997,6 +997,8 @@ const getApprovalProperties = async (req, res, next) => {
                 name: 1,
                 email: 1,
                 phoneNumber: 1,
+                role: 1,
+                parentId: 1,
                 _id: 0,
               },
             },
@@ -1025,6 +1027,8 @@ const getApprovalProperties = async (req, res, next) => {
           createdByName: "$user.name",
           createdByEmail: "$user.email",
           createdByPhoneNumber: "$user.phoneNumber",
+          userParentId: "$user.parentId",
+          role: "$user.role",
         },
       },
       {
@@ -1036,6 +1040,17 @@ const getApprovalProperties = async (req, res, next) => {
       skip,
       limit,
     ]);
+
+    for (let item of data) {
+      if (item.role == "SalesUser") {
+        const parentUserData = await users.findOne({ _id: item.userParentId });
+        item.createdByName = parentUserData.name
+        item.createdByEmail = parentUserData.email
+        item.createdByPhoneNumber = parentUserData.phoneNumber
+        item.userParentId = parentUserData.parentId
+        item.role = parentUserData.role
+      }
+    }
 
     const totalDocuments = await properties.aggregate([
       {
