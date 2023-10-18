@@ -1041,7 +1041,6 @@ const getApprovalProperties = async (req, res, next) => {
       limit,
     ]);
 
-    // let result = await data.map(async (item) => {
     for (let item of data) {
       if (item.role == "SalesUser") {
         const parentUserData = await users.findOne({ _id: item.userParentId });
@@ -1053,7 +1052,6 @@ const getApprovalProperties = async (req, res, next) => {
       }
     }
 
-    // });
     const totalDocuments = await properties.aggregate([
       {
         $match: query,
