@@ -1047,6 +1047,7 @@ const getApprovalProperties = async (req, res, next) => {
         item.cpName = parentUserData.name
         item.cpEmail = parentUserData.email
         item.cpPhoneNumber = parentUserData.phoneNumber
+        item.cpCompanyName = parentUserData.companyName
       }
     }
 
