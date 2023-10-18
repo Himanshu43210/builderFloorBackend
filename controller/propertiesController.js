@@ -1044,11 +1044,9 @@ const getApprovalProperties = async (req, res, next) => {
     for (let item of data) {
       if (item.role == "SalesUser") {
         const parentUserData = await users.findOne({ _id: item.userParentId });
-        item.createdByName = parentUserData.name
-        item.createdByEmail = parentUserData.email
-        item.createdByPhoneNumber = parentUserData.phoneNumber
-        item.userParentId = parentUserData.parentId
-        item.role = parentUserData.role
+        item.cpName = parentUserData.name
+        item.cpEmail = parentUserData.email
+        item.cpPhoneNumber = parentUserData.phoneNumber
       }
     }
 
