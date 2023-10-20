@@ -271,7 +271,7 @@ const getAdminPropertiesList = async (req, res, next) => {
     } = req.body;
     id = req.query.id;
     role = req.query.role;
-    const query = {};
+    const query = {needApprovalBy:{$ne:"Rejected"}};
     if (budget) {
       query.price = { $gte: budget[0], $lte: budget[1] };
     }
