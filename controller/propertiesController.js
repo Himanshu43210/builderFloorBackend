@@ -311,11 +311,19 @@ const getAdminPropertiesList = async (req, res, next) => {
         query["$or"] = await serchPropertyData(req.query.search);
       }
     } else {
-      query["$or"] = [
-        { parentId: id },
-        { needApprovalBy: id },
-        { contactId: id },
-        ...search,
+      query["$and"] = [
+        {
+          $or: [
+            { parentId: id },
+            { needApprovalBy: id },
+            { contactId: id },
+          ]
+        },
+        {
+          $or: [
+            ...search,
+          ]
+        }
       ];
     }
     let skip = page * limit;
