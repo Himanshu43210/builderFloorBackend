@@ -271,7 +271,7 @@ const getAdminPropertiesList = async (req, res, next) => {
     } = req.body;
     id = req.query.id;
     role = req.query.role;
-    const query = {needApprovalBy:{$ne:"Rejected"}};
+    const query = { needApprovalBy: { $ne: "Rejected" } };
     if (budget) {
       query.price = { $gte: budget[0], $lte: budget[1] };
     }
@@ -311,20 +311,28 @@ const getAdminPropertiesList = async (req, res, next) => {
         query["$or"] = await serchPropertyData(req.query.search);
       }
     } else {
-      query["$and"] = [
-        {
-          $or: [
-            { parentId: id },
-            { needApprovalBy: id },
-            { contactId: id },
-          ]
-        },
-        {
-          $or: [
-            ...search,
-          ]
-        }
-      ];
+      if (req.query.search) {
+        query["$and"] = [
+          {
+            $or: [
+              { parentId: id },
+              { needApprovalBy: id },
+              { contactId: id },
+            ]
+          },
+          {
+            $or: [
+              ...search,
+            ]
+          }
+        ];
+      } else {
+        query["$or"] = [
+          { parentId: id },
+          { needApprovalBy: id },
+          { contactId: id },
+        ];
+      }
     }
     let skip = page * limit;
     // Adding sort functionality
