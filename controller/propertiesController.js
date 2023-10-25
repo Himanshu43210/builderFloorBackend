@@ -21,7 +21,7 @@ const errors = [
   "UNKNOWN",
 ];
 const selectedFields =
-  "_id title location accommodation floor size price rating facing possession thumbnails sectorNumber plotNumber";
+  "_id title location accommodation floor size price rating facing possession parkFacing corner thumbnails sectorNumber plotNumber";
 
 const convertToCardData = (datFromDb) => {
   return datFromDb?.map((item) => {
@@ -37,6 +37,8 @@ const convertToCardData = (datFromDb) => {
       facing: item.facing,
       possession: item.possession,
       thumbnails: item.thumbnails?.[0],
+      parkFacing: item.parkFacing,
+      corner: item.corner,
     };
   });
 };
