@@ -177,7 +177,7 @@ const searchPropertiesData = async (req, res) => {
       ? { price: -1 }
       : sortBy === "Price Low to High"
         ? { price: 1 }
-        : { default_sort_column: 1 };
+        : { updatedAt: -1, possession: -1 };
   try {
     // Execute the Mongoose query
     let skip = page * limit;
