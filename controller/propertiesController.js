@@ -964,11 +964,11 @@ const getPropertiesListByUserId = async (req, res, next) => {
     if (req.query.search) {
       query["$or"] = await serchPropertyData(req.query.search);
     }
-    let page = Number(req.query.page) || 0;
+    const page = Number(req.query.page) || 0;
     const limit = Number(req.query.limit) || 10;
-    let skip = page * limit;
+    const skip = page * limit;
 
-    let data = await properties.find(query).skip(skip).limit(limit);
+    const data = await properties.find(query).sort({ updatedAt: -1 }).skip(skip).limit(limit);
 
     const totalDocuments = await properties.countDocuments(query);
     const totalPages = Math.ceil(totalDocuments / limit);
