@@ -34,10 +34,6 @@ const propertiesSchema = new Schema(
     rejectedByBFAdminComments: { type: String },
     rejectedByCP: { type: String },
     rejectedByCPComments: { type: String },
-    mostVisited: { type: Number, default: 0 },
-    mostVisitedDate: { type: Date },
-    contactCLicked: { type: Number, default: 0 },
-    contactCLickedDate: { type: Date },
   },
   { timestamps: true }
 );

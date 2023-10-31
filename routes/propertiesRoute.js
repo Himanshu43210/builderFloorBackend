@@ -72,6 +72,7 @@ router
   .get("/getPropertiesListByUserId", propertiesController.getPropertiesListByUserId)
   .get("/getApprovedPropertiesList", propertiesController.getApprovedPropertiesList)
   .post("/changeProperty", upload.single('file'), propertiesController.changeProperty)
-  .post("/mostVisitedAndContactClicked/:state", propertiesController.mostVisitedAndContactClicked);
+  .post("/createUserHistory/:state", propertiesController.createUserHistory)
+  .get("/getUserHistory/:state", propertiesController.getUserHistory);
 
 export default router;
