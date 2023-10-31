@@ -22,7 +22,7 @@ const errors = [
   "UNKNOWN",
 ];
 const selectedFields =
-  "_id title location accommodation floor size price rating facing possession thumbnails sectorNumber plotNumber";
+  "_id title location accommodation floor size price rating facing possession parkFacing corner thumbnails sectorNumber plotNumber";
 
 const convertToCardData = (datFromDb) => {
   return datFromDb?.map((item) => {
@@ -38,6 +38,8 @@ const convertToCardData = (datFromDb) => {
       facing: item.facing,
       possession: item.possession,
       thumbnails: item.thumbnails?.[0],
+      parkFacing: item.parkFacing,
+      corner: item.corner,
     };
   });
 };
@@ -176,7 +178,7 @@ const searchPropertiesData = async (req, res) => {
       ? { price: -1 }
       : sortBy === "Price Low to High"
         ? { price: 1 }
-        : { default_sort_column: 1 };
+        : { possession: -1, updatedAt: -1 };
   try {
     // Execute the Mongoose query
     let skip = page * limit;
@@ -312,12 +314,28 @@ const getAdminPropertiesList = async (req, res, next) => {
         query["$or"] = await serchPropertyData(req.query.search);
       }
     } else {
-      query["$or"] = [
-        { parentId: id },
-        { needApprovalBy: id },
-        { contactId: id },
-        ...search,
-      ];
+      if (req.query.search) {
+        query["$and"] = [
+          {
+            $or: [
+              { parentId: id },
+              { needApprovalBy: id },
+              { contactId: id },
+            ]
+          },
+          {
+            $or: [
+              ...search,
+            ]
+          }
+        ];
+      } else {
+        query["$or"] = [
+          { parentId: id },
+          { needApprovalBy: id },
+          { contactId: id },
+        ];
+      }
     }
     let skip = page * limit;
     // Adding sort functionality
@@ -947,11 +965,11 @@ const getPropertiesListByUserId = async (req, res, next) => {
     if (req.query.search) {
       query["$or"] = await serchPropertyData(req.query.search);
     }
-    let page = Number(req.query.page) || 0;
+    const page = Number(req.query.page) || 0;
     const limit = Number(req.query.limit) || 10;
-    let skip = page * limit;
+    const skip = page * limit;
 
-    let data = await properties.find(query).skip(skip).limit(limit);
+    const data = await properties.find(query).sort({ updatedAt: -1 }).skip(skip).limit(limit);
 
     const totalDocuments = await properties.countDocuments(query);
     const totalPages = Math.ceil(totalDocuments / limit);
