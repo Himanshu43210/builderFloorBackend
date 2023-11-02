@@ -1,6 +1,6 @@
 import customers from "../models/customerModel";
 
-const updateAddCustomer = async (req, res, next) => {
+const updateAddCustomer = async (req, res) => {
     try {
         const { fullName, phoneNumber, role = "customer" } = req.body;
 
