@@ -1,4 +1,4 @@
-import customers from "../models/customerModel";
+import customers from "../models/customerModel.js";
 
 const updateAddCustomer = async (req, res) => {
     try {
