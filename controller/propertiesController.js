@@ -341,7 +341,7 @@ const getAdminPropertiesList = async (req, res, next) => {
     // Adding sort functionality
     let data = await properties
       .find(query)
-      // .populate({ path: 'parentId', populate: { path: 'pid' } })
+      .populate({ path: 'parentId', populate: { path: 'pid' } })
       .skip(skip)
       .limit(limit)
       .sort({ [sortColumn]: sortType === "desc" ? -1 : 1 });
