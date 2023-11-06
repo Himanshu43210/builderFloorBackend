@@ -1229,9 +1229,9 @@ const createUserHistory = async (req, res) => {
     }
     const history = await userHistory.findOne({ userId, propertyId, type: state }).select('_id counts');
     if (history) {
-      await userHistory.findByIdAndUpdate({ _id: history._id }, { counts: history.counts + 1 })
+      await userHistory.findByIdAndUpdate({ _id: history._id }, { counts: history.counts + 1, options: options?.length ? options : history?.options })
     } else {
-      await userHistory.create({ userId, propertyId, parentId: property.parentId, options: options, type: state, counts: 1 })
+      await userHistory.create({ userId, propertyId, parentId: property.parentId, options, type: state, counts: 1 })
     }
     res.status(200).json({ status: 200, message: "Property updated successfully." });
   } catch (error) {
