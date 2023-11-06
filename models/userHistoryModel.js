@@ -6,7 +6,7 @@ const userHistorySchema = new Schema(
         userId: {
             type: Schema.Types.ObjectId,
             required: true,
-            ref: "users"
+            ref: "customers"
         },
         propertyId: {
             type: Schema.Types.ObjectId,
