@@ -6,7 +6,7 @@ const userHistorySchema = new Schema(
         userId: {
             type: Schema.Types.ObjectId,
             required: true,
-            ref: "users"
+            ref: "customers"
         },
         propertyId: {
             type: Schema.Types.ObjectId,
@@ -20,7 +20,13 @@ const userHistorySchema = new Schema(
         counts: {
             type: Number,
             default: 0
-        }
+        },
+        parentId: {
+            type: Schema.Types.ObjectId,
+            required: true,
+            ref: "users"
+        },
+        options: []
     },
     { timestamps: true }
 );

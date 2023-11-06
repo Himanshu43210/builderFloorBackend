@@ -1218,12 +1218,12 @@ const changeProperty = async (req, res) => {
 const createUserHistory = async (req, res) => {
   try {
     const states = ["visited", "contacted", "searches", "recommendation"];
-    const { propertyId, userId } = req.body;
+    const { propertyId, userId, options } = req.body;
     const { state } = req.params;
     if (!states.includes(state)) {
       return res.status(400).json({ status: 400, message: "Invalid state." })
     }
-    const property = await properties.findById(propertyId).select('_id');
+    const property = await properties.findById(propertyId).select('_id parentId');
     if (!property) {
       return res.status(400).json({ status: 400, message: "Property does not exist." })
     }
@@ -1231,7 +1231,7 @@ const createUserHistory = async (req, res) => {
     if (history) {
       await userHistory.findByIdAndUpdate({ _id: history._id }, { counts: history.counts + 1 })
     } else {
-      await userHistory.create({ userId, propertyId, type: state, counts: 1 })
+      await userHistory.create({ userId, propertyId, parentId: property.parentId, options: options, type: state, counts: 1 })
     }
     res.status(200).json({ status: 200, message: "Property updated successfully." });
   } catch (error) {
@@ -1252,6 +1252,34 @@ const getUserHistory = async (req, res, next) => {
     let skip = page * limit;
     let data = await userHistory.find({ userId, type: state }).populate("userId").populate("propertyId").skip(skip).limit(limit);
     const totalDocuments = await userHistory.countDocuments({ userId, type: state });
+    const totalPages = Math.ceil(totalDocuments / limit);
+    res.status(200).json({
+      data,
+      nbHits: data.length,
+      pageNumber: page,
+      totalPages: totalPages,
+      totalItems: totalDocuments,
+    });
+  } catch (error) {
+    res.status(400).json({ messgae: error.message });
+  }
+};
+
+const getCpUserHistory = async (req, res, next) => {
+  try {
+    const states = ["visited", "contacted", "searches", "recommendation"];
+    const { cpId } = req.query;
+    const { state } = req.params;
+    if (!states.includes(state)) {
+      return res.status(400).json({ status: 400, message: "Invalid state." })
+    }
+    // const user = await users.findOne({ _id: cpId }).select("_id role");
+    // let pid = user.role == "ChannelPartner" ? user?._id : user?.pid;
+    let page = Number(req.query.page) || 0;
+    const limit = Number(req.query.limit) || 10;
+    let skip = page * limit;
+    let data = await userHistory.find({ parentId: cpId, type: state }).populate("parentId").populate("propertyId").skip(skip).limit(limit);
+    const totalDocuments = await userHistory.countDocuments({ parentId: cpId, type: state });
     const totalPages = Math.ceil(totalDocuments / limit);
     res.status(200).json({
       data,
@@ -1292,4 +1320,5 @@ export default {
   changeProperty,
   createUserHistory,
   getUserHistory,
+  getCpUserHistory
 };
