@@ -22,6 +22,9 @@ const UsersSchema = new Schema(
     location: { type: Array },
     status: { type: String, default: "active" },
     filters: { type: Schema.Types.Mixed },
+    cpRequest:{
+      type:String
+    },
     pid: { type: Schema.Types.ObjectId, ref: "users" }
   },
   { timestamps: true }
