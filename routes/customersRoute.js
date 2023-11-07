@@ -4,6 +4,7 @@ import customersController from "../controller/customersController.js";
 const router = express.Router();
 
 router
-    .post("/addCustomer", customersController.updateAddCustomer);
+    .post("/signIn", customersController.signinCustomer)
+    .post("/addCustomer", customersController.addCustomer);
 
 export default router;
