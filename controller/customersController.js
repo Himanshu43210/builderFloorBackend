@@ -8,13 +8,13 @@ const signinCustomer = async (req, res) => {
         }
         let data = await customers.findOne({ phoneNumber: phoneNumber });
         if (data) {
-            return res.send({
+            return res.json({
                 success: true,
                 message: "Sign in successful.",
                 user: data
             });
         } else {
-            return res.json(400).send({
+            return res.status(400).json({
                 success: false,
                 message: "No such user exist"
             });
@@ -33,7 +33,7 @@ const addCustomer = async (req, res) => {
         }
         let data = await customers.findOne({ phoneNumber: phoneNumber });
         if (data) {
-            return res.json(400).send({
+            return res.status(400).json({
                 success: false,
                 message: "User already exists",
             });
@@ -48,7 +48,7 @@ const addCustomer = async (req, res) => {
             };
             const newCustomer = new customers(customerToSave);
             await newCustomer.save();
-            res.send({
+            res.json({
                 success: true,
                 message: "New User Stored.",
                 data: newCustomer
