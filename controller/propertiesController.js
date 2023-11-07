@@ -1231,7 +1231,8 @@ const createUserHistory = async (req, res) => {
     if (history) {
       await userHistory.findByIdAndUpdate({ _id: history._id }, { counts: history.counts + 1, options: options?.length ? options : history?.options })
     } else {
-      await userHistory.create({ userId, propertyId, parentId: property.parentId, options, type: state, counts: 1 })
+      const userData = await users.findOne({ _id: property.parentId });
+      await userHistory.create({ userId, propertyId, parentId: (userData && userData.role === "SalesUser") ? userData.parentId : property.parentId, options, type: state, counts: 1 })
     }
     res.status(200).json({ status: 200, message: "Property updated successfully." });
   } catch (error) {
