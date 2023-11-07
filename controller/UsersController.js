@@ -7,6 +7,7 @@ import transporter from "../utils/mail-transporter.js"
 
 import { BUILDER_FLOOR_ADMIN, CHANNEL_PARTNER, SALES_USER } from "../const.js";
 import crypto from "crypto";
+import { tryEach } from "async";
 
 const filePath = "./data.json";
 const JWT_SECERET = "techHelps";
@@ -163,6 +164,7 @@ const updateEditUsers = async (req, res, next) => {
           : req.body.parentId, // password: hashedPassword,
       password: req.body.password || "123",
       pid: req.body.parentId,
+      cpRequest: req.body.type == 'agent' ? 'requested' : 'approved'
     };
     let data = await users.findOne({ _id: req.body._id });
 
@@ -232,6 +234,12 @@ const login = async (req, res) => {
     if (!user) {
       return res.status(400).json({
         error: "Please try to login with correct credentials",
+      });
+    }
+
+    if (user.cpRequest && user.cpRequest == "requested") {
+      return res.status(400).json({
+        error: "Channel partner not approved",
       });
     }
 
@@ -522,6 +530,37 @@ const serchUserData = async (search) => {
   return fieldsToSearch.map((field) => ({ [field]: regex }));
 }
 
+const getCpApporovalUsersList = async (req, res, next) => {
+  try {
+    let page = Number(req.query.page) || 0;
+    const limit = Number(req.query.limit) < 10 ? 10 : Number(req.query.limit);
+    let skip = (page) * limit;
+    let data = await users.find({ cpRequest: "requested" }).skip(skip).limit(limit);
+
+    const totalDocuments = await users.countDocuments({ cpRequest: "requested" });
+    const totalPages = Math.ceil(totalDocuments / limit);
+
+    res.status(200).json({
+      data,
+      nbHits: data.length,
+      pageNumber: page,
+      totalPages: totalPages,
+      totalItems: totalDocuments,
+    });
+  } catch (error) {
+    res.status(400).json({ messgae: error.message });
+  }
+};
+
+const approveCp = async (req, res) => {
+  try {
+    const result = await users.findByIdAndUpdate({ _id: req.body.id }, { cpRequest: "approved" });
+    return res.status(200).json({ data: result, message: "Channel partner approved successfully." })
+  } catch (error) {
+    return res.status(500).json({ message: error.message })
+  }
+}
+
 export default {
   getusersList,
   getAdminUsersList,
@@ -539,5 +578,7 @@ export default {
   updateUserStatus,
   sendOTP,
   addUserFilters,
-  verifyEmailOtp
+  verifyEmailOtp,
+  getCpApporovalUsersList,
+  approveCp
 };

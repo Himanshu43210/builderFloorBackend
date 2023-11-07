@@ -20,6 +20,8 @@ router
   .put("/updateUserStatus", usersController.updateUserStatus)
   .post("/sendOTP", usersController.sendOTP)
   .post("/addUserFilters", usersController.addUserFilters)
-  .post("/verifyEmailOtp", usersController.verifyEmailOtp);
+  .post("/verifyEmailOtp", usersController.verifyEmailOtp)
+  .get("/getCpApporovalUsersList", usersController.getCpApporovalUsersList)
+  .put("/approveCp", usersController.approveCp);
 
 export default router;
