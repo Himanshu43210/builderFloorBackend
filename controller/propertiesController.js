@@ -1280,7 +1280,7 @@ const getCpUserHistory = async (req, res, next) => {
     const limit = Number(req.query.limit) || 10;
     let skip = page * limit;
     let data = await userHistory.find({ parentId: cpId, type: "contacted" }).populate("userId").populate("parentId").populate("propertyId").skip(skip).limit(limit);
-    const totalDocuments = await userHistory.countDocuments({ parentId: cpId, type: state });
+    const totalDocuments = await userHistory.countDocuments({ parentId: cpId, type: "contacted" });
     const totalPages = Math.ceil(totalDocuments / limit);
     res.status(200).json({
       data,
