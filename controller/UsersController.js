@@ -92,11 +92,11 @@ const getAdminUsersList = async (req, res, next) => {
     const limit = Number(req.query.limit) < 10 ? 10 : Number(req.query.limit);
 
     let skip = (page) * limit;
-    const query = { parentId: id };
+    const query = { parentId: id, cpRequest: { $ne: "requested" } };
     if (req.query.search) {
       query["$or"] = await serchUserData(req.query.search)
     }
-    let data = await users.find(query).skip(skip).limit(limit);
+    let data = await users.find(query).sort({ updatedAt: -1 }).skip(skip).limit(limit);
 
     const totalDocuments = await users.countDocuments(query);
     const totalPages = Math.ceil(totalDocuments / limit);
@@ -157,7 +157,7 @@ const updateEditUsers = async (req, res, next) => {
       city: req.body.city,
       role: req.body.role,
       location: req.body.location,
-      status: req.body.status,
+      status: req.body.type == 'agent' ? "inactive" : req.body.status,
       parentId:
         req.body.role === USER_ROLE[BUILDER_FLOOR_ADMIN]
           ? "Approved"
