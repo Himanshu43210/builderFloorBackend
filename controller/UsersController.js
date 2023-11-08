@@ -554,7 +554,7 @@ const getCpApporovalUsersList = async (req, res, next) => {
 
 const approveCp = async (req, res) => {
   try {
-    const result = await users.findByIdAndUpdate({ _id: req.body.id }, { cpRequest: "approved" });
+    const result = await users.findByIdAndUpdate({ _id: req.body.id }, { cpRequest: "approved", status: "active" });
     return res.status(200).json({ data: result, message: "Channel partner approved successfully." })
   } catch (error) {
     return res.status(500).json({ message: error.message })
