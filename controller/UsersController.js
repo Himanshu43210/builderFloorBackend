@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import otpModel from "../models/otpModel.js";
 import otpGenerator from "otp-generator";
-import transporter from "../utils/mail-transporter.js"
+import transporter from "../utils/mail-transporter.js";
 
 import { BUILDER_FLOOR_ADMIN, CHANNEL_PARTNER, SALES_USER } from "../const.js";
 import crypto from "crypto";
@@ -209,7 +209,7 @@ const updateEditUsers = async (req, res, next) => {
     });
     const newUser = new users(dataToSave);
     await newUser.save();
-    if (newUser && newUser.agent === 'requested') {
+    if (newUser && req.body.type == 'agent') {
       // send notification email to admin
       const adminEmail = 'admin@builderfloor.com';
       await transporter.sendMail({
