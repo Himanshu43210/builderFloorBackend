@@ -23,6 +23,7 @@ router
   .post("/addUserFilters", usersController.addUserFilters)
   .post("/verifyEmailOtp", usersController.verifyEmailOtp)
   .get("/getCpApporovalUsersList", usersController.getCpApporovalUsersList)
-  .put("/approveCp", usersController.approveCp);
+  .put("/approveCp", usersController.approveCp)
+  .get("/upapprovedBrokerCounts", usersController.getUnapprovedBrokerCounts);
 
 export default router;
