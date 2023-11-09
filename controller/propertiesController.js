@@ -10,6 +10,7 @@ import users from "../models/UsersModel.js";
 import customers from "../models/customerModel.js";
 import userHistory from "../models/userHistoryModel.js";
 import generatePropertyUrl from "../utils/formatters.js";
+import transporter from "../utils/mail-transporter.js";
 
 const errors = [
   null,
