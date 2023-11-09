@@ -1240,7 +1240,7 @@ const createUserHistory = async (req, res) => {
       if (state === 'contacted') {
         await transporter.sendMail({
           from: "propertyp247@gmail.com",
-          to: [customerData?.email || "", "dpundir72@gmail.com", "tanish.techhelps@gmail.com"],
+          to: [customerData?.email || "", "dpundir72@gmail.com", "tanish@techhelps.co.in"],
           subject: "BuilderFloor Property Contact",
           html: `
                 <div
@@ -1254,7 +1254,7 @@ const createUserHistory = async (req, res) => {
       } else if (state === 'recommendation') {
         await transporter.sendMail({
           from: "propertyp247@gmail.com",
-          to: [customerData?.email || "", "dpundir72@gmail.com", "tanish.techhelps@gmail.com"],
+          to: [customerData?.email || "", "dpundir72@gmail.com", "tanish@techhelps.co.in"],
           subject: "BuilderFloor Property Recommendation",
           html: `
                 <div style="max-width: 90%; margin: auto; padding-top: 20px;">
