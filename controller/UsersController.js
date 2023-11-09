@@ -581,7 +581,7 @@ const approveCp = async (req, res) => {
               style="max-width: 90%; margin: auto; padding-top: 20px;"
             >
               <br/>
-              <span style="font-weight:800; display:block;">Your broker account has been approved & activated for builderfloor.com. Now you can log in to your broker account.</span>
+              <span style="font-weight:800; display:block;">Your broker account has been approved & activated for <a href="https://builderfloor.com">builderfloor.com</a>. Now you can log in to your broker account.</span>
             </div>
           `,
     });

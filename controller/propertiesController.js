@@ -1277,7 +1277,7 @@ const createUserHistory = async (req, res) => {
           html: `
                 <div style="max-width: 90%; margin: auto; padding-top: 20px;">
                   <br/>
-                  <span style="font-weight:800; display:block;">You have some new recommendations on <a>https://builderfloor.com/account/tabs?tab=recommendations</a></span>
+                  <span style="font-weight:800; display:block;">You have some new recommendations on <a href="https://builderfloor.com/account/tabs?tab=recommendations">https://builderfloor.com/account/tabs?tab=recommendations</a></span>
                   <br/>
                   <span style="font-weight:800; display:block;">Check out the recommended property <a href="${generatePropertyUrl(property)}">${generatePropertyUrl(property)}</a></span>
                 </div>
