@@ -2,7 +2,7 @@ import properties from "../models/propertiesModel.js";
 import AWS from "aws-sdk";
 import XLSX from "xlsx";
 import asyncs from "async";
-import _, { property } from "lodash";
+import _ from "lodash";
 import { map, delay } from "modern-async";
 import { USER_ROLE } from "./UsersController.js";
 import { BUILDER_FLOOR_ADMIN, CHANNEL_PARTNER } from "../const.js";
