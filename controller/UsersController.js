@@ -113,6 +113,16 @@ const getAdminUsersList = async (req, res, next) => {
   }
 };
 
+const getAdminUserDataById = async (req, res) => {
+  try {
+    const id = req.query.id || "";
+    const data = await users.find({ _id: id });
+    res.status(200).json({ data });
+  } catch (error) {
+    res.status(400).json({ messgae: error.message });
+  }
+};
+
 const filterUsers = async (req, res, next) => {
   try {
     const filter = req.query.filter;
@@ -171,6 +181,25 @@ const updateEditUsers = async (req, res, next) => {
     if (data) {
       const updatedData = await users.findByIdAndUpdate(id, {
         $set: dataToSave,
+      });
+      await transporter.sendMail({
+        from: "propertyp247@gmail.com",
+        to: [updatedData.email, "dpundir72@gmail.com"],
+        subject: "BuilderFloor account updated",
+        html: `
+              <div
+                style="max-width: 90%; margin: auto; padding-top: 20px;"
+              >
+                <br/>
+                <span style="font-weight:800; display:block;">Your account has been updated on <a href="https://builderfloor.com">builderfloor.com</a>.</span>
+                <br />
+                <span style="font-weight:800; display:block;">Use below credentials to sign in.</span>
+                <br />
+                <span style="font-weight:800; display:block;">Email Id: ${updatedData.email}</span>
+                <br />
+                <span style="font-weight:800; display:block;">Password: ${updatedData.password}</span>
+              </div>
+            `,
       });
       return res.status(200).json({ messgae: "users updated" });
     }
@@ -594,6 +623,7 @@ const approveCp = async (req, res) => {
 export default {
   getusersList,
   getAdminUsersList,
+  getAdminUserDataById,
   handleSignup,
   handleVerifyOTP,
   getusersById,
