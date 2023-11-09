@@ -2,7 +2,7 @@ import properties from "../models/propertiesModel.js";
 import AWS from "aws-sdk";
 import XLSX from "xlsx";
 import asyncs from "async";
-import _ from "lodash";
+import _, { property } from "lodash";
 import { map, delay } from "modern-async";
 import { USER_ROLE } from "./UsersController.js";
 import { BUILDER_FLOOR_ADMIN, CHANNEL_PARTNER } from "../const.js";
@@ -101,6 +101,24 @@ const approveProperty = async (req, res) => {
     const { _id, needApprovalBy } = req.body;
     console.log({ _id, needApprovalBy });
     const data = await properties.findByIdAndUpdate({ _id }, { needApprovalBy });
+    // if data.needApprovalBy === "Approved" send email to cp or data.parentId
+    if (data.needApprovalBy === "Approved") {
+      await transporter.sendMail({
+        from: "propertyp247@gmail.com",
+        to: [data.email, "tanish@techhelps.co.in"],
+        subject: "BuilderFloor Property Approved",
+        html: `
+              <div
+                style="max-width: 90%; margin: auto; padding-top: 20px;"
+              >
+                <br/>
+                <span style="font-weight:800; display:block;">The following porperty has been approved on builderfloor.com.</span>
+                <br />
+                <a href="${generatePropertyUrl(data)}">${generatePropertyUrl(data)}</a>
+              </div>
+            `,
+      });
+    }
     return res.status(200).json({ data, message: "Property approved successfully" })
   } catch (error) {
     return res.status(500).json({ error: error.message })
@@ -1240,28 +1258,28 @@ const createUserHistory = async (req, res) => {
       if (state === 'contacted') {
         await transporter.sendMail({
           from: "propertyp247@gmail.com",
-          to: [customerData?.email || "", "dpundir72@gmail.com", "tanish@techhelps.co.in"],
+          to: [customerData?.email || "", "tanish@techhelps.co.in"],
           subject: "BuilderFloor Property Contact",
           html: `
                 <div
                   style="max-width: 90%; margin: auto; padding-top: 20px;"
                 >
                   <br/>
-                  <span style="font-weight:800; display:block;">${customerData?.fullName}(${customerData?.phoneNumber}) has tried to contact you for property ${generatePropertyUrl(property)}</span>
+                  <span style="font-weight:800; display:block;">${customerData?.fullName}(${customerData?.phoneNumber}) has tried to contact you for property <a href="${generatePropertyUrl(property)}">${generatePropertyUrl(property)}</a></span>
                 </div>
               `,
         });
       } else if (state === 'recommendation') {
         await transporter.sendMail({
           from: "propertyp247@gmail.com",
-          to: [customerData?.email || "", "dpundir72@gmail.com", "tanish@techhelps.co.in"],
+          to: [customerData?.email || "", "tanish@techhelps.co.in"],
           subject: "BuilderFloor Property Recommendation",
           html: `
                 <div style="max-width: 90%; margin: auto; padding-top: 20px;">
                   <br/>
                   <span style="font-weight:800; display:block;">You have some new recommendations on <a>https://builderfloor.com/account/tabs?tab=recommendations</a></span>
                   <br/>
-                  <span style="font-weight:800; display:block;">Check out the recommended property ${generatePropertyUrl(property)}</span>
+                  <span style="font-weight:800; display:block;">Check out the recommended property <a href="${generatePropertyUrl(property)}">${generatePropertyUrl(property)}</a></span>
                 </div>
               `,
         });
