@@ -5,6 +5,7 @@ const CustomerSchema = new Schema(
     {
         fullName: { type: String, require: [true, "name is required "] },
         phoneNumber: { type: String, unique: true, require: [true, "phone number is required "] },
+        email: { type: String },
         role: { type: String, default: "customer" },
         status: { type: String, default: "active" },
         filters: { type: Schema.Types.Mixed },

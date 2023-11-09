@@ -27,7 +27,7 @@ const signinCustomer = async (req, res) => {
 
 const addCustomer = async (req, res) => {
     try {
-        const { fullName, phoneNumber, role = "customer" } = req.body;
+        const { fullName, phoneNumber, email, role = "customer" } = req.body;
         if (!phoneNumber) {
             return res.status(400).json({ message: 'Phone number required.' });
         }
@@ -44,7 +44,8 @@ const addCustomer = async (req, res) => {
             const customerToSave = {
                 fullName,
                 phoneNumber,
-                role
+                role,
+                email
             };
             const newCustomer = new customers(customerToSave);
             await newCustomer.save();
