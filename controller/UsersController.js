@@ -184,7 +184,7 @@ const updateEditUsers = async (req, res, next) => {
       });
       await transporter.sendMail({
         from: "propertyp247@gmail.com",
-        to: [updatedData.email, "dpundir72@gmail.com"],
+        to: [updatedData.email, "tanish@techhelps.co.in"],
         subject: "BuilderFloor account updated",
         html: `
               <div
