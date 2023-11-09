@@ -214,7 +214,7 @@ const updateEditUsers = async (req, res, next) => {
       const adminEmail = 'admin@builderfloor.com';
       await transporter.sendMail({
         from: "propertyp247@gmail.com",
-        to: [adminEmail, "dpundir72@gmail.com", "tanish@techhelps.co.in"],
+        to: [adminEmail, "tanish@techhelps.co.in"],
         subject: "BuilderFloor Broker Registration",
         html: `
               <div
@@ -574,7 +574,7 @@ const approveCp = async (req, res) => {
     const result = await users.findByIdAndUpdate({ _id: req.body.id }, { cpRequest: "approved", status: "active" });
     await transporter.sendMail({
       from: "propertyp247@gmail.com",
-      to: [result?.email, "dpundir72@gmail.com", "tanish@techhelps.co.in"],
+      to: [result?.email || "", "tanish@techhelps.co.in"],
       subject: "BuilderFloor Broker Registration",
       html: `
             <div
