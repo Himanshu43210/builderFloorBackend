@@ -4,6 +4,7 @@ import bcrypt from "bcryptjs";
 import otpModel from "../models/otpModel.js";
 import otpGenerator from "otp-generator";
 import transporter from "../utils/mail-transporter.js";
+import userHistory from "../models/userHistoryModel.js";
 
 import { BUILDER_FLOOR_ADMIN, CHANNEL_PARTNER, SALES_USER } from "../const.js";
 import crypto from "crypto";
@@ -620,6 +621,18 @@ const approveCp = async (req, res) => {
   }
 }
 
+const getUnapprovedBrokerCounts = async (req, res) => {
+  try {
+    const totalDocuments = await users.countDocuments({ cpRequest: "requested" });
+    const data = [
+      { label: "Unapproved Brokers", value: totalDocuments },
+    ];
+    return res.status(200).json({ response: data });
+  } catch (error) {
+    return res.status(500).json({ message: error.message })
+  }
+}
+
 export default {
   getusersList,
   getAdminUsersList,
@@ -640,5 +653,6 @@ export default {
   addUserFilters,
   verifyEmailOtp,
   getCpApporovalUsersList,
-  approveCp
+  approveCp,
+  getUnapprovedBrokerCounts
 };
