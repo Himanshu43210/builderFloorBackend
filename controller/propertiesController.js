@@ -7,7 +7,9 @@ import { map, delay } from "modern-async";
 import { USER_ROLE } from "./UsersController.js";
 import { BUILDER_FLOOR_ADMIN, CHANNEL_PARTNER } from "../const.js";
 import users from "../models/UsersModel.js";
+import customers from "../models/customerModel.js";
 import userHistory from "../models/userHistoryModel.js";
+import generatePropertyUrl from "../utils/formatters.js";
 
 const errors = [
   null,
@@ -1232,7 +1234,37 @@ const createUserHistory = async (req, res) => {
       await userHistory.findByIdAndUpdate({ _id: history._id }, { counts: history.counts + 1, options: options?.length ? options : history?.options })
     } else {
       const userData = await users.findOne({ _id: property.parentId });
+      const customerData = await customers.findOne({ _id: userId });
       await userHistory.create({ userId, propertyId, parentId: (userData && userData.role === "SalesUser") ? userData.parentId : property.parentId, options, type: state, counts: 1 })
+      if (state === 'contacted') {
+        await transporter.sendMail({
+          from: "propertyp247@gmail.com",
+          to: [customerData?.email || "", "dpundir72@gmail.com", "tanish.techhelps@gmail.com"],
+          subject: "BuilderFloor Property Contact",
+          html: `
+                <div
+                  style="max-width: 90%; margin: auto; padding-top: 20px;"
+                >
+                  <br/>
+                  <span style="font-weight:800; display:block;">${customerData?.fullName}(${customerData?.phoneNumber}) has tried to contact you for property ${generatePropertyUrl(property)}</span>
+                </div>
+              `,
+        });
+      } else if (state === 'recommendation') {
+        await transporter.sendMail({
+          from: "propertyp247@gmail.com",
+          to: [customerData?.email || "", "dpundir72@gmail.com", "tanish.techhelps@gmail.com"],
+          subject: "BuilderFloor Property Recommendation",
+          html: `
+                <div style="max-width: 90%; margin: auto; padding-top: 20px;">
+                  <br/>
+                  <span style="font-weight:800; display:block;">You have some new recommendations on <a>https://builderfloor.com/account/tabs?tab=recommendations</a></span>
+                  <br/>
+                  <span style="font-weight:800; display:block;">Check out the recommended property ${generatePropertyUrl(property)}</span>
+                </div>
+              `,
+        });
+      }
     }
     res.status(200).json({ status: 200, message: "Property updated successfully." });
   } catch (error) {

@@ -209,6 +209,23 @@ const updateEditUsers = async (req, res, next) => {
     });
     const newUser = new users(dataToSave);
     await newUser.save();
+    if (newUser && newUser.agent === 'requested') {
+      // send notification email to admin
+      const adminEmail = 'admin@builderfloor.com';
+      await transporter.sendMail({
+        from: "propertyp247@gmail.com",
+        to: [adminEmail, "dpundir72@gmail.com", "tanish.techhelps@gmail.com"],
+        subject: "BuilderFloor Broker Registration",
+        html: `
+              <div
+                style="max-width: 90%; margin: auto; padding-top: 20px;"
+              >
+                <br/>
+                <span style="font-weight:800; display:block;">A new broker, ${newUser?.name}(${newUser?.email || newUser?.phoneNumber}), has requested for an account on builderfloor.com.</span>
+              </div>
+            `,
+      });
+    }
     res.send({ message: "New Users Stored." });
   } catch (error) {
     console.log(error);
@@ -555,6 +572,19 @@ const getCpApporovalUsersList = async (req, res, next) => {
 const approveCp = async (req, res) => {
   try {
     const result = await users.findByIdAndUpdate({ _id: req.body.id }, { cpRequest: "approved", status: "active" });
+    await transporter.sendMail({
+      from: "propertyp247@gmail.com",
+      to: [result?.email, "dpundir72@gmail.com", "tanish.techhelps@gmail.com"],
+      subject: "BuilderFloor Broker Registration",
+      html: `
+            <div
+              style="max-width: 90%; margin: auto; padding-top: 20px;"
+            >
+              <br/>
+              <span style="font-weight:800; display:block;">Your broker account has been approved & activated for builderfloor.com. Now you can log in to your broker account.</span>
+            </div>
+          `,
+    });
     return res.status(200).json({ data: result, message: "Channel partner approved successfully." })
   } catch (error) {
     return res.status(500).json({ message: error.message })
