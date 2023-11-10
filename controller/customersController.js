@@ -1,4 +1,5 @@
 import customers from "../models/customerModel.js";
+import transporter from "../utils/mail-transporter.js";
 
 const signinCustomer = async (req, res) => {
     try {
@@ -61,6 +62,48 @@ const addCustomer = async (req, res) => {
     }
 };
 
+const editCustomer = async (req, res) => {
+    try {
+        const { _id, fullName, phoneNumber, email, status } = req.body;
+        let data = await customers.findOne({ phoneNumber: phoneNumber });
+        if (data) {
+            const dataToSave = {
+                fullName: fullName,
+                phoneNumber: phoneNumber,
+                email: email,
+                status: status
+            };
+            const updatedData = await customers.findByIdAndUpdate(_id, {
+                $set: dataToSave,
+            }, { new: true });
+            await transporter.sendMail({
+                from: "propertyp247@gmail.com",
+                to: [updatedData.email || "", "dpundir72@gmail.com"],
+                subject: "BuilderFloor account updated",
+                html: `
+                      <div
+                        style="max-width: 90%; margin: auto; padding-top: 20px;"
+                      >
+                        <br/>
+                        <span style="font-weight:800; display:block;">Your customer account has been updated on <a href="https://builderfloor.com">builderfloor.com</a>.</span>
+                        <br />
+                        <span style="font-weight:800; display:block;">Use below credentials to sign in.</span>
+                        <br />
+                        <span style="font-weight:800; display:block;">Email Id: ${updatedData.email}</span>
+                        <br />
+                        <span style="font-weight:800; display:block;">Password: ${updatedData.password}</span>
+                      </div>
+                    `,
+            });
+            return res.status(200).json({ messgae: "customer updated" });
+        } else {
+            res.status(400).json({ messgae: "No such customer exists", error });
+        }
+    } catch (error) {
+        res.status(400).json({ messgae: "An error Occoured", error });
+    }
+};
+
 const updateAddCustomer = async (req, res) => {
     try {
         const { fullName, phoneNumber, role = "customer" } = req.body;
@@ -103,14 +146,14 @@ const updateAddCustomer = async (req, res) => {
 const searchCustomerData = async (search) => {
     const regex = new RegExp(search, 'i');
     const fieldsToSearch = [
-      'fullName',
-      'email',
-      'phoneNumber',
-      'role',
-      'status',
+        'fullName',
+        'email',
+        'phoneNumber',
+        'role',
+        'status',
     ];
     return fieldsToSearch.map((field) => ({ [field]: regex }));
-  }
+}
 
 const getCustomersList = async (req, res) => {
     try {
@@ -161,4 +204,5 @@ export default {
     signinCustomer,
     getCustomersList,
     deleteCustomer,
+    editCustomer,
 };
