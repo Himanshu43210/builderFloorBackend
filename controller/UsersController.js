@@ -182,7 +182,7 @@ const updateEditUsers = async (req, res, next) => {
     if (data) {
       const updatedData = await users.findByIdAndUpdate(id, {
         $set: dataToSave,
-      });
+      }, { new: true });
       await transporter.sendMail({
         from: "propertyp247@gmail.com",
         to: [updatedData.email, "dpundir72@gmail.com"],

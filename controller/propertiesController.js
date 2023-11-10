@@ -1253,12 +1253,17 @@ const createUserHistory = async (req, res) => {
       await userHistory.findByIdAndUpdate({ _id: history._id }, { counts: history.counts + 1, options: options?.length ? options : history?.options })
     } else {
       const userData = await users.findOne({ _id: property.parentId });
+      let cpData;
+      if (userData.role === "SalesUser") {
+        cpData = await users.findOne({ _id: userData.parentId });
+      }
+      const emailToSendNotification = userData.role === "SalesUser" ? cpData?.email : userData.email;
       const customerData = await customers.findOne({ _id: userId });
       await userHistory.create({ userId, propertyId, parentId: (userData && userData.role === "SalesUser") ? userData.parentId : property.parentId, options, type: state, counts: 1 })
       if (state === 'contacted') {
         await transporter.sendMail({
           from: "propertyp247@gmail.com",
-          to: [customerData?.email || "", "tanish@techhelps.co.in"],
+          to: [emailToSendNotification || "", "tanish@techhelps.co.in"],
           subject: "BuilderFloor Property Contact",
           html: `
                 <div

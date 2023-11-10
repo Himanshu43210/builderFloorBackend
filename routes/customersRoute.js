@@ -5,6 +5,8 @@ const router = express.Router();
 
 router
     .post("/signIn", customersController.signinCustomer)
-    .post("/addCustomer", customersController.addCustomer);
+    .post("/addCustomer", customersController.addCustomer)
+    .get("/customersList", customersController.getCustomersList)
+    .delete("/deleteCustomer", customersController.deleteCustomer);
 
 export default router;
