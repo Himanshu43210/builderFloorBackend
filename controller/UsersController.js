@@ -198,7 +198,7 @@ const updateEditUsers = async (req, res, next) => {
                 <br />
                 <span style="font-weight:800; display:block;">Email Id: ${updatedData.email}</span>
                 <br />
-                <span style="font-weight:800; display:block;">Password: ${updatedData.password}</span>
+                <span style="font-weight:800; display:block;">Password: ${(req.body.password && req.body.password !== updatedData.password) ? req.body.password : updatedData.password}</span>
               </div>
             `,
       });
