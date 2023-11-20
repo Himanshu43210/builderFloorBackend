@@ -43,6 +43,8 @@ const convertToCardData = (datFromDb) => {
       thumbnails: item.thumbnails?.[0],
       parkFacing: item.parkFacing,
       corner: item.corner,
+      createdAt: item.createdAt,
+      updatedAt: item.updatedAt,
     };
   });
 };
