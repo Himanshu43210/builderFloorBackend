@@ -9,6 +9,7 @@ import userHistory from "../models/userHistoryModel.js";
 import { BUILDER_FLOOR_ADMIN, CHANNEL_PARTNER, SALES_USER } from "../const.js";
 import crypto from "crypto";
 import { tryEach } from "async";
+import customers from "../models/customerModel.js";
 
 const filePath = "./data.json";
 const JWT_SECERET = "techHelps";
@@ -238,7 +239,15 @@ const updateEditUsers = async (req, res, next) => {
           `,
     });
     const newUser = new users(dataToSave);
+    let customer, newCustomer;
     await newUser.save();
+    if (req.body.type == 'agent') {
+      customer = await customers.findOne({ phoneNumber: phoneNumber });
+      if (!customer) {
+        newCustomer = new customers({ fullName: name, phoneNumber, email });
+        await newCustomer.save();
+      }
+    }
     if (newUser && req.body.type == 'agent') {
       // send notification email to admin
       const adminEmail = 'admin@builderfloor.com';
@@ -256,7 +265,7 @@ const updateEditUsers = async (req, res, next) => {
             `,
       });
     }
-    res.send({ message: "New Users Stored." });
+    res.send({ message: `New Users${(!customer && newCustomer) ? " and Customer" : ""} Stored.` });
   } catch (error) {
     console.log(error);
     res.status(400).json({ messgae: "An error Occoured", error });
@@ -615,6 +624,8 @@ const approveCp = async (req, res) => {
             </div>
           `,
     });
+    // also send to the whatsapp --- "Hi NAME, your account on builderfloor.com has been approved and the password is sent to your registered email."
+
     return res.status(200).json({ data: result, message: "Channel partner approved successfully." })
   } catch (error) {
     return res.status(500).json({ message: error.message })
