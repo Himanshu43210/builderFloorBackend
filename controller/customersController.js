@@ -16,7 +16,8 @@ const signinCustomer = async (req, res) => {
             return res.json({
                 success: true,
                 message: "Sign in successful.",
-                user: { ...data, agent },
+                user: data,
+                agent
             });
         } else {
             return res.status(400).json({
