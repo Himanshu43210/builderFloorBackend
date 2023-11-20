@@ -25,7 +25,7 @@ const errors = [
   "UNKNOWN",
 ];
 const selectedFields =
-  "_id title location accommodation floor size price rating facing possession parkFacing corner thumbnails sectorNumber plotNumber";
+  "_id title location accommodation floor size price rating facing possession parkFacing corner thumbnails sectorNumber plotNumber createdAt updatedAt";
 
 const convertToCardData = (datFromDb) => {
   return datFromDb?.map((item) => {
@@ -41,27 +41,6 @@ const convertToCardData = (datFromDb) => {
       facing: item.facing,
       possession: item.possession,
       thumbnails: item.thumbnails?.[0],
-      parkFacing: item.parkFacing,
-      corner: item.corner,
-      createdAt: item.createdAt,
-      updatedAt: item.updatedAt,
-    };
-  });
-};
-
-const convertToSearchCardData = (datFromDb) => {
-  return datFromDb?.map((item) => {
-    return {
-      _id: item._id,
-      title: item.title,
-      sectorNumber: item.sectorNumber,
-      accommodation: item.accommodation,
-      floor: item.floor,
-      size: item.size,
-      price: item.price,
-      facing: item.facing,
-      possession: item.possession,
-      thumbnails: item.thumbnails,
       parkFacing: item.parkFacing,
       corner: item.corner,
       createdAt: item.createdAt,
@@ -236,7 +215,7 @@ const searchPropertiesData = async (req, res) => {
     const totalItems = await properties.countDocuments(query);
     const totalPages = Math.ceil(totalItems / limit);
     res.status(200).json({
-      data: convertToSearchCardData(data),
+      data,
       nbHits: data.length,
       pageNumber: page,
       totalPages,
