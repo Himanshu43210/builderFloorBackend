@@ -1,4 +1,5 @@
 import customers from "../models/customerModel.js";
+import userHistory from "../models/userHistoryModel.js";
 import transporter from "../utils/mail-transporter.js";
 
 const signinCustomer = async (req, res) => {
@@ -192,7 +193,8 @@ const deleteCustomer = async (req, res) => {
             res.status(404).json({ message: "Customer not found" });
             return;
         }
-        res.status(200).json({ message: "Customer deleted", deletedCustomer });
+        const deletedHistory = await userHistory.deleteMany({ userId: id });
+        res.status(200).json({ message: "Customer deleted", deletedCustomer, deletedHistory });
     } catch (error) {
         res.status(400).json({ messgae: "An error Occoured", error });
     }

@@ -485,7 +485,8 @@ const deletepropertiesById = async (req, res, next) => {
   try {
     let id = req.query.id;
     const updatedData = await properties.findByIdAndRemove(id);
-    res.status(200).json({ messgae: "properties deleted" });
+    const deletedHistory = await userHistory.deleteMany({ propertyId: id });
+    res.status(200).json({ messgae: "properties deleted", deletedHistory });
   } catch (err) {
     res.status(400).json({ messgae: err.message });
   }
