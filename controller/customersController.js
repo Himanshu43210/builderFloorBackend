@@ -220,6 +220,11 @@ const reachOut = async (req, res) => {
         if (!phoneNumber) {
             return res.status(400).json({ message: 'Phone number required.' });
         }
+        const newUser = new reachOutUser({
+            phoneNumber: phoneNumber,
+            contacted: false
+        });
+        await newUser.save();
         const adminEmail = 'admin@builderfloor.com';
         await transporter.sendMail({
             from: "propertyp247@gmail.com",
@@ -230,11 +235,15 @@ const reachOut = async (req, res) => {
                     style="max-width: 90%; margin: auto; padding-top: 20px;"
                   >
                     <br/>
-                    <span style="font-weight:800; display:block;">Someone with contact number ${phoneNumber} has requested to reach out on <a href="https://builderfloor.com">builderfloor.com</a>.</span>
+                    <span style="font-weight:800; display:block;">Someone with contact number ${newUser?.phoneNumber || phoneNumber} has requested to reach out on <a href="https://builderfloor.com">builderfloor.com</a>.</span>
                   </div>
                 `,
         });
-        return res.status(200).json({ messgae: "data to reach out to has been saved" });
+        return res.status(200).json({
+            success: true,
+            data: newUser,
+            messgae: "data to reach out to has been saved"
+        });
     } catch (error) {
         res.status(400).json({ messgae: "An error Occoured", error });
     }
