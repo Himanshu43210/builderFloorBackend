@@ -1,5 +1,6 @@
 import users from "../models/UsersModel.js";
 import customers from "../models/customerModel.js";
+import reachOutUser from "../models/reachoutModel.js";
 import userHistory from "../models/userHistoryModel.js";
 import transporter from "../utils/mail-transporter.js";
 
@@ -160,6 +161,15 @@ const searchCustomerData = async (search) => {
     return fieldsToSearch.map((field) => ({ [field]: regex }));
 }
 
+const searchReachOutUserData = async (search) => {
+    const regex = new RegExp(search, 'i');
+    const fieldsToSearch = [
+        'phoneNumber',
+        'contacted',
+    ];
+    return fieldsToSearch.map((field) => ({ [field]: regex }));
+}
+
 const getCustomersList = async (req, res) => {
     try {
         const id = req.query.id || "";
@@ -230,6 +240,63 @@ const reachOut = async (req, res) => {
     }
 };
 
+const getReachOutList = async (req, res) => {
+    try {
+        let page = Number(req.query.page) || 0;
+        const limit = Number(req.query.limit) < 10 ? 10 : Number(req.query.limit);
+
+        let skip = (page) * limit;
+
+        const query = {};
+        if (req.query.search) {
+            query["$or"] = await searchReachOutUserData(req.query.search)
+        }
+        const data = await reachOutUser.find(query).sort({ updatedAt: -1 }).skip(skip).limit(limit);
+
+        const totalDocuments = await reachOutUser.countDocuments(query);
+        const totalPages = Math.ceil(totalDocuments / limit);
+
+        res.status(200).json({
+            data: data,
+            nbHits: data.length,
+            pageNumber: page,
+            totalPages: totalPages,
+            totalItems: totalDocuments,
+        });
+    } catch (error) {
+        res.status(400).json({ messgae: "An error Occoured", error });
+    }
+};
+
+const editReachOutUserStatus = async (req, res) => {
+    try {
+        const { contacted, phoneNumber } = req.body;
+        if (!phoneNumber) {
+            res.status(400).json({
+                success: false,
+                message: "Phone number required"
+            });
+        }
+        const user = await reachOutUser.findOne({ phoneNumber: phoneNumber });
+        if (!user) {
+            res.status(400).json({
+                success: false,
+                message: "Phone number does not exist"
+            });
+        }
+        const updatedUser = await reachOutUser.findByIdAndUpdate(user._id, {
+            $set: { contacted },
+        }, { new: true });
+        return res.status(200).json({
+            success: true,
+            data: updatedUser,
+            messgae: "Status updated"
+        });
+    } catch (error) {
+        res.status(400).json({ messgae: "An error Occoured", error });
+    }
+};
+
 export default {
     updateAddCustomer,
     addCustomer,
@@ -238,4 +305,6 @@ export default {
     deleteCustomer,
     editCustomer,
     reachOut,
+    getReachOutList,
+    editReachOutUserStatus
 };
