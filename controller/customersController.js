@@ -168,13 +168,7 @@ const searchReachOutUserData = async (search) => {
         'phoneNumber',
         'contacted',
     ];
-    return fieldsToSearch.map((field) => {
-        if (field === 'contacted') {
-            return { [field]: search.toLowerCase() === "yes" ? true : false }
-        } else {
-            return ({ [field]: regex });
-        }
-    });
+    return fieldsToSearch.map((field) => ({ [field]: regex }));
 }
 
 const getCustomersList = async (req, res) => {
@@ -243,7 +237,7 @@ const reachOut = async (req, res) => {
         }
         const newUser = new reachOutUser({
             phoneNumber: phoneNumber,
-            contacted: false
+            contacted: "No"
         });
         await newUser.save();
         const adminEmail = 'admin@builderfloor.com';
