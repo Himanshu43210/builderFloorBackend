@@ -1,3 +1,4 @@
+import { toLower } from "lodash";
 import users from "../models/UsersModel.js";
 import customers from "../models/customerModel.js";
 import reachOutUser from "../models/reachoutModel.js";
@@ -167,7 +168,13 @@ const searchReachOutUserData = async (search) => {
         'phoneNumber',
         'contacted',
     ];
-    return fieldsToSearch.map((field) => ({ [field]: regex }));
+    return fieldsToSearch.map((field) => {
+        if (field === 'contacted') {
+            return { [field]: search.toLowerCase() === "yes" ? true : false }
+        } else {
+            return ({ [field]: regex });
+        }
+    });
 }
 
 const getCustomersList = async (req, res) => {
@@ -324,7 +331,7 @@ const getNotContactedUserCounts = async (req, res) => {
     try {
         const totalDocuments = await reachOutUser.countDocuments({ contacted: false });
         const data = [
-          { label: "Customers to Reach Out", value: totalDocuments },
+            { label: "Customers to Reach Out", value: totalDocuments },
         ];
         return res.status(200).json({ response: data });
     } catch (error) {
