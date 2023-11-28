@@ -309,7 +309,7 @@ const editReachOutUserStatus = async (req, res) => {
             });
         }
         const updatedUser = await reachOutUser.findByIdAndUpdate(user._id, {
-            $set: { contacted: contacted === "Yes" },
+            $set: { contacted: contacted },
         }, { new: true });
         return res.status(200).json({
             success: true,
