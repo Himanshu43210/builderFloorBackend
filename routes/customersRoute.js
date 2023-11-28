@@ -8,6 +8,7 @@ router
     .post("/addCustomer", customersController.addCustomer)
     .post("/editCustomer", customersController.editCustomer)
     .get("/customersList", customersController.getCustomersList)
-    .delete("/deleteCustomer", customersController.deleteCustomer);
+    .delete("/deleteCustomer", customersController.deleteCustomer)
+    .post("/reachOut", customersController.reachOut);
 
 export default router;

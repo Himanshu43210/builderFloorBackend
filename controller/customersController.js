@@ -204,6 +204,32 @@ const deleteCustomer = async (req, res) => {
     }
 };
 
+const reachOut = async (req, res) => {
+    try {
+        const { phoneNumber } = req.body;
+        if (!phoneNumber) {
+            return res.status(400).json({ message: 'Phone number required.' });
+        }
+        const adminEmail = 'admin@builderfloor.com';
+        await transporter.sendMail({
+            from: "propertyp247@gmail.com",
+            to: [adminEmail || "", "tanish@techhelps.co.in"],
+            subject: "Customer Reach Out",
+            html: `
+                  <div
+                    style="max-width: 90%; margin: auto; padding-top: 20px;"
+                  >
+                    <br/>
+                    <span style="font-weight:800; display:block;">Someone with contact number ${phoneNumber} has requested to reach out on <a href="https://builderfloor.com">builderfloor.com</a>.</span>
+                  </div>
+                `,
+        });
+        return res.status(200).json({ messgae: "data to reach out to has been saved" });
+    } catch (error) {
+        res.status(400).json({ messgae: "An error Occoured", error });
+    }
+};
+
 export default {
     updateAddCustomer,
     addCustomer,
@@ -211,4 +237,5 @@ export default {
     getCustomersList,
     deleteCustomer,
     editCustomer,
+    reachOut,
 };
