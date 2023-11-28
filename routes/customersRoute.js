@@ -12,6 +12,7 @@ router
     .post("/reachOut", customersController.reachOut)
     .get("/getReachOutUsers", customersController.getReachOutList)
     .post("/editReachOutUserStatus", customersController.editReachOutUserStatus)
-    .delete("/deleteReachOutUser", customersController.deleteReachOutUser);
+    .delete("/deleteReachOutUser", customersController.deleteReachOutUser)
+    .get("/getNotContactedUserCounts", customersController.getNotContactedUserCounts);
 
 export default router;

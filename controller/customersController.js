@@ -320,6 +320,18 @@ const editReachOutUserStatus = async (req, res) => {
     }
 };
 
+const getNotContactedUserCounts = async (req, res) => {
+    try {
+        const totalDocuments = await reachOutUser.countDocuments({ contacted: false });
+        const data = [
+          { label: "Customers to Reach Out", value: totalDocuments },
+        ];
+        return res.status(200).json({ response: data });
+    } catch (error) {
+        res.status(400).json({ messgae: "An error Occoured", error });
+    }
+};
+
 export default {
     updateAddCustomer,
     addCustomer,
@@ -330,5 +342,6 @@ export default {
     reachOut,
     getReachOutList,
     editReachOutUserStatus,
-    deleteReachOutUser
+    deleteReachOutUser,
+    getNotContactedUserCounts
 };
