@@ -214,6 +214,20 @@ const deleteCustomer = async (req, res) => {
     }
 };
 
+const deleteReachOutUser = async (req, res) => {
+    try {
+        const id = req.query.id;
+        const deletedUser = await reachOutUser.findByIdAndRemove(id);
+        if (!deletedUser) {
+            res.status(404).json({ message: "Customer not found" });
+            return;
+        }
+        res.status(200).json({ success: true, message: "User deleted", data: deletedUser });
+    } catch (error) {
+        res.status(400).json({ messgae: "An error Occoured", error });
+    }
+};
+
 const reachOut = async (req, res) => {
     try {
         const { phoneNumber } = req.body;
@@ -315,5 +329,6 @@ export default {
     editCustomer,
     reachOut,
     getReachOutList,
-    editReachOutUserStatus
+    editReachOutUserStatus,
+    deleteReachOutUser
 };
