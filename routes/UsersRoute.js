@@ -24,6 +24,8 @@ router
   .post("/verifyEmailOtp", usersController.verifyEmailOtp)
   .get("/getCpApporovalUsersList", usersController.getCpApporovalUsersList)
   .put("/approveCp", usersController.approveCp)
-  .get("/upapprovedBrokerCounts", usersController.getUnapprovedBrokerCounts);
+  .get("/upapprovedBrokerCounts", usersController.getUnapprovedBrokerCounts)
+  .get("/getNotificationsList", usersController.getNotificationsList)
+  .delete("/deleteNotification", usersController.deleteNotification);
 
 export default router;
