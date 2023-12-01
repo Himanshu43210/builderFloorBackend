@@ -1,4 +1,5 @@
 import users from "../models/UsersModel.js";
+import properties from "../models/propertiesModel.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import otpModel from "../models/otpModel.js";
@@ -338,7 +339,8 @@ const deleteusersById = async (req, res, next) => {
       res.status(404).json({ message: "User not found" });
       return;
     }
-    res.status(200).json({ message: "User deleted", deletedUser });
+    const deletedProperties = await properties.deleteMany({ parentId: id });
+    res.status(200).json({ message: "User deleted", deletedUser, deletedProperties });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Server error" });
@@ -644,6 +646,24 @@ const getUnapprovedBrokerCounts = async (req, res) => {
   }
 }
 
+const getNotificationsList = async (req, res) => {
+  try {
+    const { uid } = req.query;
+    return res.json({ success: true, message: "", data: [] });
+  } catch (error) {
+    return res.status(500).json({ message: error.message })
+  }
+}
+
+const deleteNotification = async (req, res) => {
+  try {
+    const { uid, nid } = req.query;
+    return res.json({ success: true, message: "notification deleted" });
+  } catch (error) {
+    return res.status(500).json({ message: error.message })
+  }
+}
+
 export default {
   getusersList,
   getAdminUsersList,
@@ -665,5 +685,7 @@ export default {
   verifyEmailOtp,
   getCpApporovalUsersList,
   approveCp,
-  getUnapprovedBrokerCounts
+  getUnapprovedBrokerCounts,
+  getNotificationsList,
+  deleteNotification
 };
