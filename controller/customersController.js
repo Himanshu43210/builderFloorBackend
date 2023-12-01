@@ -1,4 +1,3 @@
-import { toLower } from "lodash";
 import users from "../models/UsersModel.js";
 import customers from "../models/customerModel.js";
 import reachOutUser from "../models/reachoutModel.js";
