@@ -322,7 +322,7 @@ const editReachOutUserStatus = async (req, res) => {
 
 const getNotContactedUserCounts = async (req, res) => {
     try {
-        const totalDocuments = await reachOutUser.countDocuments({ contacted: false });
+        const totalDocuments = await reachOutUser.countDocuments({ contacted: "No" });
         const data = [
             { label: "Customers to Reach Out", value: totalDocuments },
         ];
