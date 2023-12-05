@@ -848,14 +848,13 @@ const getPropertiesListingCounts = async (req, res) => {
   try {
     const { userId } = req.query;
     const user = await users.findOne({ _id: userId });
-    // if admin
     let total = 0, approved = 0, pending = 0;
     if (user && user.role === "BuilderFloorAdmin") {
-      total = await users.countDocuments({});
-      approved = await users.countDocuments({
+      total = await properties.countDocuments({});
+      approved = await properties.countDocuments({
         needApprovalBy: "Approved"
       });
-      pending = await users.countDocuments({
+      pending = await properties.countDocuments({
         needApprovalBy: userId
       });
     } else {
