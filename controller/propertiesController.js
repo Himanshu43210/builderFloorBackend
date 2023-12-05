@@ -846,17 +846,33 @@ const getPropertiesByIds = async (req, res) => {
 
 const getPropertiesListingCounts = async (req, res) => {
   try {
-    const total = await properties.countDocuments({
-      parentId: req.query.userId,
-    });
-    const approved = await properties.countDocuments({
-      parentId: req.query.userId,
-      needApprovalBy: "Approved",
-    });
-    const pending = await properties.countDocuments({
-      parentId: req.query.userId,
-      needApprovalBy: { $ne: "Approved" },
-    });
+    const { userId } = req.query;
+    const user = await users.findOne({ _id: userId });
+    // if admin
+    let total = 0, approved = 0, pending = 0;
+    if (user && user.role === "BuilderFloorAdmin") {
+      total = await users.countDocuments({});
+      approved = await users.countDocuments({
+        needApprovalBy: "Approved"
+      });
+      pending = await users.countDocuments({
+        needApprovalBy: userId
+      });
+    } else {
+      // parentId is either userId or the parent of userId
+      total = await properties.countDocuments({
+        parentId: userId,
+      });
+      approved = await properties.countDocuments({
+        parentId: userId,
+        needApprovalBy: "Approved",
+      });
+      pending = await properties.countDocuments({
+        parentId: userId,
+        needApprovalBy: { $ne: "Approved" },
+      });
+    }
+
     const data = [
       { label: "Total Listings", value: total },
       { label: "Approved Listings", value: approved },
