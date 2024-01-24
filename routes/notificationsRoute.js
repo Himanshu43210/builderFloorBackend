@@ -4,7 +4,7 @@ import notificationsController from '../controller/notificationsController';
 const router = express.Router();
 
 router
-    .get('/notifications', notificationsController.getNotifications)
+    .get('/adminNotifications', notificationsController.getAdminNotifications)
     .get('/brokerNotifications', notificationsController.getBrokerNotifications)
     .get('/subUserNotifications', notificationsController.getSubUserNotifications);
 

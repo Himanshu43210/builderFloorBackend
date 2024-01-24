@@ -1,22 +1,13 @@
 import notifications from "../models/notificationsModel";
 
 
-const getNotifications = async (res, res, next) => {
+const getAdminNotifications = async (res, res, next) => {
     try {
-        const { id } = req.query;
-        if (req?.query?.id) {
-            const query = { userId: id };
-            const data = await notifications.find(query);
-            return res.status(200).json({
-                data: data
-            });
-        } else {
-            const query = { admin: true };
-            const data = await notifications.find(query);
-            return res.status(200).json({
-                data: data
-            });
-        }
+        const query = { admin: true };
+        const data = await notifications.find(query);
+        return res.status(200).json({
+            data: data
+        });
     } catch (error) {
         res.status(400).json({ message: error.message });
     }
@@ -49,7 +40,7 @@ const getSubUserNotifications = async (req, res, next) => {
 
 
 export default {
-    getNotifications,
+    getAdminNotifications,
     getBrokerNotifications,
     getSubUserNotifications,
 };
