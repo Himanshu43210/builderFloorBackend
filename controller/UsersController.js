@@ -11,6 +11,7 @@ import { BUILDER_FLOOR_ADMIN, CHANNEL_PARTNER, SALES_USER } from "../const.js";
 import crypto from "crypto";
 import { tryEach } from "async";
 import customers from "../models/customerModel.js";
+import notifications from "../models/notificationsModel.js";
 
 const filePath = "./data.json";
 const JWT_SECERET = "techHelps";
@@ -613,6 +614,17 @@ const getCpApporovalUsersList = async (req, res, next) => {
 const approveCp = async (req, res) => {
   try {
     const result = await users.findByIdAndUpdate({ _id: req.body.id }, { cpRequest: "approved", status: "active" });
+    const notifToSave = {
+      status: 0,
+      type: "Broker",
+      subType: "Approved",
+      title: `Broker approved`,
+      details: `Your broker account has been approved.`,
+      userId: result?._id,
+      admin: false,
+    };
+    const newNotif = new notifications(notifToSave);
+    await newNotif.save();
     await transporter.sendMail({
       from: "propertyp247@gmail.com",
       to: [result?.email || "", "tanish@techhelps.co.in"],

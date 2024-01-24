@@ -3,7 +3,7 @@ const { Schema } = mongoose;
 
 const notificationsSchema = new Schema(
   {
-    status: { type: String },
+    status: { type: Number },
     type: { type: String },
     subType: { type: String },
     title: { type: String },

@@ -11,6 +11,7 @@ import customers from "../models/customerModel.js";
 import userHistory from "../models/userHistoryModel.js";
 import { generatePropertyUrl } from "../utils/formatters.js";
 import transporter from "../utils/mail-transporter.js";
+import notifications from "../models/notificationsModel.js";
 
 const errors = [
   null,
@@ -105,6 +106,17 @@ const approveProperty = async (req, res) => {
     const data = await properties.findByIdAndUpdate({ _id }, { needApprovalBy });
     // if data.needApprovalBy === "Approved" send email to cp or data.parentId
     if (data.needApprovalBy === "Approved") {
+      const notifToSave = {
+        status: 0,
+        type: "Property",
+        subType: "Approved",
+        title: `Property approved`,
+        details: `Property ${data?.title} approved.`,
+        userId: data?.parentId,
+        admin: false,
+      };
+      const newNotif = new notifications(notifToSave);
+      await newNotif.save();
       await transporter.sendMail({
         from: "propertyp247@gmail.com",
         to: [data.email, "tanish@techhelps.co.in"],
@@ -120,6 +132,18 @@ const approveProperty = async (req, res) => {
               </div>
             `,
       });
+    } else {
+      const notifToSave = {
+        status: 0,
+        type: "Property",
+        subType: "Need Approval",
+        title: `Property approval needed`,
+        details: `Property ${data?.title} need approval by admin.`,
+        // userId: data?.parentId,
+        admin: true,
+      };
+      const newNotif = new notifications(notifToSave);
+      await newNotif.save();
     }
     return res.status(200).json({ data, message: "Property approved successfully" })
   } catch (error) {
@@ -914,7 +938,19 @@ const rejectProperty = async (req, res, next) => {
     data.needApprovalBy = "Rejected";
     const user = await users.findById(userId);
     if (user) {
+      const property = await properties.find({ _id: id });
       await properties.findByIdAndUpdate({ _id: id }, data);
+      const notifToSave = {
+        status: 0,
+        type: "Property",
+        subType: "Rejected",
+        title: `Property rejected`,
+        details: `Property ${property?.title} rejected by ${user?.name}`,
+        userId: property?.parentId,
+        admin: false,
+      };
+      const newNotif = new notifications(notifToSave);
+      await newNotif.save();
       return res
         .status(200)
         .json({ message: "Property status updated successfully." });
