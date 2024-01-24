@@ -239,6 +239,17 @@ const reachOut = async (req, res) => {
             contacted: "No"
         });
         await newUser.save();
+        const notifToSave = {
+            status: 0,
+            type: "Contact",
+            subType: "Reach Out",
+            title: `Customer to reach out`,
+            details: `Customer ${phoneNumber} has requested to reach out.`,
+            // userId: property?.parentId,
+            admin: true,
+        };
+        const newNotif = new notifications(notifToSave);
+        await newNotif.save();
         const adminEmail = 'admin@builderfloor.com';
         await transporter.sendMail({
             from: "propertyp247@gmail.com",
