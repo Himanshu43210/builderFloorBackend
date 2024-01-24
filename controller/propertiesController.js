@@ -685,6 +685,20 @@ const uploadProperties = async (req, res, next) => {
       newProperty = await properties.findByIdAndUpdate({ _id }, uploadData);
     } else {
       newProperty = await new properties(uploadData).save();
+      const approver = await users.find({ _id: newProperty.needApprovalBy });
+      // if parentId is admin ---> 
+      // else ---> 
+      const notifToSave = {
+        status: 0,
+        type: "Property",
+        subType: "Need Approval",
+        title: `Property need approval`,
+        details: `Property ${newProperty?.title} need approval.`,
+        userId: newProperty?.needApprovalBy,
+        admin: approver?.role === "Builder Floor Admin",
+      };
+      const newNotif = new notifications(notifToSave);
+      await newNotif.save();
     }
     return res.json({
       message: "Data updated successfully.",
