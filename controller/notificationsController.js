@@ -1,7 +1,7 @@
-import notifications from "../models/notificationsModel";
+import notifications from "../models/notificationsModel.js";
 
 
-const getAdminNotifications = async (res, res, next) => {
+const getAdminNotifications = async (req, res, next) => {
     try {
         const query = { admin: true };
         const data = await notifications.find(query);
@@ -15,6 +15,7 @@ const getAdminNotifications = async (res, res, next) => {
 
 const getBrokerNotifications = async (req, res, next) => {
     try {
+        const { id } = req.query;
         const query = { userId: id };
         const data = await notifications.find(query);
         return res.status(200).json({
