@@ -305,10 +305,10 @@ const getpropertiesList = async (req, res, next) => {
 const getAdminPropertiesList = async (req, res, next) => {
   try {
     let {
-      budget,
+      price,
       accommodation,
-      Corner,
-      Park,
+      corner,
+      parkFacing,
       city,
       facing,
       floor,
@@ -322,16 +322,16 @@ const getAdminPropertiesList = async (req, res, next) => {
     id = req.query.id;
     role = req.query.role;
     const query = { needApprovalBy: { $ne: "Rejected" } };
-    if (budget) {
-      query.price = { $gte: budget[0], $lte: budget[1] };
+    if (price) {
+      query.price = { $gte: price[0], $lte: price[1] };
     }
     if (accommodation) {
       query.accommodation = accommodation;
     }
-    if (Corner) {
+    if (corner) {
       query.corner = true;
     }
-    if (Park) {
+    if (parkFacing) {
       query.parkFacing = true;
     }
     if (city) {
