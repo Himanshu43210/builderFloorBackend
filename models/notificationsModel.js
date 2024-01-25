@@ -9,6 +9,7 @@ const notificationsSchema = new Schema(
     title: { type: String },
     details: { type: String },
     userId: { type: mongoose.Types.ObjectId, ref: 'users' },
+    propertyId: { type: mongoose.Types.ObjectId, ref: 'properties' },
     admin: { type: Boolean, default: false },
   },
   { timestamps: true }

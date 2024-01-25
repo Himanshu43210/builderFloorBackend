@@ -312,7 +312,7 @@ const getAdminPropertiesList = async (req, res, next) => {
       city,
       facing,
       floor,
-      location,
+      sectorNumber,
       possession,
       id,
       role,
@@ -343,8 +343,8 @@ const getAdminPropertiesList = async (req, res, next) => {
     if (floor) {
       query.floor = floor;
     }
-    if (location) {
-      query.sectorNumber = locatsectorNumberion;
+    if (sectorNumber) {
+      query.sectorNumber = sectorNumber;
     }
     if (possession) {
       query.possession = possession;
@@ -678,7 +678,6 @@ const uploadProperties = async (req, res, next) => {
         }
       }
     }
-    console.log(uploadData, "=============exist");
     let newProperty;
     if (_id) {
       // if(filesToBeDeleted && uploadData.filesToBeDeleted.length){
