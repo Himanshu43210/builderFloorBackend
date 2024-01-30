@@ -304,6 +304,11 @@ const getpropertiesList = async (req, res, next) => {
 
 const getAdminPropertiesList = async (req, res, next) => {
   try {
+
+    //   {
+    //     "city": "Gurgaon",
+    //     "state": "Haryana"
+    // }
     let {
       price,
       accommodation,
@@ -318,36 +323,44 @@ const getAdminPropertiesList = async (req, res, next) => {
       role,
       sortType,
       sortColumn,
+      state,
     } = req.body;
     id = req.query.id;
     role = req.query.role;
     const query = { needApprovalBy: { $ne: "Rejected" } };
     if (price) {
-      query.price = { $gte: price[0], $lte: price[1] };
+      if (Array.isArray(price)) {
+        query.price = { $gte: price[0], $lte: price[1] };
+      } else {
+        query.price = { $gte: price }
+      }
     }
     if (accommodation) {
-      query.accommodation = accommodation;
+      query.accommodation = { $regex: accommodation, $options: "i" };
     }
     if (corner) {
-      query.corner = true;
+      query.corner = corner == "Yes" ? true : false;
     }
     if (parkFacing) {
-      query.parkFacing = true;
+      query.parkFacing = parkFacing == "Yes" ? true : false;
     }
     if (city) {
       query.city = { $regex: city, $options: "i" };
     }
+    if (state) {
+      query.state = { $regex: state, $options: "i" };
+    }
     if (facing) {
-      query.facing = facing;
+      query.facing = { $regex: facing, $options: "i" };
     }
     if (floor) {
-      query.floor = floor;
+      query.floor = { $regex: floor, $options: "i" };
     }
     if (sectorNumber) {
-      query.sectorNumber = sectorNumber;
+      query.sectorNumber = { $regex: sectorNumber, $options: "i" };
     }
     if (possession) {
-      query.possession = possession;
+      query.possession = { $regex: possession, $options: "i" };
     }
 
     let page = Number(req.query.page) || 0;
