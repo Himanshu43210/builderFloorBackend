@@ -304,11 +304,6 @@ const getpropertiesList = async (req, res, next) => {
 
 const getAdminPropertiesList = async (req, res, next) => {
   try {
-
-    //   {
-    //     "city": "Gurgaon",
-    //     "state": "Haryana"
-    // }
     let {
       price,
       accommodation,
