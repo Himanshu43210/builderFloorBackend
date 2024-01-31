@@ -334,10 +334,10 @@ const getAdminPropertiesList = async (req, res, next) => {
       query.accommodation = { $regex: accommodation, $options: "i" };
     }
     if (corner) {
-      query.corner = corner == "Yes" ? true : false;
+      query.corner = true;
     }
     if (parkFacing) {
-      query.parkFacing = parkFacing == "Yes" ? true : false;
+      query.parkFacing = true;
     }
     if (city) {
       query.city = { $regex: city, $options: "i" };
