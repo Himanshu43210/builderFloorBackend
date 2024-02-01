@@ -3,6 +3,7 @@ import customers from "../models/customerModel.js";
 import reachOutUser from "../models/reachoutModel.js";
 import userHistory from "../models/userHistoryModel.js";
 import transporter from "../utils/mail-transporter.js";
+import notifications from "../models/notificationsModel.js";
 
 const signinCustomer = async (req, res) => {
     try {
