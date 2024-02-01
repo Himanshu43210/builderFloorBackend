@@ -7,8 +7,10 @@ const getAdminNotifications = async (req, res, next) => {
         const limit = req.query.limit || 20;
         const page = req.query.page || 0;
         const data = await notifications.find(query).populate("userId").sort({ createAt: -1 }).limit(limit).skip(limit * page);
+        const totalCount = await notifications.countDocuments(query);
         return res.status(200).json({
-            data
+            data,
+            totalCount
         });
     } catch (error) {
         res.status(400).json({ message: error.message });
@@ -22,8 +24,10 @@ const getBrokerNotifications = async (req, res, next) => {
         const limit = req.query.limit || 20;
         const page = req.query.page || 0;
         const data = await notifications.find(query).populate("userId").sort({ createAt: -1 }).limit(limit).skip(limit * page);
+        const totalCount = await notifications.countDocuments(query);
         return res.status(200).json({
-            data
+            data,
+            totalCount
         });
     } catch (error) {
         res.status(400).json({ message: error.message });
@@ -37,8 +41,10 @@ const getSubUserNotifications = async (req, res, next) => {
         const limit = req.query.limit || 20;
         const page = req.query.page || 0;
         const data = await notifications.find(query).populate("userId").sort({ createAt: -1 }).limit(limit).skip(limit * page);
+        const totalCount = await notifications.countDocuments(query);
         return res.status(200).json({
-            data
+            data,
+            totalCount
         });
     } catch (error) {
         res.status(400).json({ message: error.message });
