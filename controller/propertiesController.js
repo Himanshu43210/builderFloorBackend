@@ -139,7 +139,7 @@ const approveProperty = async (req, res) => {
         subType: "Need Approval",
         title: `Property approval needed`,
         details: `Property ${data?.title} need approval by admin.`,
-        // userId: data?.parentId,
+        userId: data?.parentId,
         admin: true,
       };
       const newNotif = new notifications(notifToSave);
@@ -692,7 +692,7 @@ const uploadProperties = async (req, res, next) => {
       newProperty = await properties.findByIdAndUpdate({ _id }, uploadData);
     } else {
       newProperty = await new properties(uploadData).save();
-      const approver = await users.find({ _id: newProperty.needApprovalBy });
+      const approver = await users.findOne({ _id: newProperty.needApprovalBy });
       // if parentId is admin ---> 
       // else ---> 
       const notifToSave = {
@@ -702,7 +702,7 @@ const uploadProperties = async (req, res, next) => {
         title: `Property need approval`,
         details: `Property ${newProperty?.title} need approval.`,
         userId: newProperty?.needApprovalBy,
-        admin: approver?.role === "Builder Floor Admin",
+        admin: approver?.role === "BuilderFloorAdmin",
       };
       const newNotif = new notifications(notifToSave);
       await newNotif.save();

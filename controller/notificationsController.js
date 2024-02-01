@@ -4,7 +4,9 @@ import notifications from "../models/notificationsModel.js";
 const getAdminNotifications = async (req, res, next) => {
     try {
         const query = { admin: true };
-        const data = await notifications.find(query).populate("userId");
+        const limit = req.query.limit || 20;
+        const page = req.query.page || 0;
+        const data = await notifications.find(query).populate("userId").sort({ createAt: -1 }).limit(limit).skip(limit * page);
         return res.status(200).json({
             data
         });
@@ -17,7 +19,9 @@ const getBrokerNotifications = async (req, res, next) => {
     try {
         const { id } = req.query;
         const query = { userId: id };
-        const data = await notifications.find(query).populate("userId");
+        const limit = req.query.limit || 20;
+        const page = req.query.page || 0;
+        const data = await notifications.find(query).populate("userId").sort({ createAt: -1 }).limit(limit).skip(limit * page);
         return res.status(200).json({
             data
         });
@@ -30,7 +34,9 @@ const getSubUserNotifications = async (req, res, next) => {
     try {
         const { id } = req.query;
         const query = { userId: id };
-        const data = await notifications.find(query).populate("userId");
+        const limit = req.query.limit || 20;
+        const page = req.query.page || 0;
+        const data = await notifications.find(query).populate("userId").sort({ createAt: -1 }).limit(limit).skip(limit * page);
         return res.status(200).json({
             data
         });
