@@ -1,0 +1,17 @@
+version: "2"
+services:
+  builderfloor:
+    image: builderfloor
+    build: ../../
+    ports:
+      - 7001:7001
+    container_name: builderfloor
+
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+     - PORT=7001
+     - S3_ACCESS_KEY=AKIAVSYBEZQGJVFUUK6A
+     - S3_SECRET_ACCESS_KEY=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
+     - S3_BUCKET_NAME=builderfloors
+     - MAIL_PASS=aynosjdzbauqkmpm
