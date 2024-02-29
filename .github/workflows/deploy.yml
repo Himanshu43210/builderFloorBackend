@@ -1,0 +1,21 @@
+name: builderfloor cicd
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: self-hosted
+    
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set execute permission for deploy.sh
+      run: chmod +x docker/app/deploy.sh
+    - name: Build the Docker image
+      run: |
+        cd docker
+        cd app
+        ./deploy.sh
+    - name: Remove build cache
+      run: docker system prune -a -f
