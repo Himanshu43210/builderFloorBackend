@@ -12,6 +12,7 @@ import crypto from "crypto";
 import { tryEach } from "async";
 import customers from "../models/customerModel.js";
 import notifications from "../models/notificationsModel.js";
+import randomstring from "randomstring";
 
 const filePath = "./data.json";
 const JWT_SECERET = "techHelps";
@@ -676,6 +677,88 @@ const deleteNotification = async (req, res) => {
   }
 }
 
+const forgotPassword = async (req, res) => {
+  try {
+    const email = req.body.email;
+    const userData = await users.findOne({ email: email })
+    if (userData) {
+      const randomString = randomstring.generate();
+      await users.updateOne({ email: email }, { $set: { token: randomString } });
+      sendResetPasswordMail(userData.name, userData.email, randomString)
+      res.status(200).send({
+        success: true,
+        massage: 'Please Check your inbox and reset your password',
+      })
+    }
+    else {
+      res.status(200).send({
+        success: true,
+        massage: "this email does not exist",
+      })
+    }
+  } catch (error) {
+    return res.status(500).json({ message: error.message, status: 500 });
+  }
+}
+
+
+const sendResetPasswordMail = async (name, email, token) => {
+  try {
+    const html = `<p> Hiii ${name} please copy the link <a href="https://abc/reset-password?token=${token}"> reset your password </a>.`;
+    const sent = await sendEmail(email, 'For Reset password', html);
+  } catch (error) {
+    return res.status(500).json({ message: error.message, status: 500 });
+  }
+}
+
+async function sendEmail(to, subject, html) {
+  return new Promise(async (resolve, reject) => {
+    let info = await transporter
+      .sendMail({
+        from: "propertyp247@gmail.com",
+        to: [to || "dpundir72@gmail.com"],
+        subject,
+        text: "Text Here!",
+        html,
+      })
+      .catch((e) => {
+        reject(e);
+      });
+
+    if (info?.messageId) {
+      resolve("email sent");
+    }
+  });
+}
+
+const reset_password = async (req, res) => {
+  try {
+    const token = req.body.token;
+    const tokenData = await users.findOne({ token: token });
+    if (tokenData) {
+      const newPassword = await bcrypt.hash(req.body.newPassword, 8)
+      const UserData = await users.findByIdAndUpdate(
+        { _id: tokenData._id },
+        { $set: { password: newPassword, token: "" } },
+        { new: true }
+      );
+      res.status(200).send({
+        success: true,
+        massage: 'User password has been reset successfully',
+        data: UserData,
+      })
+    }
+    else {
+      res.status(200).send({
+        success: false,
+        massage: "Unauthorized.",
+      })
+    }
+  } catch (error) {
+    return res.status(500).json({ message: error.message, status: 500 });
+  }
+}
+
 export default {
   getusersList,
   getAdminUsersList,
@@ -699,5 +782,7 @@ export default {
   approveCp,
   getUnapprovedBrokerCounts,
   getNotificationsList,
-  deleteNotification
+  deleteNotification,
+  forgotPassword,
+  reset_password
 };
