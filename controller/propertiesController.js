@@ -34,6 +34,7 @@ const convertToCardData = (datFromDb) => {
       _id: item._id,
       title: item.title,
       sectorNumber: item.sectorNumber,
+      plotNumber: item.plotNumber,
       accommodation: item.accommodation,
       floor: item.floor,
       size: item.size,
@@ -257,10 +258,24 @@ const getHomeData = async (req, res) => {
   try {
     let page = Number(req.query.page) || 0;
     const limit = Number(req.query.limit) || 10;
-    const { city } = req.query;
+    const { city, sectorNumber, plotNumber, pid } = req.query;
     const queryObject = { needApprovalBy: "Approved" };
     if (city) {
       queryObject.city = { $regex: city, $options: "i" };
+    }
+    if (req?.params?.status == "floor") {
+      if (!sectorNumber || !plotNumber) {
+        throw new Error("sectorNumber and plotNumber are required")
+      }
+      if (sectorNumber) {
+        queryObject.sectorNumber = sectorNumber;
+      }
+      if (plotNumber) {
+        queryObject.plotNumber = plotNumber;
+      }
+      if (pid) {
+        queryObject._id = { $ne: pid };
+      }
     }
     let skip = page * limit;
     const sortColumn = (req.query?.sortColumn && req.query?.sortColumn !== "") ? req.query?.sortColumn : "updatedAt";
