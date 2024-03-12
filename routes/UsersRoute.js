@@ -26,6 +26,8 @@ router
   .put("/approveCp", usersController.approveCp)
   .get("/upapprovedBrokerCounts", usersController.getUnapprovedBrokerCounts)
   .get("/getNotificationsList", usersController.getNotificationsList)
-  .delete("/deleteNotification", usersController.deleteNotification);
+  .delete("/deleteNotification", usersController.deleteNotification)
+  .post("/forgotPassword", usersController.forgotPassword)
+  .post("/reset_password", usersController.reset_password);
 
 export default router;
