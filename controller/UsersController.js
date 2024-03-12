@@ -40,7 +40,7 @@ const Edit_update = async (req, res) => {
       if (password) {
         // Hash the provided password before saving it to the database
         const hashedPassword = await bcrypt.hash(password, 10);
-        existingUser.password = hashedPassword;
+        existingUser.password = password;
       }
 
       // Update other user data
@@ -51,7 +51,7 @@ const Edit_update = async (req, res) => {
       return res.json(existingUser);
     } else {
       const hashedPassword = await bcrypt.hash(password, 10);
-      const newUser = new users({ ...data, password: hashedPassword });
+      const newUser = new users({ ...data, password: password });
 
       await newUser.save();
 
@@ -386,7 +386,7 @@ const handleSignup = async (req, res) => {
       companyName: req.body.companyName,
       role: req.body.role,
       parentId: req.body.parentId,
-      password: hashedPassword,
+      password: req.body.password,
     });
     await newUser.save();
     // Create a new user in the databas
@@ -739,7 +739,7 @@ const reset_password = async (req, res) => {
       const newPassword = await bcrypt.hash(req.body.newPassword, 8)
       const UserData = await users.findByIdAndUpdate(
         { _id: tokenData._id },
-        { $set: { password: newPassword, token: "" } },
+        { $set: { password: req.body.newPassword, token: "" } },
         { new: true }
       );
       res.status(200).send({
