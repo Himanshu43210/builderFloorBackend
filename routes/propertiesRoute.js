@@ -74,6 +74,7 @@ router
   .post("/changeProperty", upload.single('file'), propertiesController.changeProperty)
   .post("/createUserHistory/:state", propertiesController.createUserHistory)
   .get("/getUserHistory/:state", propertiesController.getUserHistory)
-  .get("/getCpUserHistory/:state", propertiesController.getCpUserHistory);
+  .get("/getCpUserHistory/:state", propertiesController.getCpUserHistory)
+  .get("/getFloorList/:status", propertiesController.getHomeData);
 
 export default router;
