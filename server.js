@@ -10,6 +10,7 @@ import propertiesRoutes from "./routes/propertiesRoute.js";
 import mastersRoutes from "./routes/mastersRoute.js";
 import customersRoute from "./routes/customersRoute.js";
 import notificationsRoute from "./routes/notificationsRoute.js";
+import contentRoute from "./routes/contentRoutes.js";
 
 const app = express();
 dotenv.config();
@@ -55,3 +56,4 @@ app.use("/api/users", UsersRoutes);
 app.use("/api/masters", mastersRoutes);
 app.use("/api/customers", customersRoute);
 app.use("/api/notifications", notificationsRoute);
+app.use("/api/content", contentRoute);
