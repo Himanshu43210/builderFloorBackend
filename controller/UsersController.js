@@ -209,8 +209,8 @@ const updateEditUsers = async (req, res, next) => {
       return res.status(200).json({ messgae: "users updated" });
     }
 
-    const { name, email, phoneNumber, companyName, companyAddress, parentId, state, city } = req.body;
-    if (!name || !email || !phoneNumber || !companyName || !companyAddress || !parentId || !state || !city) {
+    const { name, email, phoneNumber, companyName, companyAddress, parentId, state, city,password } = req.body;
+    if (!name || !email || !phoneNumber || !companyName || !companyAddress || !parentId || !state || !city || !password) {
       return res.status(403).json({
         success: false,
         message: 'All fields are required',
@@ -225,9 +225,9 @@ const updateEditUsers = async (req, res, next) => {
       });
     }
 
-    const bytes = crypto.randomBytes(12 / 2);
-    const pass = bytes.toString('hex');
-    dataToSave.password = pass;
+    // const bytes = crypto.randomBytes(12 / 2);
+    // const pass = bytes.toString('hex');
+    // dataToSave.password = pass;
     await transporter.sendMail({
       from: "propertyp247@gmail.com",
       to: [email, "dpundir72@gmail.com"],
@@ -237,7 +237,7 @@ const updateEditUsers = async (req, res, next) => {
               style="max-width: 90%; margin: auto; padding-top: 20px;"
             >
               <br/>
-              <span style="font-weight:800; display:block;">${pass} is your password for builderfloor.com .</span>
+              <span style="font-weight:800; display:block;">${password} is your password for builderfloor.com .</span>
             </div>
           `,
     });
@@ -704,7 +704,7 @@ const forgotPassword = async (req, res) => {
 
 const sendResetPasswordMail = async (name, email, token) => {
   try {
-    const html = `<p> Hiii ${name} please copy the link <a href="https://abc/reset-password?token=${token}"> reset your password </a>.`;
+    const html = `<p> Hiii ${name} please copy the link <a href="https://builderfloor.com/reset-password?token=${token}"> reset your password </a>.`;
     const sent = await sendEmail(email, 'For Reset password', html);
   } catch (error) {
     return res.status(500).json({ message: error.message, status: 500 });
