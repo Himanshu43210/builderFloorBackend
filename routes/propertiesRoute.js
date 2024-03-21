@@ -1,5 +1,6 @@
 import express from "express";
 import propertiesController from "../controller/propertiesController.js";
+import newPropertiesController from "../controller/newPropertiesController.js";
 import multer from "multer";
 
 const router = express.Router();
@@ -75,6 +76,8 @@ router
   .post("/createUserHistory/:state", propertiesController.createUserHistory)
   .get("/getUserHistory/:state", propertiesController.getUserHistory)
   .get("/getCpUserHistory/:state", propertiesController.getCpUserHistory)
-  .get("/getFloorList/:status", propertiesController.getHomeData);
+  .get("/getFloorList/:status", propertiesController.getHomeData)
 
+  // new routes
+    .post("/v2/createAndUpdateProperty",newPropertiesController.createAndUpdateProperty)
 export default router;
