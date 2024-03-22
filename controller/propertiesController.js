@@ -1287,6 +1287,7 @@ const serchPropertyData = async (search) => {
     "detailTitle",
     "description",
     "needApprovalBy",
+    "sectorNumber",
   ];
   return fieldsToSearch.map((field) => ({ [field]: regex }));
 };
