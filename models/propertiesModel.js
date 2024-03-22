@@ -34,6 +34,7 @@ const propertiesSchema = new Schema(
     rejectedByBFAdminComments: { type: String },
     rejectedByCP: { type: String },
     rejectedByCPComments: { type: String },
+    ownerContact: { type: String },
   },
   { timestamps: true }
 );

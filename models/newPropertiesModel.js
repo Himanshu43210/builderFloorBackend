@@ -32,6 +32,7 @@ const newPropertiesSchema = new Schema(
         rejectedByCP: { type: String },
         rejectedByCPComments: { type: String },
         floors: { type: [mongoose.Types.ObjectId], default: [], ref: 'floors' },
+        ownerContact: { type: String },
     },
     { timestamps: true, versionKey: false }
 );
