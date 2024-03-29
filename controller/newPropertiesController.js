@@ -170,7 +170,7 @@ const Edit_Update = async (req, res) => {
             }
             return res.json(existingProperty);
         } else {
-            const newProperty = new properties(newData);
+            const newProperty = new newproperties(newData);
             await newProperty.save();
             return res.json(newProperty);
         }
@@ -604,7 +604,7 @@ const updatepropertiesByID = async (req, res, next) => {
             return res.status(200).json({ messgae: "properties updated" });
         }
 
-        let newModel = new properties(req.body);
+        let newModel = new newproperties(req.body);
         const newData = await newModel.save();
         res.status(200).json({ data });
     } catch (error) {
@@ -636,7 +636,7 @@ const deletepropertiesById = async (req, res, next) => {
 
 const storeproperties = async (req, res, next) => {
     try {
-        let newModel = new properties(req.body);
+        let newModel = new newproperties(req.body);
         const data = await newModel.save();
         res.status(200).json({ data });
     } catch (err) {
@@ -667,7 +667,7 @@ const insertBulkproperties = async (req, res, next) => {
             .fromFile(req.file.path)
             .then(async (data) => {
                 for (var x = 0; x < data.length; x++) {
-                    let newModel = new properties(data[x]);
+                    let newModel = new newproperties(data[x]);
                     await newModel.save();
                 }
             });
@@ -787,7 +787,7 @@ const uploadProperties = async (req, res, next) => {
             // if(filesToBeDeleted && uploadData.filesToBeDeleted.length){
             newProperty = await newproperties.findByIdAndUpdate({ _id }, uploadData);
         } else {
-            newProperty = await new properties(uploadData).save();
+            newProperty = await new newproperties(uploadData).save();
             const approver = await users.findOne({ _id: newProperty.needApprovalBy });
             // if parentId is admin ---> 
             // else ---> 
@@ -816,6 +816,7 @@ const uploadProperties = async (req, res, next) => {
                 }
             }
         }
+        newProperty = await newproperties.findById(newProperty?._id).populate("floors")
         return res.json({
             message: "Data updated successfully.",
             result: newProperty,
@@ -1104,7 +1105,7 @@ const getPropertiesCountsByUserId = async (req, res) => {
             },
             {
                 $lookup: {
-                    from: "properties",
+                    from: "newproperties",
                     localField: "_id",
                     foreignField: "parentId",
                     as: "user_properties",
