@@ -805,8 +805,9 @@ const uploadProperties = async (req, res, next) => {
         }
         console.log(uploadData,'--in');
         for (let i = 1; i < 5; i++) {
-            console.log(uploadData[`floor${i}`],'---loop');
-            if (uploadData[`floor${i}`]["floor"]) {
+            console.log(uploadData[`floor${i}`]?.hasOwnProperty("floor"),'---loop1');
+            if (uploadData[`floor${i}`]?.hasOwnProperty("floor")) {
+                console.log(uploadData[`floor${i}`],'---loop');
                 await floors.updateOne({ propertyId: newProperty._id, floor: uploadData[`floor${i}`]["floor"]?.toUpperCase() },
                     {
                         $set: uploadData[`floor${i}`]
