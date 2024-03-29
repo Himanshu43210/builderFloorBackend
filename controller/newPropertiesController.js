@@ -803,10 +803,9 @@ const uploadProperties = async (req, res, next) => {
             const newNotif = new notifications(notifToSave);
             await newNotif.save();
         }
+        console.log(uploadData,'--in');
         for (let i = 1; i < 5; i++) {
-            console.log("out");
             if (uploadData[`floor${i}`]?.floor) {
-                console.log(uploadData[`floor${i}`],'--in');
                 await floors.updateOne({ propertyId: newProperty._id, floor: uploadData[`floor${i}`]["floor"]?.toUpperCase() },
                     {
                         $set: uploadData[`floor${i}`]
