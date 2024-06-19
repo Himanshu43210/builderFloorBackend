@@ -1144,6 +1144,7 @@ const getPropertiesCountsByUserId = async (req, res) => {
                 $group: {
                     _id: "$_id",
                     name: { $first: "$name" },
+                    companyName: { $first: "$companyName" },
                     city: { $first: "$companyAddress" },
                     phoneNumber: { $first: "$phoneNumber" },
                     total_count: { $sum: { $size: "$user_properties" } },
@@ -1155,6 +1156,7 @@ const getPropertiesCountsByUserId = async (req, res) => {
                 $project: {
                     _id: 1,
                     name: 1,
+                    companyName: 1,
                     total_count: 1,
                     approved_count: 1,
                     pending_count: 1,
