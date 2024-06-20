@@ -1,4 +1,4 @@
-import properties from "../models/propertiesModel.js";
+import properties from "../models/newPropertiesModel.js";
 import AWS from "aws-sdk";
 import XLSX from "xlsx";
 import asyncs from "async";
