@@ -29,7 +29,7 @@ app.use(
 
 // mongoose.connect("mongodb+srv://akhil1659:akhil1659@cluster0.35ongwb.mongodb.net/", { useNewUrlParser: true, useUnifiedTopology: true })
 mongoose.connect(
-  "mongodb://builderFloor:new12Builder@178.16.139.175:27017/builderFloor?authSource=admin",
+  "mongodb://builderFloor:new12Builder@93.127.194.165:27017/builderFloor?authSource=admin",
   { useNewUrlParser: true, useUnifiedTopology: true }
 );
 const db = mongoose.connection;
